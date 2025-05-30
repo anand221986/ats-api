@@ -14,10 +14,12 @@ import { UserService } from './user/user.service';
 import { UserController } from './user/user.controller';
 import { JobsService } from './jobs/jobs.service';
 import { JobsController } from './jobs/jobs.controller';
+import { CandidateService } from './candidate/candidate.service';
+import { CandidateController } from './candidate/candidate.controller';
 @Module({
   imports: [],
-  controllers: [AppController,CommonController,UserController,JobsController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService ],
+  controllers: [AppController,CommonController,UserController,JobsController,CandidateController],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService ],
 })
 //with middle ware 
 //without export class AppModule
