@@ -1,4 +1,5 @@
 import { Module ,NestModule,MiddlewareConsumer} from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonController } from './common/common.controller';
@@ -14,10 +15,14 @@ import { UserService } from './user/user.service';
 import { UserController } from './user/user.controller';
 import { JobsService } from './jobs/jobs.service';
 import { JobsController } from './jobs/jobs.controller';
+import { CandidateService } from './candidate/candidate.service';
+import { CandidateController } from './candidate/candidate.controller';
 @Module({
-  imports: [],
-  controllers: [AppController,CommonController,UserController,JobsController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService ],
+  imports: [ ConfigModule.forRoot({
+      isGlobal: true, // So you can use ConfigService anywhere without importing again
+    }),],
+  controllers: [AppController,CommonController,UserController,JobsController,CandidateController],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService ],
 })
 //with middle ware 
 //without export class AppModule

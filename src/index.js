@@ -1,0 +1,18 @@
+
+async readFile () 
+{
+
+try 
+{
+
+
+}
+
+catch 
+{
+
+
+}
+
+}
+
