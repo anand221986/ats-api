@@ -17,9 +17,8 @@ import {
   UpdateCustomerDto,
   LoginAdminDto,
 } from "./user.dto";
-
-@Controller("user")
 @ApiTags("user")
+@Controller("user")
 export class UserController {
   constructor(
     public service: UserService,

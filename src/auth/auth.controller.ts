@@ -1,4 +1,6 @@
 import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body } from "@nestjs/common";
+import { CognitoService } from './cognito.service';
+import { UserService } from '../user/user.service';
 import { Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
