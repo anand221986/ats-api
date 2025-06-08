@@ -25,6 +25,18 @@ export class UtilService {
       this.CASE_BASE_DIR = "/Applications/XAMPP/xamppfiles/htdocs/test/cases/";
       this.UPLOAD_DIR = "/Applications/XAMPP/xamppfiles/htdocs/test/uploads/";
     } 
+
+    //production configuration file
+  if (this.NODE_ENVIRONMENT == "production") {
+      this.NODE_ENVIRONMENT = "production";
+      this.DB_HOST = "51.20.181.155";
+      this.DB_USER = "postgres";
+      this.DB_PORT = 5432;
+      this.DB_PASSWORD = "india@12345";
+      this.DB_DATABASE = "ats";
+      this.CASE_BASE_DIR = "/Applications/XAMPP/xamppfiles/htdocs/test/cases/";
+      this.UPLOAD_DIR = "/Applications/XAMPP/xamppfiles/htdocs/test/uploads/";
+    }
   }
 
   successResponse = (result: any, message = "") => {
