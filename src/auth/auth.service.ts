@@ -1,18 +1,13 @@
 import {
   Injectable,
   BadRequestException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { UtilService } from 'src/util/util.service';
-import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { ConfigService } from '@nestjs/config';
 
 import {
-  CognitoUser,
   CognitoUserPool,
   CognitoUserAttribute,
 } from 'amazon-cognito-identity-js';
@@ -22,6 +17,8 @@ export class AuthService {
   private readonly userPool: CognitoUserPool;
   private readonly secretKey: string;
   private readonly apiKey: string;
+  private readonly clientId: string;
+  private readonly clientSecret: string;
 
   constructor(
     private readonly config: ConfigService,
@@ -29,18 +26,22 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly utilService: UtilService,
   ) {
-    const userPoolId = this.config.get('COGNITO_USER_POOL_ID')!;
-    const clientId = this.config.get('COGNITO_CLIENT_ID')!;
+    const userPoolId = this.config.get<string>('COGNITO_USER_POOL_ID');
+    this.clientId = this.config.get<string>('COGNITO_CLIENT_ID')!;
+    //this.clientSecret = this.config.get<string>('COGNITO_CLIENT_SECRET')!;  // Added this line
     this.secretKey = this.config.get<string>('JWT_SECRET') || '';
     this.apiKey = this.config.get<string>('API_KEY') || '';
+    console.log(this.config.get<string>('COGNITO_USER_POOL_ID'))
 
-    if (!userPoolId || !clientId) {
+    console.log(userPoolId,this.clientId,this.clientSecret)
+
+    if (!userPoolId || !this.clientId ) {
       throw new Error('Missing Cognito config values');
     }
 
     this.userPool = new CognitoUserPool({
       UserPoolId: userPoolId,
-      ClientId: clientId,
+      ClientId: this.clientId,
     });
   }
 
@@ -49,6 +50,8 @@ export class AuthService {
       new CognitoUserAttribute({ Name: 'email', Value: email }),
       new CognitoUserAttribute({ Name: 'name', Value: name }),
     ];
+
+    const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
 
     return new Promise((resolve, reject) => {
       this.userPool.signUp(email, password, attributeList, [], async (err, result) => {
