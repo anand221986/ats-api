@@ -17,12 +17,13 @@ import { JobsService } from './jobs/jobs.service';
 import { JobsController } from './jobs/jobs.controller';
 import { CandidateService } from './candidate/candidate.service';
 import { CandidateController } from './candidate/candidate.controller';
+import { AuthController } from './auth/auth.controller';
 @Module({
   imports: [ ConfigModule.forRoot({
       isGlobal: true, // So you can use ConfigService anywhere without importing again
     }),],
-  controllers: [AppController,CommonController,UserController,JobsController,CandidateController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService ],
+  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController ],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService ],
 })
 //with middle ware 
 //without export class AppModule

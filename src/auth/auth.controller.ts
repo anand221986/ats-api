@@ -4,20 +4,31 @@ import { UserService } from '../user/user.service';
 import { Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
-import { ApiTags } from "@nestjs/swagger";
 import { OAuth2Client } from 'google-auth-library';
 import { UtilService } from 'src/util/util.service';
-
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SignUpDto } from './dto/signup.dto';
+@ApiTags('Auth')
 @Controller("auth")
-@ApiTags("Authentication")
 export class AuthController {
     private googleClient: OAuth2Client;
-
     constructor(
         public authService: AuthService, private utilService: UtilService
     ) {
         this.googleClient = new OAuth2Client();
     }
+
+  @Post('signup')
+  @ApiOperation({ summary: 'Register a new user in Cognito and sync to DB' })
+  @ApiBody({ type: SignUpDto })
+  @ApiResponse({ status: 201, description: 'User signed up successfully' })
+  @ApiResponse({ status: 400, description: 'Signup failed or input error' })
+  async signUp(@Body() signUpDto: SignUpDto) {
+    return this.authService.signUp(signUpDto.email, signUpDto.password, signUpDto.name);
+  }
+
+
+
 
     // /**
     //  * Redirects user to Google OAuth
