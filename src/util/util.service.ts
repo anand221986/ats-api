@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import * as moment from "moment";
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UtilService {
@@ -375,5 +376,12 @@ export class UtilService {
     console.log(diffDays + ' days');
     return diffDays;
   }
+   generateSecretHash(username: string, clientId: string, clientSecret: string): string {
+  return crypto
+    .createHmac('sha256', clientSecret)
+    .update(username + clientId)
+    .digest('base64');
+}
+  
 }
 
