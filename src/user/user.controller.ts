@@ -16,6 +16,7 @@ import {
   CreateCustomerDto,
   UpdateCustomerDto,
   LoginAdminDto,
+  RegisterDto
 } from "./user.dto";
 @ApiTags("user")
 @Controller("user")
@@ -24,15 +25,61 @@ export class UserController {
     public service: UserService,
   ) {}
 
-  @Post("loginAdmin")
+  @Post("login")
   @ApiOperation({ summary: "Admin login" })
   @ApiBody({ type: LoginAdminDto })
   @ApiResponse({ status: 200, description: "Admin successfully logged in" })
   @ApiResponse({ status: 401, description: "Invalid email or password" })
   async loginAdmin(@Body() body: LoginAdminDto, @Res() res: Response) {
-    // const data = await this.service.loginAdmin(body);
-    res.status(HttpStatus.OK).json({ message: "loginAdmin" });
+   const data = await this.service.loginAdmin(body);
+    res.status(HttpStatus.OK).json({ message: data });
   }
+ @Post("register")
+  @ApiOperation({
+    summary: 'Register a new user',
+    description: 'This endpoint registers a new user into the system.',
+  })
+  @ApiBody({
+    description: 'Request body to register a new user',
+    type: RegisterDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully logged in',
+    schema: {
+      type: 'object',
+      properties: {
+        token: { type: 'string', example: 'jwt.token.here' },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            name: { type: 'string', example: 'User Name' },
+            email: { type: 'string', example: 'user@example.com' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid email or password',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Invalid email or password' },
+      },
+    },
+  })
+  async register(@Body() body, @Res() res: Response) {
+    let data = await this.service.register(body);
+    res.status(HttpStatus.OK).json(data);
+  }
+
+
+
+
+
 
   @Post()
   @ApiOperation({ summary: "Create a new user" })

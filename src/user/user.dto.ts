@@ -145,6 +145,8 @@ export class RegisterDto {
 
   @ApiProperty({ description: 'Phone number of the user', example: '1234567890' })
   phone: string;
+   @ApiProperty({ description: 'password of the user', example: '12345' })
+  password: string;
 }
 
 export class LoginDto {
@@ -163,3 +165,4 @@ export class LoginAdminDto {
     @ApiProperty({ description: 'Admin password', example: 'adminpassword123' })
     password: string;
 }
+
