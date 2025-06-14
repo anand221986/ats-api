@@ -25,18 +25,11 @@ export class UserService {
         user: adminUser,
         token
       };
-      return this.utilService.successResponse(result, "Admin found");
-    }
-    if (adminUser != null) {
-      const token = this.AuthService.getToken(adminUser.id, adminUser.email);
-      let result: any = {
-        type: adminUser.department,
-        user: adminUser,
-        token
-      };
+      
+      console.log(token,'generated token')
       let query = `UPDATE users SET token='${token}' WHERE id=${adminUser.id}`;
       const execution = await this.dbService.execute(query);
-      return this.utilService.successResponse(result, `Welcome ${adminUser.first_name} ${adminUser.last_name}`);
+      return this.utilService.successResponse(result, "Admin found");
     }
     return this.utilService.failResponse("Invalid credentials");
   }
