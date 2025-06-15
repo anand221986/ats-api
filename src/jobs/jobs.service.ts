@@ -73,21 +73,35 @@ async getJobById(id: number){
   return this.utilService.successResponse(result, "Jobs  retrieved successfully.");
 }
 
-  updateJob(id: number, dto: UpdateJobDto) {
-    const index = this.jobs.findIndex((job) => job.id === id);
-    if (index !== -1) {
-      this.jobs[index] = { ...this.jobs[index], ...dto };
-      return this.jobs[index];
-    }
-    return null;
+  async updateJob(id: number, dto: UpdateJobDto) {
+      try {
+            // Convert DTO to key=value pairs for update
+            const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+            const where = [`id=${id}`];
+            const updateResult = await this.dbService.updateData('jobs', set, where);
+            if (updateResult.affectedRows === 0) {
+                return this.utilService.failResponse('Job not found or no changes made.');
+            }
+            return this.utilService.successResponse(updateResult, 'Job updated successfully.');
+        } catch (error) {
+            console.error('Error updating job:', error);
+            return this.utilService.failResponse('Failed to update job.');
+        }
   }
+async deleteJobById(id: number) {
+        try {
+            const query = `DELETE FROM "client" WHERE id='${id}' RETURNING *;`;
+            const result = await this.dbService.execute(query);
+            if (result.length === 0) {
+                return this.utilService.failResponse(null, "User not found or already deleted.");
+            }
+            return this.utilService.successResponse(result[0], "User deleted successfully.");
 
-  deleteJob(id: number) {
-    const index = this.jobs.findIndex((job) => job.id === id);
-    if (index !== -1) {
-      const removed = this.jobs.splice(index, 1);
-      return removed[0];
+        }
+        catch (error) {
+
+            console.error('Delete client Error:', error);
+            throw new Error(error);
+        }
     }
-    return null;
-  }
 }
