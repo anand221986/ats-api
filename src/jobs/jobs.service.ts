@@ -90,7 +90,7 @@ async getJobById(id: number){
   }
 async deleteJobById(id: number) {
         try {
-            const query = `DELETE FROM "client" WHERE id='${id}' RETURNING *;`;
+            const query = `DELETE FROM "jobs" WHERE id='${id}' RETURNING *;`;
             const result = await this.dbService.execute(query);
             if (result.length === 0) {
                 return this.utilService.failResponse(null, "User not found or already deleted.");
@@ -100,7 +100,7 @@ async deleteJobById(id: number) {
         }
         catch (error) {
 
-            console.error('Delete client Error:', error);
+            console.error('Delete jobs Error:', error);
             throw new Error(error);
         }
     }
