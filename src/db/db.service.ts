@@ -112,7 +112,7 @@ async insertData(tableName: string, data: { set: string; value: string }[]): Pro
   updateQuery(tableName: string, set: string[], where: string[]): string {
     const setClause = set.join(", ");
     const whereClause = where.join(" AND ");
-    return `UPDATE \`${tableName}\` SET ${setClause} WHERE ${whereClause}`;
+    return `UPDATE "${tableName}" SET ${setClause} WHERE ${whereClause}`;
   }
 
   updateData(tableName: string, set: string[], where: string[]): Promise<UpdateDTO> {

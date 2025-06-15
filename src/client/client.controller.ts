@@ -13,7 +13,7 @@ import {
 import { ClientService} from './client.service';
 import { Response } from 'express';
 import { CreateClientDto ,UpdateClientDto} from './client.service.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiParam ,ApiResponse} from '@nestjs/swagger';
 
 @Controller('client')
 @ApiTags('client')
@@ -69,20 +69,43 @@ export class ClientController {
   }
   }
 
-  @Put(':id')
-  @ApiOperation({ summary: 'Update client by ID' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiBody({ type:UpdateClientDto  })
-  async update(@Param('id') id: number, @Body() body: UpdateClientDto , @Res() res: Response) {
-    const job = this.candidateService.updateClient(id, body);
-    return res.status(HttpStatus.OK).json(job);
+@Put(':id')
+@ApiOperation({ summary: 'Update client by ID' })
+@ApiParam({ name: 'id', type: Number })
+@ApiBody({ type: UpdateClientDto })
+@ApiResponse({ status: 200, description: 'Client updated successfully' })
+@ApiResponse({ status: 404, description: 'Client not found' })
+@ApiResponse({ status: 500, description: 'Internal server error' })
+async update(
+  @Param('id') id: number,
+  @Body() body: UpdateClientDto,
+  @Res() res: Response,
+) {
+  try {
+    const result = await this.candidateService.updateClient(id, body);
+    return res.status(HttpStatus.OK).json({
+      status: true,
+      message: 'Client updated successfully.',
+      data: result,
+    });
+  } catch {
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      status: false,
+      message: 'Failed to update client.',
+    });
   }
+}
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete client by ID' })
-  @ApiParam({ name: 'id', type: Number })
+
+@Delete(':id')
+@ApiOperation({ summary: 'Delete client by ID' })
+@ApiParam({ name: 'id', type: Number })
+@ApiBody({ type: UpdateClientDto })
+@ApiResponse({ status: 200, description: 'Client Deleted successfully' })
+@ApiResponse({ status: 404, description: 'Client not found' })
+@ApiResponse({ status: 500, description: 'Internal server error' })
   async delete(@Param('id') id: number, @Res() res: Response) {
-    const job = this.candidateService.deleteCandidate(id);
-    return res.status(HttpStatus.OK).json({ message: ' Client deleted', job });
+    const job = await this.candidateService.deleteClientById(id);
+   return res.status(HttpStatus.OK).json({ message: ' Client deleted', job });
   }
 }

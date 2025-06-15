@@ -13,7 +13,7 @@ import {
 import { Response } from 'express';
 import { JobsService } from './jobs.service';
 import { CreateJobDto, UpdateJobDto } from './jobs.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiParam,ApiResponse } from '@nestjs/swagger';
 
 @Controller('jobs')
 @ApiTags('jobs')
@@ -23,6 +23,9 @@ export class JobsController {
   @Post("createJob")
   @ApiOperation({ summary: 'Create a new job' })
   @ApiBody({ type: CreateJobDto })
+  @ApiResponse({ status: 200, description: 'Jobs created successfully' })
+ @ApiResponse({ status: 201, description: 'Jobs not created' })
+ @ApiResponse({ status: 500, description: 'Internal server error' })
   async create(@Body() body: CreateJobDto, @Res() res: Response) {
     const job = await this.jobsService.createJob(body);
     console.log(this.jobsService,'jobs')
@@ -39,6 +42,9 @@ export class JobsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get job by ID' })
   @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Get Job Deatils successfully' })
+  @ApiResponse({ status: 404, description: 'Job not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async getById(@Param('id') id: number, @Res() res: Response) {
      try {
     const job = await this.jobsService.getJobById(+id);
@@ -54,16 +60,25 @@ export class JobsController {
   @ApiOperation({ summary: 'Update job by ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: UpdateJobDto })
+  @ApiResponse({ status: 200, description: 'Job updated successfully' })
+  @ApiResponse({ status: 404, description: 'Job not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiOperation({ summary: 'Update job by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateJobDto })
   async update(@Param('id') id: number, @Body() body: UpdateJobDto, @Res() res: Response) {
-    const job = this.jobsService.updateJob(id, body);
+    const job = await this.jobsService.updateJob(id, body);
     return res.status(HttpStatus.OK).json(job);
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete job by ID' })
-  @ApiParam({ name: 'id', type: Number })
+@Delete(':id')
+@ApiOperation({ summary: 'Delete job by ID' })
+@ApiParam({ name: 'id', type: Number })
+@ApiResponse({ status: 200, description: 'Jobs Deleted successfully' })
+@ApiResponse({ status: 404, description: 'Jobs not found' })
+@ApiResponse({ status: 500, description: 'Internal server error' })
   async delete(@Param('id') id: number, @Res() res: Response) {
-    const job = this.jobsService.deleteJob(id);
+    const job = await this.jobsService.deleteJobById(id);
     return res.status(HttpStatus.OK).json({ message: 'Job deleted', job });
   }
 }
