@@ -42,7 +42,7 @@ export class ClientService {
     }
 
     async getAllClient() {
-        const query = `SELECT * FROM "client" ORDER BY id ASC;`;
+        const query = `SELECT * FROM "client" ORDER BY id desc;`;
         const result = await this.dbService.execute(query);
         return this.utilService.successResponse(result, "Client list retrieved successfully.");
     }
