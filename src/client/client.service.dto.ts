@@ -17,6 +17,8 @@ export class CreateClientDto {
   size: string;
   currency: string;
   revenue: string;
+  email: string;
+  contactPerson:string;
 }
 
 export class UpdateClientDto extends CreateClientDto {}

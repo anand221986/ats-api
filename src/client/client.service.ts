@@ -27,7 +27,11 @@ export class ClientService {
                 { set: 'zipcode', value: String(dto.zipcode ?? '') },
                 { set: 'linkedin', value: String(dto.linkedin ?? '') },
                 { set: 'phone', value: String(dto.phone ?? '') },
-                { set: 'tags', value: toPgArray(dto.tags ?? []) }
+                { set: 'tags', value: toPgArray(dto.tags ?? []) },
+                { set: 'industry', value: String(dto.industry ?? '') },
+                { set: 'email', value: String(dto.email?? '') },
+                { set: 'contact_person', value: String(dto.contactPerson ?? '') },
+                
             ];
             const insertion = await this.dbService.insertData('client', setData);
             return this.utilService.successResponse(insertion, 'Client created successfully.');
