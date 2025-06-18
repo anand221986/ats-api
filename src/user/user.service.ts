@@ -27,7 +27,7 @@ export class UserService {
       };
       
       console.log(token,'generated token')
-      let query = `UPDATE users SET token='${token}' WHERE id=${adminUser.id}`;
+      let query = `UPDATE user SET token='${token}' WHERE id=${adminUser.id}`;
       const execution = await this.dbService.execute(query);
       return this.utilService.successResponse(result, "Admin found");
     }
@@ -81,7 +81,7 @@ export class UserService {
   }
 
   async getUserByEmail(email) {
-    let query = "SELECT  * FROM users WHERE email='" + email + "'";
+    let query = "SELECT  * FROM user WHERE email='" + email + "'";
 
     console.log(query)
     let list: any = await this.dbService.execute(query);
@@ -92,7 +92,7 @@ export class UserService {
     }
   }
   async getUserByPhone(phone) {
-    let query = "SELECT * FROM users WHERE phone='" + phone + "'";
+    let query = "SELECT * FROM user WHERE phone='" + phone + "'";
     let list: any = await this.dbService.execute(query);
     if (list.length > 0) {
       return list[0];
@@ -103,19 +103,19 @@ export class UserService {
 
   //get All userlist from the table 
   async getAllUsers() {
-    const query = `SELECT * FROM "users" ORDER BY id ASC;`;
+    const query = `SELECT * FROM "user" ORDER BY id ASC;`;
     const result = await this.dbService.execute(query);
     return this.utilService.successResponse(result, "User list retrieved successfully.");
     //return users;
   }
   async getUserById(id: number): Promise<any> {
-    const query = `SELECT * FROM "users" WHERE id='${id}'`;
+    const query = `SELECT * FROM "user" WHERE id='${id}'`;
     const result = await this.dbService.execute(query);
     return this.utilService.successResponse(result[0], "User details retrieved successfully.");
 
   }
   async deleteUserById(id: number) {
-    const query = `DELETE FROM "users" WHERE id='${id}' RETURNING *;`;
+    const query = `DELETE FROM "user" WHERE id='${id}' RETURNING *;`;
     const result = await this.dbService.execute(query);
     if (result.length === 0) {
       return this.utilService.failResponse(null, "User not found or already deleted.");
@@ -126,7 +126,7 @@ export class UserService {
     try {
       // Only query by email
       const users: any[] = await this.dbService.execute(
-        `SELECT * FROM users WHERE email = '${email}'`,
+        `SELECT * FROM user WHERE email = '${email}'`,
       );
       if (users.length === 0) {
         return null; // User not found
@@ -152,7 +152,7 @@ export class UserService {
 
 
   async getAllSalesEmployees() {
-    const query = `SELECT id, first_name, last_name, email, mobile, gender, profile_img, profile, dob, designation, department, reporting_manager, status, password, created_at, updated_at FROM users WHERE department = 'Sales' and status = 1`
+    const query = `SELECT id, first_name, last_name, email, mobile, gender, profile_img, profile, dob, designation, department, reporting_manager, status, password, created_at, updated_at FROM user WHERE department = 'Sales' and status = 1`
     const list = await this.dbService.execute(query);
     if (list.length > 0) {
       return this.utilService.successResponse(list, "Sales Employees found");
@@ -169,7 +169,7 @@ export class UserService {
     const lastName = nameParts.slice(1).join(' ');
 
     let existingUser = await this.dbService.execute(
-      `SELECT * FROM users WHERE email='${email}'`
+      `SELECT * FROM user WHERE email='${email}'`
     );
     if (existingUser.length === 0) {
       return this.utilService.failResponse("No such user exists");
@@ -177,10 +177,10 @@ export class UserService {
     if (existingUser.length > 0) {
       if (!existingUser[0].google_id) {
         await this.dbService.execute(
-          `ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255)`
+          `ALTER TABLE user ADD COLUMN IF NOT EXISTS google_id VARCHAR(255)`
         );
         await this.dbService.execute(
-          `UPDATE users SET google_id='${googleId}' WHERE id=${existingUser[0].id}`
+          `UPDATE user SET google_id='${googleId}' WHERE id=${existingUser[0].id}`
         );
         return existingUser[0];
       }
