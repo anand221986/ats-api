@@ -59,7 +59,7 @@ export class JobsService {
 
   async getAllJobs() 
   {
-  const query = `SELECT * FROM "jobs" ORDER BY id ASC;`;
+  const query = `SELECT * FROM "jobs" ORDER BY id desc;`;
   const result = await this.dbService.execute(query);
    return this.utilService.successResponse(result, "Jobs list retrieved successfully.");
   }
