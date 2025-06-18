@@ -1,4 +1,4 @@
-export class CreateCandidateDto {
+export class CreateCandidateDto  {
   first_name: string;
   last_name: string;
   email: string;
@@ -11,6 +11,13 @@ export class CreateCandidateDto {
   summary?: string;
   resume_url?: string;
   cover_letter?: string;
+  current_company?: string;
+  current_ctc?: number;
+  expected_ctc?: number;
+  skill?: string[]; // Array of skills
+  college?: string;
+  degree?: string;
+  rating?: number;  // Rating like 4.5
+  extra?: string;   // Optional extra field
 }
-
 export class UpdateCandidateDto extends CreateCandidateDto {}

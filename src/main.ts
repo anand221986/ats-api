@@ -3,6 +3,13 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // 👇 Allow requests from your React frontend (http://localhost:8081)
+  app.enableCors({
+    origin: ['http://localhost:8081','http://localhost:8080', 'http://ats-admin-panel.s3-website.eu-north-1.amazonaws.com'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
    const config = new DocumentBuilder()
     .setTitle('Your API Title')
     .setDescription('API description')
