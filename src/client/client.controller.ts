@@ -69,6 +69,7 @@ export class ClientController {
   }
   }
 
+
 @Put(':id')
 @ApiOperation({ summary: 'Update client by ID' })
 @ApiParam({ name: 'id', type: Number })
