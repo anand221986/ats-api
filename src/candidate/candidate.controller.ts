@@ -13,7 +13,7 @@ import {
 import { CandidateService} from './candidate.service';
 import { Response } from 'express';
 import { CreateCandidateDto ,UpdateCandidateDto } from './create-candidate.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiParam,ApiResponse } from '@nestjs/swagger';
 
 @Controller('candidate')
 @ApiTags('candidate')
@@ -22,6 +22,7 @@ export class CandidateController {
 
 @Post("createCandidate")
 @ApiOperation({ summary: 'Create a new candidate' })
+@ApiResponse({ status: 201, description: 'Candidates created' })
 @ApiBody({ type: CreateCandidateDto })
  async create(@Body() body: CreateCandidateDto, @Res() res: Response) {
     try {
@@ -85,4 +86,23 @@ export class CandidateController {
     const job = this.candidateService.deleteCandidate(id);
     return res.status(HttpStatus.OK).json({ message: ' Candidate deleted', job });
   }
+
+@Post('createCandidatesBulk')
+@ApiOperation({ summary: 'Create multiple candidates' })
+@ApiBody({ type: [CreateCandidateDto] }) // <== Array of DTOs
+@ApiResponse({ status: 201, description: 'Candidates created' })
+async createCandidatesBulk(
+  @Body() dtos: CreateCandidateDto[],
+  @Res() res: Response,
+) {
+  try {
+    const response = await this.candidateService.createCandidatesBulk(dtos);
+    return res.status(HttpStatus.CREATED).json(response);
+  } catch (error) {
+    console.error('Bulk insert error:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Failed to insert candidates',
+    });
+  }
+}
 }
