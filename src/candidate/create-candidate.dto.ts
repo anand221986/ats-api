@@ -19,5 +19,6 @@ export class CreateCandidateDto  {
   degree?: string;
   rating?: number;  // Rating like 4.5
   extra?: string;   // Optional extra field
+  
 }
 export class UpdateCandidateDto extends CreateCandidateDto {}
