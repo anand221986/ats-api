@@ -35,7 +35,6 @@ const setData= [
   { set: 'college', value: String(dto.college ?? '') },
   { set: 'degree', value: String(dto.degree ?? '') },
   { set: 'rating', value: dto.rating !== null && dto.rating !== undefined ? String(dto.rating) : '' },
-  
 ];
     const insertion = await this.dbService.insertData('candidates', setData);
     return this.utilService.successResponse(insertion, 'Candidate created successfully.');

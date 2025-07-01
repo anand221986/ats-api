@@ -15,7 +15,7 @@ export class UtilService {
   public UPLOAD_DIR = "/var/www/html/ats_api/uploads/";
 
   constructor() {
-    this.NODE_ENVIRONMENT = "local";
+    this.NODE_ENVIRONMENT = "production";
     if (this.NODE_ENVIRONMENT == "local") {
       this.NODE_ENVIRONMENT = "local";
       this.DB_HOST = "localhost";
