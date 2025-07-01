@@ -52,7 +52,6 @@ export class CandidateController {
   @ApiOperation({ summary: 'Get all Candidate' })
   async getAll(@Res() res: Response) {
     const jobs = await  this.candidateService.getAllCandidates();
-    console.log(jobs,'test')
     return res.status(HttpStatus.OK).json(jobs);
   }
 
