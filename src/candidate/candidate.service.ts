@@ -46,7 +46,18 @@ const setData= [
 
   async getAllCandidates() 
   {
-  const query = `SELECT * FROM "candidates" ORDER BY id desc;`;
+const query = `
+    SELECT 
+      c.*, 
+      j.id AS job_id, 
+      j.job_title 
+    FROM 
+      candidates c
+    LEFT JOIN 
+      jobs j ON c.job_id = j.id
+    ORDER BY 
+      c.id DESC;
+  `;
   const result = await this.dbService.execute(query);
   return this.utilService.successResponse(result, "Candidates list retrieved successfully.");
   }
@@ -65,14 +76,14 @@ const setData= [
             // Convert DTO to key=value pairs for update
             const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
             const where = [`id=${id}`];
-            const updateResult = await this.dbService.updateData('jobs', set, where);
+            const updateResult = await this.dbService.updateData('candidates', set, where);
             if (updateResult.affectedRows === 0) {
-                return this.utilService.failResponse('Job not found or no changes made.');
+                return this.utilService.failResponse('candidates not found or no changes made.');
             }
-            return this.utilService.successResponse(updateResult, 'Job updated successfully.');
+            return this.utilService.successResponse(updateResult, 'candidates updated successfully.');
         } catch (error) {
-            console.error('Error updating job:', error);
-            return this.utilService.failResponse('Failed to update job.');
+            console.error('Error updating candidates:', error);
+            return this.utilService.failResponse('Failed to update candidates.');
         }
   }
 
