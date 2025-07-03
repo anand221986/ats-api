@@ -104,4 +104,33 @@ async createCandidatesBulk(
     });
   }
 }
+
+@Post('assignCandidates')
+@ApiOperation({ summary: 'Assign multiple candidates to multiple jobs' })
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      jobIds: { type: 'array', items: { type: 'number' }, example: [15] },
+      candidateIds: { type: 'array', items: { type: 'number' }, example: [25] },
+    },
+    required: ['jobIds', 'candidateIds'],
+  },
+})
+async assignCandidatesToJobs(
+  @Body() body: { jobIds: number[]; candidateIds: number[] },
+  @Res() res: Response,
+) {
+    try {
+    const response =   await this.candidateService.assignCandidatesToJobs(body.jobIds, body.candidateIds);
+    return res.status(HttpStatus.CREATED).json(response);
+  } catch (error) {
+    console.error('Bulk update error:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    message: 'Failed to insert candidates',
+    });
+  }
+}
+
+
 }

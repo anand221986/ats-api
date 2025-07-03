@@ -131,6 +131,65 @@ const query = `
     throw new Error('Failed to create candidates.');
   }
 }
+async assignCandidatesToJobs(jobIds: number[], candidateIds: number[]) {
+  try {
+    if (!jobIds?.length || !candidateIds?.length) {
+      return this.utilService.failResponse('Both jobIds and candidateIds must be provided.');
+    }
+
+    // 1. Validate jobIds
+    const jobIdList = jobIds.join(',');
+    const jobCheckQuery = `SELECT * FROM jobs WHERE id IN (${jobIdList})`;
+
+    console.log(jobCheckQuery,'jobCheckQuery')
+    const existingJobs = await this.dbService.execute(jobCheckQuery);
+    console.log(existingJobs,'existingjob')
+    const existingJobIds = existingJobs.map((job: any) => job.id);
+    const missingJobIds = jobIds.filter(id => !existingJobIds.includes(id));
+
+    if (missingJobIds.length > 0) {
+      return this.utilService.failResponse(`Job ID(s) not found: ${missingJobIds.join(', ')}`);
+    }
+
+    // 2. Validate candidateIds
+    const candidateIdList = candidateIds.join(',');
+    const candidateCheckQuery = `SELECT id FROM candidates WHERE id IN (${candidateIdList})`;
+    const existingCandidates = await this.dbService.execute(candidateCheckQuery);
+    const existingCandidateIds = existingCandidates.map((c: any) => c.id);
+    const missingCandidateIds = candidateIds.filter(id => !existingCandidateIds.includes(id));
+
+    if (missingCandidateIds.length > 0) {
+      return this.utilService.failResponse(`Candidate ID(s) not found: ${missingCandidateIds.join(', ')}`);
+    }
+
+    // 3. Proceed with update
+    if (jobIds.length === 1) {
+      const jobId = jobIds[0];
+      const set = [`job_id=${jobId}`];
+      const where = [`id IN (${candidateIdList})`];
+      const result = await this.dbService.updateData('candidates', set, where);
+      return this.utilService.successResponse('Candidates assigned to job successfully.');
+    }
+
+    // 4. Assign multiple jobs to multiple candidates
+    const updates: Promise<any>[] = [];
+    for (const candidateId of candidateIds) {
+      for (const jobId of jobIds) {
+        const set = [`job_id=${jobId}`];
+        const where = [`id=${candidateId}`];
+        updates.push(this.dbService.updateData('candidates', set, where));
+      }
+    }
+
+    const results = await Promise.all(updates);
+    return this.utilService.successResponse('Candidates assigned to jobs successfully.');
+  } catch (error) {
+    console.error('Error assigning candidates:', error);
+    return this.utilService.failResponse('Failed to assign candidates.');
+  }
+}
+
+
 
 
  
