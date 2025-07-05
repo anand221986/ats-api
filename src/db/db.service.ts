@@ -4,6 +4,7 @@ import { UpdateDTO } from "../dto/UpdateDTO";
 import { UtilService } from "../util/util.service";
 //import * as mysql from "mysql2";
 import { Pool } from 'pg';
+import { resourceLimits } from "node:worker_threads";
 
 @Injectable()
 export class DbService {
@@ -112,6 +113,8 @@ async insertData(tableName: string, data: { set: string; value: string }[]): Pro
   updateQuery(tableName: string, set: string[], where: string[]): string {
     const setClause = set.join(", ");
     const whereClause = where.join(" AND ");
+
+    console.log(`UPDATE "${tableName}" SET ${setClause} WHERE ${whereClause}`)
     return `UPDATE "${tableName}" SET ${setClause} WHERE ${whereClause}`;
   }
 

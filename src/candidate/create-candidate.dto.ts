@@ -1,3 +1,6 @@
+
+import { IsArray, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 export class CreateCandidateDto  {
   first_name: string;
   last_name: string;
@@ -20,5 +23,16 @@ export class CreateCandidateDto  {
   rating?: number;  // Rating like 4.5
   extra?: string;   // Optional extra field
   
+}
+export class assignedJobDto {
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  jobIds: number[];
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  candidateIds: number[];
 }
 export class UpdateCandidateDto extends CreateCandidateDto {}
