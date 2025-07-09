@@ -3,9 +3,11 @@ import { Injectable,NotFoundException } from '@nestjs/common';
 import { CreateCandidateDto,UpdateCandidateDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
+import { PythonShell } from 'python-shell';
 import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
-
+import * as path from 'path';
+import { spawn } from 'child_process';
 @Injectable()
 export class CandidateService {
   private jobs: any[] = [];
@@ -205,4 +207,32 @@ async processPdf(filePath: string): Promise<any> {
       throw new Error(`Error reading PDF: ${err.message}`);
     }
   }
+
+ async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
+  const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
+  const scriptPath = path.resolve(__dirname, '../../../python/main.py');
+  return new Promise((resolve, reject) => {
+    const process = spawn(pythonPath, [scriptPath, pdfPath]);
+    let output = '';
+    let error = '';
+    process.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    process.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+    process.on('close', (code) => {
+      if (code !== 0) {
+        return reject(new Error(`Python script exited with code ${code}: ${error}`));
+      }
+      try {
+        const parsed = JSON.parse(output);
+        resolve(parsed);
+      } catch {
+        resolve(output); // fallback if not JSON
+      }
+    });
+  });
+}
+
 }
