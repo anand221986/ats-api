@@ -3,6 +3,8 @@ import { Injectable,NotFoundException } from '@nestjs/common';
 import { CreateCandidateDto,UpdateCandidateDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
+import * as fs from 'fs';
+import * as pdfParse from 'pdf-parse';
 
 @Injectable()
 export class CandidateService {
@@ -180,7 +182,6 @@ async assignCandidatesToJobs(jobIds: number[], candidateIds: number[]) {
         updates.push(this.dbService.updateData('candidates', set, where));
       }
     }
-
     const results = await Promise.all(updates);
     return this.utilService.successResponse('Candidates assigned to jobs successfully.');
   } catch (error) {
@@ -189,8 +190,19 @@ async assignCandidatesToJobs(jobIds: number[], candidateIds: number[]) {
   }
 }
 
-
-
-
- 
+async processPdf(filePath: string): Promise<any> {
+    try {
+      const dataBuffer = fs.readFileSync(filePath);
+      const pdfData = await pdfParse(dataBuffer);
+      // Example response: total pages and text content
+      return {
+        filePath,
+        numPages: pdfData.numpages,
+        info: pdfData.info,
+        textSnippet: pdfData.text.substring(0, 300), // First 300 chars
+      };
+    } catch (err) {
+      throw new Error(`Error reading PDF: ${err.message}`);
+    }
+  }
 }

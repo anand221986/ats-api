@@ -9,11 +9,16 @@ import {
   Post,
   Put,
   Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CandidateService} from './candidate.service';
-import { Response } from 'express';
+import { Response,Express  } from 'express';
 import { CreateCandidateDto ,UpdateCandidateDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam,ApiResponse } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('candidate')
 @ApiTags('candidate')
@@ -131,6 +136,48 @@ async assignCandidatesToJobs(
     });
   }
 }
+
+  //upload Pdf File
+  @Post('uploadPdf')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueName}${extname(file.originalname)}`);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype === 'application/pdf') {
+        cb(null, true);
+      } else {
+        cb(new Error('Only PDF files are allowed'), false);
+      }
+    },
+  }))
+  async bulk(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { jobIds: number[]; candidateIds: number[] },
+    @Res() res: Response,
+  ): Promise<any> {
+    try {
+      // Do something with the uploaded PDF file if needed (file.path)
+      const response ='PDF file uploaded successfully'
+      return res.status(HttpStatus.CREATED).json({
+        message: 'Bulk operation successful',
+        fileName: file.filename,
+        response,
+      });
+    } catch (error) {
+      console.error('Bulk update error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to uploadFile',
+      });
+    }
+  }
+
+
+
 
 
 }
