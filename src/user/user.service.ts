@@ -25,7 +25,6 @@ export class UserService {
         user: adminUser,
         token
       };
-      
       console.log(token,'generated token')
       let query = `UPDATE users SET token='${token}' WHERE id=${adminUser.id}`;
       const execution = await this.dbService.execute(query);
