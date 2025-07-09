@@ -25,15 +25,19 @@ export class UserController {
     public service: UserService,
   ) {}
 
-  @Post("login")
-  @ApiOperation({ summary: "Admin login" })
-  @ApiBody({ type: LoginAdminDto })
-  @ApiResponse({ status: 200, description: "Admin successfully logged in" })
-  @ApiResponse({ status: 401, description: "Invalid email or password" })
-  async loginAdmin(@Body() body: LoginAdminDto, @Res() res: Response) {
-   const data = await this.service.loginAdmin(body);
-    res.status(HttpStatus.OK).json({ message: data });
+@Post("login")
+@ApiOperation({ summary: "Admin login" })
+@ApiBody({ type: LoginAdminDto })
+@ApiResponse({ status: 200, description: "Admin successfully logged in" })
+@ApiResponse({ status: 401, description: "Invalid email or password" })
+async loginAdmin(@Body() body: LoginAdminDto, @Res() res: Response) {
+  const data = await this.service.loginAdmin(body);
+  if (data) {
+    return res.status(HttpStatus.OK).json({ message: data });
+  } else {
+    return res.status(HttpStatus.UNAUTHORIZED).json({ message: data });
   }
+}
  @Post("register")
   @ApiOperation({
     summary: 'Register a new user',
