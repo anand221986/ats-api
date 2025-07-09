@@ -139,7 +139,7 @@ async assignCandidatesToJobs(
 
   //upload Pdf File
   @Post('uploadPdf')
-  @UseInterceptors(FileInterceptor('file', {
+  @UseInterceptors(FileInterceptor('resumes', {
     storage: diskStorage({
       destination: './uploads',
       filename: (req, file, cb) => {
