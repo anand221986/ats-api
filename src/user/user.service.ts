@@ -128,6 +128,7 @@ export class UserService {
       const users: any[] = await this.dbService.execute(
         `SELECT * FROM users WHERE email = '${email}'`,
       );
+      console.log(users,'users',`SELECT * FROM users WHERE email = '${email}'`)
       if (users.length === 0) {
         return null; // User not found
       }
