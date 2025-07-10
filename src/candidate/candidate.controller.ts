@@ -170,6 +170,7 @@ async assignCandidatesToJobs(
       //   fileName: file.filename,
       //   response,
       // });
+      const inserExtractedData = await this.candidateService.insertExtractedData(extractedData);
 
       return res.status(HttpStatus.CREATED).json({
       message: 'Bulk operation successful',
