@@ -246,22 +246,10 @@ const setData= [
   { set: 'first_name', value: String(first_name) },
   { set: 'last_name', value: String(last_name) },
   { set: 'email', value: String(extractedData.email) },
-  { set: 'headline', value: String(extractedData.headline ?? '') },
   { set: 'phone', value: String(extractedData.phoneNumbephone ?? '') },
   { set: 'address', value: String(extractedData.address ?? '') },
-  { set: 'photo_url', value: String(extractedData.photo_url ?? '') },
   { set: 'education', value: String(extractedData.education ?? '') },
   { set: 'experience', value: String(extractedData.experience ?? '') },
-  { set: 'summary', value: String(extractedData.summary ?? '') },
-  { set: 'resume_url', value: String(extractedData.resume_url ?? '') },
-  { set: 'cover_letter', value: String(extractedData.cover_letter ?? '') },
-  { set: 'current_company', value: String(extractedData.current_company ?? '') },
-  { set: 'current_ctc', value: extractedData.current_ctc !== null && extractedData.current_ctc !== undefined ? String(extractedData.current_ctc) : '' },
-  { set: 'expected_ctc', value: extractedData.expected_ctc !== null && extractedData.expected_ctc !== undefined ? String(extractedData.expected_ctc) : '' },
-  { set: 'skill', value: Array.isArray(extractedData.skills) ? `{${extractedData.skills.join(',')}}` : '{}' }, // PostgreSQL array format
-  { set: 'college', value: String(extractedData.college ?? '') },
-  { set: 'degree', value: String(extractedData.degree ?? '') },
-  { set: 'rating', value: extractedData.rating !== null && extractedData.rating !== undefined ? String(extractedData.rating) : '' },
 ];
     const insertion = await this.dbService.insertData('candidates', setData);
     return this.utilService.successResponse(insertion, 'Candidate created successfully.');
