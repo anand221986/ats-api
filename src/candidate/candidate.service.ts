@@ -17,28 +17,31 @@ export class CandidateService {
     ) {
     }
 
- async createCandidate(dto: CreateCandidateDto) {
+ async createCandidate(extractedData) {
   try {
+    console.log(extractedData,'extractedData')
+    const [first_name, ...lastNameParts] = extractedData.name.split(" ");
+  const last_name = lastNameParts.join(" ");
 const setData= [
-  { set: 'first_name', value: String(dto.first_name) },
-  { set: 'last_name', value: String(dto.last_name) },
-  { set: 'email', value: String(dto.email) },
-  { set: 'headline', value: String(dto.headline ?? '') },
-  { set: 'phone', value: String(dto.phone ?? '') },
-  { set: 'address', value: String(dto.address ?? '') },
-  { set: 'photo_url', value: String(dto.photo_url ?? '') },
-  { set: 'education', value: String(dto.education ?? '') },
-  { set: 'experience', value: String(dto.experience ?? '') },
-  { set: 'summary', value: String(dto.summary ?? '') },
-  { set: 'resume_url', value: String(dto.resume_url ?? '') },
-  { set: 'cover_letter', value: String(dto.cover_letter ?? '') },
-  { set: 'current_company', value: String(dto.current_company ?? '') },
-  { set: 'current_ctc', value: dto.current_ctc !== null && dto.current_ctc !== undefined ? String(dto.current_ctc) : '' },
-  { set: 'expected_ctc', value: dto.expected_ctc !== null && dto.expected_ctc !== undefined ? String(dto.expected_ctc) : '' },
-  { set: 'skill', value: Array.isArray(dto.skill) ? `{${dto.skill.join(',')}}` : '{}' }, // PostgreSQL array format
-  { set: 'college', value: String(dto.college ?? '') },
-  { set: 'degree', value: String(dto.degree ?? '') },
-  { set: 'rating', value: dto.rating !== null && dto.rating !== undefined ? String(dto.rating) : '' },
+  { set: 'first_name', value: String(first_name) },
+  { set: 'last_name', value: String(last_name) },
+  { set: 'email', value: String(extractedData.email) },
+  { set: 'headline', value: String(extractedData.headline ?? '') },
+  { set: 'phone', value: String(extractedData.phoneNumbephone ?? '') },
+  { set: 'address', value: String(extractedData.address ?? '') },
+  { set: 'photo_url', value: String(extractedData.photo_url ?? '') },
+  { set: 'education', value: String(extractedData.education ?? '') },
+  { set: 'experience', value: String(extractedData.experience ?? '') },
+  { set: 'summary', value: String(extractedData.summary ?? '') },
+  { set: 'resume_url', value: String(extractedData.resume_url ?? '') },
+  { set: 'cover_letter', value: String(extractedData.cover_letter ?? '') },
+  { set: 'current_company', value: String(extractedData.current_company ?? '') },
+  { set: 'current_ctc', value: extractedData.current_ctc !== null && extractedData.current_ctc !== undefined ? String(extractedData.current_ctc) : '' },
+  { set: 'expected_ctc', value: extractedData.expected_ctc !== null && extractedData.expected_ctc !== undefined ? String(extractedData.expected_ctc) : '' },
+  { set: 'skill', value: Array.isArray(extractedData.skills) ? `{${extractedData.skills.join(',')}}` : '{}' }, // PostgreSQL array format
+  { set: 'college', value: String(extractedData.college ?? '') },
+  { set: 'degree', value: String(extractedData.degree ?? '') },
+  { set: 'rating', value: extractedData.rating !== null && extractedData.rating !== undefined ? String(extractedData.rating) : '' },
 ];
     const insertion = await this.dbService.insertData('candidates', setData);
     return this.utilService.successResponse(insertion, 'Candidate created successfully.');
@@ -233,6 +236,41 @@ async processPdf(filePath: string): Promise<any> {
       }
     });
   });
+}
+async insertExtractedData(dtos: CreateCandidateDto[]) {
+  try {
+    const allInsertions = [];
+
+   for (const dto of dtos) {
+    const setData = [
+  { set: 'first_name', value: String(dto.first_name) },
+  { set: 'last_name', value: String(dto.last_name) },
+  { set: 'email', value: String(dto.email) },
+  { set: 'headline', value: String(dto.headline ?? '') },
+  { set: 'phone', value: String(dto.phone ?? '') },
+  { set: 'address', value: String(dto.address ?? '') },
+  { set: 'photo_url', value: String(dto.photo_url ?? '') },
+  { set: 'education', value: String(dto.education ?? '') },
+  { set: 'experience', value: String(dto.experience ?? '') },
+  { set: 'summary', value: String(dto.summary ?? '') },
+  { set: 'resume_url', value: String(dto.resume_url ?? '') },
+  { set: 'cover_letter', value: String(dto.cover_letter ?? '') },
+  { set: 'current_company', value: String(dto.current_company ?? '') },
+  { set: 'current_ctc', value: dto.current_ctc !== null && dto.current_ctc !== undefined ? String(dto.current_ctc) : '' },
+  { set: 'expected_ctc', value: dto.expected_ctc !== null && dto.expected_ctc !== undefined ? String(dto.expected_ctc) : '' },
+  { set: 'skill', value: Array.isArray(dto.skill) ? `{${dto.skill.join(',')}}` : '{}' }, // PostgreSQL array format
+  { set: 'college', value: String(dto.college ?? '') },
+  { set: 'degree', value: String(dto.degree ?? '') },
+  { set: 'rating', value: dto.rating !== null && dto.rating !== undefined ? String(dto.rating) : '' },
+];
+   const result = await this.dbService.insertData('candidates', setData);
+ 
+    }
+ return this.utilService.successResponse(allInsertions, 'Bulk Candidates created successfully.');
+  } catch (error) {
+    console.error('Bulk create candidate error:', error);
+    throw new Error('Failed to create candidates.');
+  }
 }
 
 }
