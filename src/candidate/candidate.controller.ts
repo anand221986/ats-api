@@ -161,22 +161,24 @@ async assignCandidatesToJobs(
     @Res() res: Response,
   ): Promise<any> {
     try {
-      const pdfPath = file.path; // full path to uploaded PDF
-    const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
+  
+   const pdfPath = file.path; // full path to uploaded PDF
+   const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
       // Do something with the uploaded PDF file if needed (file.path)
       const response ='PDF file uploaded successfully'
-      // return res.status(HttpStatus.CREATED).json({
-      //   message: 'Bulk operation successful',
-      //   fileName: file.filename,
-      //   response,
-      // });
-      const inserExtractedData = await this.candidateService.insertExtractedData(extractedData);
+  
+    
+  const result = await this.candidateService.insertExtractedData(extractedData);
 
+  if (!result.status) {
+      return res.status(HttpStatus.CONFLICT).json(result);
+    }
+   // return res.status(HttpStatus.CREATED).json(result);
       return res.status(HttpStatus.CREATED).json({
       message: 'Bulk operation successful',
       fileName: file.filename,
-      extractedData, // Python parsed output
-    });
+     extractedData, // Python parsed output
+      });
     } catch (error) {
       console.error('Bulk update error:', error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
