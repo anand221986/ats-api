@@ -101,6 +101,9 @@ async createCandidatesBulk(
 ) {
   try {
     const response = await this.candidateService.createCandidatesBulk(dtos);
+      if (!response.status) {
+      return res.status(HttpStatus.CONFLICT).json(response);
+    }
     return res.status(HttpStatus.CREATED).json(response);
   } catch (error) {
     console.error('Bulk insert error:', error);

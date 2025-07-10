@@ -118,13 +118,21 @@ export class CandidateService {
           { set: 'resume_url', value: String(dto.resume_url ?? '') },
           { set: 'cover_letter', value: String(dto.cover_letter ?? '') },
           { set: 'current_company', value: String(dto.current_company ?? '') },
-          { set: 'current_ctc', value: dto.current_ctc !== null && dto.current_ctc !== undefined ? String(dto.current_ctc) : '' },
-          { set: 'expected_ctc', value: dto.expected_ctc !== null && dto.expected_ctc !== undefined ? String(dto.expected_ctc) : '' },
-          { set: 'skill', value: Array.isArray(dto.skill) ? `{${dto.skill.join(',')}}` : '{}' }, // PostgreSQL array format
-          { set: 'college', value: String(dto.college ?? '') },
-          { set: 'degree', value: String(dto.degree ?? '') },
-          { set: 'rating', value: dto.rating !== null && dto.rating !== undefined ? String(dto.rating) : '' },
+          // { set: 'current_ctc', value: dto.current_ctc !== null && dto.current_ctc !== undefined ? String(dto.current_ctc) : '' },
+          // { set: 'expected_ctc', value: dto.expected_ctc !== null && dto.expected_ctc !== undefined ? String(dto.expected_ctc) : '' },
+          // { set: 'skill', value: Array.isArray(dto.skill) ? `{${dto.skill.join(',')}}` : '{}' }, // PostgreSQL array format
+          // { set: 'college', value: String(dto.college ?? '') },
+          // { set: 'degree', value: String(dto.degree ?? '') },
+          // { set: 'rating', value: dto.rating !== null && dto.rating !== undefined ? String(dto.rating) : '' },
         ];
+        let query = "SELECT  * FROM candidates WHERE email='" + dto.email + "'";
+        const existingCandidate = await this.dbService.execute(query);
+        if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
+          return this.utilService.failResponse(
+            `Candidate with email "${dto.email}" already exists.Please update sheet`
+          );
+        }
+        console.log(setData)
         const result = await this.dbService.insertData('candidates', setData);
 
       }
@@ -339,6 +347,59 @@ export class CandidateService {
     }
   }
 
+  async importCandidate(dtos: CreateCandidateDto[]) {
+    const results: { status: boolean; message: string; result?: any; error?: any }[] = [];
 
+    for (const dto of dtos) {
+      try {
+        const skillValue = dto.skill ?? '';
+        const skills = Array.isArray(skillValue)
+          ? skillValue
+          : typeof skillValue === 'string'
+            ? skillValue.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
 
+        const setData = [
+          { set: 'first_name', value: String(dto.first_name ?? '') },
+          { set: 'last_name', value: String(dto.last_name ?? '') },
+          { set: 'email', value: String(dto.email ?? '') },
+          { set: 'headline', value: String(dto.headline ?? '') },
+          { set: 'phone', value: String(dto.phone ?? '') },
+          { set: 'address', value: String(dto.address ?? '') },
+          { set: 'photo_url', value: String(dto.photo_url ?? '') },
+          { set: 'education', value: String(dto.education ?? '') },
+          { set: 'experience', value: String(dto.experience ?? '') },
+          { set: 'summary', value: String(dto.summary ?? '') },
+          { set: 'resume_url', value: String(dto.resume_url ?? '') },
+          { set: 'cover_letter', value: String(dto.cover_letter ?? '') },
+          { set: 'current_company', value: String(dto.current_company ?? '') },
+          { set: 'current_ctc', value: dto.current_ctc != null ? String(dto.current_ctc) : '' },
+          { set: 'expected_ctc', value: dto.expected_ctc != null ? String(dto.expected_ctc) : '' },
+          { set: 'skill', value: `{${skills.join(',')}}` },
+          { set: 'college', value: String(dto.college ?? '') },
+          { set: 'degree', value: String(dto.degree ?? '') },
+          { set: 'rating', value: dto.rating != null ? String(dto.rating) : '' },
+        ];
+
+        const insertion = await this.dbService.insertData('candidates', setData);
+        results.push({
+          status: true,
+          message: `Candidate ${dto.email ?? ''} inserted successfully.`,
+          result: insertion,
+        });
+      } catch (error) {
+        results.push({
+          status: false,
+          message: `Failed to insert candidate ${dto.email ?? ''}`,
+          error: error.message,
+        });
+      }
+    }
+
+    return {
+      status: true,
+      message: 'Bulk operation completed',
+      results,
+    };
+  }
 }
