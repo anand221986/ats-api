@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CandidateService} from './candidate.service';
 import { Response,Express  } from 'express';
-import { CreateCandidateDto ,UpdateCandidateDto } from './create-candidate.dto';
+import { CreateCandidateDto ,UpdateCandidateDto,UpdateActionDto,BulkUpdateCandidateDto} from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam,ApiResponse } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -189,6 +189,28 @@ async assignCandidatesToJobs(
       });
     }
   }
+
+@Post('bulk-update')
+@ApiOperation({ summary: 'Bulk update candidates' })
+@ApiBody({ type: BulkUpdateCandidateDto })
+async bulkUpdateCandidates(
+  @Body() body: BulkUpdateCandidateDto,
+  @Res() res: Response,
+) {
+  try {
+    const result = await this.candidateService.bulkUpdateCandidates(body.ids, body.updates);
+    return res.status(HttpStatus.OK).json(result);
+  } catch (error) {
+    console.error('Bulk update error:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Failed to update candidates',
+      error: error.message,
+    });
+  }
+}
+
+
+
 
 
 

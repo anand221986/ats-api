@@ -36,3 +36,13 @@ export class assignedJobDto {
   candidateIds: number[];
 }
 export class UpdateCandidateDto extends CreateCandidateDto {}
+export class UpdateActionDto {
+  field: string;
+  action: 'change_to'; // can be extended later
+  value: any;
+}
+
+export class BulkUpdateCandidateDto {
+  ids: number[];
+  updates: UpdateActionDto[];
+}
