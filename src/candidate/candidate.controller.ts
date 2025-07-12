@@ -219,7 +219,7 @@ async bulkUpdateCandidates(
     @Res() res: Response,
   ) {
     try {
-      const result = await this.candidateService.bulkDeleteCandidates(body.ids);
+      const result = await this.candidateService.bulkDeleteCandidates(body.data.ids);
       return res.status(HttpStatus.OK).json(result);
     } catch (error) {
       console.error('Bulk delete error:', error);
