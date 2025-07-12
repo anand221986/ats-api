@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CandidateService} from './candidate.service';
 import { Response,Express  } from 'express';
-import { CreateCandidateDto ,UpdateCandidateDto,UpdateActionDto,BulkUpdateCandidateDto} from './create-candidate.dto';
+import { CreateCandidateDto ,UpdateCandidateDto,UpdateActionDto,BulkUpdateCandidateDto, BulkDeleteCandidateDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam,ApiResponse } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -87,7 +87,7 @@ export class CandidateController {
   @ApiOperation({ summary: 'Delete candidate by ID' })
   @ApiParam({ name: 'id', type: Number })
   async delete(@Param('id') id: number, @Res() res: Response) {
-    const job = this.candidateService.deleteCandidate(id);
+    const job = this.candidateService.bulkDeleteCandidates(id);
     return res.status(HttpStatus.OK).json({ message: ' Candidate deleted', job });
   }
 
@@ -113,6 +113,7 @@ async createCandidatesBulk(
   }
 }
 
+//assign candidate to the jobs
 @Post('assignCandidates')
 @ApiOperation({ summary: 'Assign multiple candidates to multiple jobs' })
 @ApiBody({
@@ -140,7 +141,7 @@ async assignCandidatesToJobs(
   }
 }
 
-  //upload Pdf File
+  //upload resume of the candidate
   @Post('uploadPdf')
   @UseInterceptors(FileInterceptor('resumes', {
     storage: diskStorage({
@@ -190,6 +191,7 @@ async assignCandidatesToJobs(
     }
   }
 
+  //bulk update candidate
 @Post('bulk-update')
 @ApiOperation({ summary: 'Bulk update candidates' })
 @ApiBody({ type: BulkUpdateCandidateDto })
@@ -208,7 +210,25 @@ async bulkUpdateCandidates(
     });
   }
 }
-
+//bulk Delete Candidate:
+  @Post('bulk-delete')
+  @ApiOperation({ summary: 'Bulk deletion of candidates' })
+  @ApiBody({ type: BulkDeleteCandidateDto })
+  async bulkDeleteCandidates(
+    @Body() body: BulkDeleteCandidateDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.candidateService.bulkDeleteCandidates(body.ids);
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to delete candidates',
+        error: error.message,
+      });
+    }
+  }
 
 
 

@@ -46,3 +46,7 @@ export class BulkUpdateCandidateDto {
   ids: number[];
   updates: UpdateActionDto[];
 }
+
+export class BulkDeleteCandidateDto {
+ids: number[];
+}
