@@ -51,4 +51,11 @@ export class CommonController {
     // let data = await this.service.getAllQueries();
     res.status(HttpStatus.OK).json("hello");
   }
+
+    @Get("getDashboardStats")
+  @ApiOperation({ summary: 'Get all Dashboard' })
+  async getAll(@Res() res: Response) {
+      let data = await this.service.getDashboardStats();
+    return res.status(HttpStatus.OK).json(data);
+  }
 }
