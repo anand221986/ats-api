@@ -8,7 +8,7 @@ async function bootstrap() {
 
   // 👇 Allow requests from your React frontend (http://localhost:8081)
   app.enableCors({
-    origin: ['http://localhost:8081','http://localhost:8080', 'http://ats-admin-panel.s3-website.eu-north-1.amazonaws.com','http://51.20.181.155','http://xbeeshire.com'],
+    origin: ['http://localhost:8081','http://localhost:8080', 'http://ats-admin-panel.s3-website.eu-north-1.amazonaws.com','http://51.20.181.155','http://xbeeshire.com','https://51.20.181.155','https://xbeeshire.com'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
