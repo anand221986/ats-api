@@ -4,19 +4,26 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as https from 'https';
 async function bootstrap() {
-  const httpsOptions = {
-    key: fs.readFileSync('/etc/ssl/private/ssl-cert-snakeoil.key'),
-    cert: fs.readFileSync('/etc/ssl/certs/ssl-cert-snakeoil.pem'),
+  // const httpsOptions = {
+  //   key: fs.readFileSync('/etc/ssl/private/ssl-cert-snakeoil.key'),
+  //   cert: fs.readFileSync('/etc/ssl/certs/ssl-cert-snakeoil.pem'),
+  // };
+  let httpsOptions: { key: Buffer; cert: Buffer } | undefined = undefined;
+ if( process.env.ENVIRONMENT === 'Production')
+    httpsOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/xbeeshire.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/xbeeshire.com/fullchain.pem'),
   };
 
   const app = await NestFactory.create(AppModule,  {
-    httpsOptions,
+   ...(httpsOptions && { httpsOptions }),
      logger: ['error', 'warn', 'log', 'debug', 'verbose']} 
     );
 
   // 👇 Allow requests from your React frontend (http://localhost:8081)
   app.enableCors({
-    origin: ['http://localhost:8081','http://localhost:8080', 'http://ats-admin-panel.s3-website.eu-north-1.amazonaws.com','http://51.20.181.155','http://xbeeshire.com','https://51.20.181.155','https://xbeeshire.com'],
+    origin: ['http://localhost:8081','http://localhost:8080', 'http://ats-admin-panel.s3-website.eu-north-1.amazonaws.com','http://51.20.181.155','http://xbeeshire.com',
+      'https://51.20.181.155','https://xbeeshire.com'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
