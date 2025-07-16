@@ -52,18 +52,25 @@ export class CandidateService {
         { set: 'resume_url', value: String(dto.resume_url ?? '') },
         { set: 'cover_letter', value: String(dto.cover_letter ?? '') },
         { set: 'current_company', value: String(dto.current_company ?? '') },
-        { set: 'current_ctc', value: dto.current_ctc !== null && dto.current_ctc !== undefined ? String(dto.current_ctc) : '' },
-        { set: 'expected_ctc', value: dto.expected_ctc !== null && dto.expected_ctc !== undefined ? String(dto.expected_ctc) : '' },
         { set: 'skill', value: Array.isArray(dto.skill) ? `{${dto.skill.join(',')}}` : '{}' }, // PostgreSQL array format
         { set: 'college', value: String(dto.college ?? '') },
         { set: 'degree', value: String(dto.degree ?? '') },
-        { set: 'rating', value: dto.rating !== null && dto.rating !== undefined ? String(dto.rating) : '' },
       ];
+
+      if (dto.current_ctc !== null && dto.current_ctc !== undefined) {
+        setData.push({ set: 'current_ctc', value: String(dto.current_ctc) });
+      }
+      if (dto.expected_ctc !== null && dto.expected_ctc !== undefined) {
+        setData.push({ set: 'expected_ctc', value: String(dto.expected_ctc) });
+      }
+      if (dto.rating !== null && dto.rating !== undefined) {
+        setData.push({ set: 'rating', value: String(dto.rating) });
+      }
       const insertion = await this.dbService.insertData('candidates', setData);
       return this.utilService.successResponse(insertion, 'Candidate created successfully.');
     } catch (error) {
       console.error('Create candidate Error:', error);
-      throw new Error('Failed to create candidate. Please ensure all fields are valid and meet constraints.');
+      throw error;
     }
   }
 
