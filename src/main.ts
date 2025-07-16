@@ -4,13 +4,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as https from 'https';
 async function bootstrap() {
-  const httpsOptions = {
+ /* const httpsOptions = {
     key: fs.readFileSync('/etc/ssl/private/ssl-cert-snakeoil.key'),
     cert: fs.readFileSync('/etc/ssl/certs/ssl-cert-snakeoil.pem'),
-  };
-
+  }; */
+// httpsOptions,
   const app = await NestFactory.create(AppModule,  {
-    httpsOptions,
+   
      logger: ['error', 'warn', 'log', 'debug', 'verbose']} 
     );
 
