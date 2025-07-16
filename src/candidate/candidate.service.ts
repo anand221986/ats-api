@@ -19,6 +19,25 @@ export class CandidateService {
 
   async createCandidate(dto: CreateCandidateDto) {
     try {
+      const duplicateCheckQuery = `
+        SELECT * FROM candidates 
+        WHERE LOWER(first_name) = LOWER('${dto.first_name}') 
+        AND LOWER(last_name) = LOWER('${dto.last_name}') 
+        AND LOWER(email) = LOWER('${dto.email}')
+      `;
+      const existingCandidate = await this.dbService.execute(duplicateCheckQuery);
+      
+      if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
+        throw new Error('Name and email already exist in db table, please choose another one');
+      }
+
+      const emailCheckQuery = `SELECT * FROM candidates WHERE LOWER(email) = LOWER('${dto.email}')`;
+      const existingEmail = await this.dbService.execute(emailCheckQuery);
+      
+      if (Array.isArray(existingEmail) && existingEmail.length > 0) {
+        throw new Error('Email already exists in database, please use a different email address');
+      }
+
       const setData = [
         { set: 'first_name', value: String(dto.first_name) },
         { set: 'last_name', value: String(dto.last_name) },
