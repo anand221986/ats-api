@@ -272,7 +272,7 @@ export class CandidateService {
 
   async insertExtractedData(extractedData) {
     try {
-      //     console.log(extractedData,'extractedData')
+     console.log(extractedData,'extractedData')
       //     extractedData= {
       //         "name": "Udayveer Singh",
       //         "phoneNumber": "93352 96725",
@@ -536,6 +536,17 @@ export class CandidateService {
       console.error('Error updating candidates Notes:', error);
       return this.utilService.failResponse('Failed to update candidates, Notes');
     }
+  }
+
+  
+
+    async getCandidateNotes(id: number) {
+    const query = `SELECT * FROM candidate_notes WHERE candidate_id = ${id}`;
+    const result = await this.dbService.execute(query);
+    if (!result.length) {
+      throw new NotFoundException(`candidates with ID ${id} not found`);
+    }
+    return this.utilService.successResponse(result, "Candidates Notes retrieved successfully.");
   }
 
 }
