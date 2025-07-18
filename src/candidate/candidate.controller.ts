@@ -165,19 +165,14 @@ export class CandidateController {
     @Res() res: Response,
   ): Promise<any> {
     try {
-
       const pdfPath = file.path; // full path to uploaded PDF
       const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
       // Do something with the uploaded PDF file if needed (file.path)
-      const response = 'PDF file uploaded successfully'
-
-
+      const response = 'PDF file uploaded and process successfully'
       const result = await this.candidateService.insertExtractedData(extractedData);
-
       if (!result.status) {
         return res.status(HttpStatus.CONFLICT).json(result);
       }
-      // return res.status(HttpStatus.CREATED).json(result);
       return res.status(HttpStatus.CREATED).json({
         message: 'Bulk operation successful',
         fileName: file.filename,
@@ -190,7 +185,6 @@ export class CandidateController {
       });
     }
   }
-
   //bulk update candidate
   @Post('bulk-update')
   @ApiOperation({ summary: 'Bulk update candidates' })
@@ -257,7 +251,15 @@ export class CandidateController {
   @ApiBody({ type: updateCandidateNotesDto })
   async updateNotes(@Param('id') id: number, @Body() body: updateCandidateNotesDto, @Res() res: Response) {
     const jobResult = await this.candidateService.updateCandidateNotes(id, body);
-    console.log(jobResult)
+    return res.status(HttpStatus.OK).json(jobResult);
+
+  }
+
+  @Get('notes/:id')
+  @ApiOperation({ summary: 'Get Candidate Notes By Id' })
+  @ApiParam({ name: 'id', type: Number })
+  async getCandidateNotes(@Param('id') id: number, @Res() res: Response) {
+    const jobResult = await this.candidateService.getCandidateNotes(id);
     return res.status(HttpStatus.OK).json(jobResult);
 
   }
