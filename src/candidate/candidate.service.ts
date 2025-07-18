@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -26,14 +26,14 @@ export class CandidateService {
         AND LOWER(email) = LOWER('${dto.email}')
       `;
       const existingCandidate = await this.dbService.execute(duplicateCheckQuery);
-      
+
       if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
         throw new Error('Name and email already exist in db table, please choose another one');
       }
 
       const emailCheckQuery = `SELECT * FROM candidates WHERE LOWER(email) = LOWER('${dto.email}')`;
       const existingEmail = await this.dbService.execute(emailCheckQuery);
-      
+
       if (Array.isArray(existingEmail) && existingEmail.length > 0) {
         throw new Error('Email already exists in database, please use a different email address');
       }
@@ -431,80 +431,111 @@ export class CandidateService {
 
 
   async bulkUpdateCandidates(
-  ids: number[],
-  updates: { field: string; action: string; value: any }[],
-) {
-  try {
-    type BulkUpdateResult = {
-      id: number;
-      updated: boolean;
-      message?: string;
-      error?: string;
-    };
+    ids: number[],
+    updates: { field: string; action: string; value: any }[],
+  ) {
+    try {
+      type BulkUpdateResult = {
+        id: number;
+        updated: boolean;
+        message?: string;
+        error?: string;
+      };
 
-    const updatedResults: BulkUpdateResult[] = [];
+      const updatedResults: BulkUpdateResult[] = [];
 
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
-      return this.utilService.failResponse('No candidate IDs provided.');
-    }
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        return this.utilService.failResponse('No candidate IDs provided.');
+      }
 
-    if (!updates || !Array.isArray(updates) || updates.length === 0) {
-      return this.utilService.failResponse('No update fields provided.');
-    }
+      if (!updates || !Array.isArray(updates) || updates.length === 0) {
+        return this.utilService.failResponse('No update fields provided.');
+      }
 
-    const setData = updates
-      .filter(u => u.action === 'change_to') // Only process 'change_to' actions
-      .map(u => `${u.field}='${u.value}'`);
+      const setData = updates
+        .filter(u => u.action === 'change_to') // Only process 'change_to' actions
+        .map(u => `${u.field}='${u.value}'`);
 
-    for (const id of ids) {
-      try {
-        const where = [`id=${id}`];
-        const result = await this.dbService.updateData('candidates', setData, where);
+      for (const id of ids) {
+        try {
+          const where = [`id=${id}`];
+          const result = await this.dbService.updateData('candidates', setData, where);
 
-        if (result.affectedRows === 0) {
-          updatedResults.push({ id, updated: false, message: 'No record updated' });
-        } else {
-          updatedResults.push({ id, updated: true });
+          if (result.affectedRows === 0) {
+            updatedResults.push({ id, updated: false, message: 'No record updated' });
+          } else {
+            updatedResults.push({ id, updated: true });
+          }
+        } catch (error) {
+          updatedResults.push({ id, updated: false, error: error.message });
         }
-      } catch (error) {
-        updatedResults.push({ id, updated: false, error: error.message });
       }
+      return this.utilService.successResponse(updatedResults, 'Candidate Bulk Updation has been Done .');
+    } catch (err) {
+      console.error('Bulk update failed:', err);
+      return this.utilService.failResponse('An error occurred during bulk update.');
     }
-    return this.utilService.successResponse(updatedResults, 'Candidate Bulk Updation has been Done .');
-  } catch (err) {
-    console.error('Bulk update failed:', err);
-    return this.utilService.failResponse('An error occurred during bulk update.');
   }
-}
 
 
 
-async bulkDeleteCandidates(id: number | number[]) {
-  try {
-    // Prepare the condition
-    let condition = '';
-    if (Array.isArray(id)) {
-      if (id.length === 0) {
-        return this.utilService.failResponse(null, "No IDs provided.");
+  async bulkDeleteCandidates(id: number | number[]) {
+    try {
+      // Prepare the condition
+      let condition = '';
+      if (Array.isArray(id)) {
+        if (id.length === 0) {
+          return this.utilService.failResponse(null, "No IDs provided.");
+        }
+        const idList = id.map(Number).join(','); // Ensures all are numbers
+        condition = `id IN (${idList})`;
+      } else {
+        condition = `id = ${Number(id)}`;
       }
-      const idList = id.map(Number).join(','); // Ensures all are numbers
-      condition = `id IN (${idList})`;
-    } else {
-      condition = `id = ${Number(id)}`;
+
+      const query = `DELETE FROM "candidates" WHERE ${condition} RETURNING *;`;
+      const result = await this.dbService.execute(query);
+
+      if (result.length === 0) {
+        return this.utilService.failResponse(null, "User(s) not found or already deleted.");
+      }
+
+      return this.utilService.successResponse(result, "User(s) deleted successfully.");
+    } catch (error) {
+      console.error('Delete jobs Error:', error);
+      throw new Error(error.message || error);
     }
-
-    const query = `DELETE FROM "candidates" WHERE ${condition} RETURNING *;`;
-    const result = await this.dbService.execute(query);
-
-    if (result.length === 0) {
-      return this.utilService.failResponse(null, "User(s) not found or already deleted.");
-    }
-
-    return this.utilService.successResponse(result, "User(s) deleted successfully.");
-  } catch (error) {
-    console.error('Delete jobs Error:', error);
-    throw new Error(error.message || error);
   }
-}
+  async createCandidatesNotes(dto: CandidateNotesDto) {
+    try {
+      const setData = [
+        { set: 'candidate_id', value: String(dto.candidate_id) },
+        { set: 'author_id', value: String(dto.author_id) },
+        { set: 'note', value: String(dto.note) },
+      ];
+      const insertion = await this.dbService.insertData('candidate_notes', setData);
+      return this.utilService.successResponse(insertion, 'Candidate Notes created successfully.');
+    } catch (error) {
+      console.error('Create candidate Error:', error);
+      throw error;
+    }
+  }
+
+
+  async updateCandidateNotes(id: number, dto: updateCandidateNotesDto) {
+    try {
+      // Convert DTO to key=value pairs for update
+      const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+      const where = [`id=${id}`];
+      const updateResult = await this.dbService.updateData('candidate_notes', set, where);
+      if (updateResult.affectedRows === 0) {
+        return this.utilService.failResponse('candidates notes  not found or no changes made.');
+      }
+      return this.utilService.successResponse('candidates Notes updated successfully.');
+    } catch (error) {
+      console.error('Error updating candidates Notes:', error);
+      return this.utilService.failResponse('Failed to update candidates, Notes');
+    }
+  }
 
 }

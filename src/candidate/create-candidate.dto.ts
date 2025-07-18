@@ -52,3 +52,15 @@ export class BulkDeleteCandidateDto {
     ids: number[];
   };
 }
+
+export class CandidateNotesDto {
+  candidate_id: number;
+  author_id: number;
+  note: string;
+}
+
+
+export class updateCandidateNotesDto {
+  id: number;
+  note: string;
+}
