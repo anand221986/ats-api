@@ -35,7 +35,6 @@ export class JobsController {
   @ApiOperation({ summary: 'Get all jobs' })
   async getAll(@Res() res: Response) {
     const jobs = await this.jobsService.getAllJobs();
-    console.log(jobs, 'test')
     return res.status(HttpStatus.OK).json(jobs);
   }
 
