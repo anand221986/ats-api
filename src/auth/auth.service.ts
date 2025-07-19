@@ -89,7 +89,7 @@ export class AuthService {
         created_dt: new Date(),
         email_verified: 0,
         phone_verified: 0,
-        password: hashedPassword,
+        password: password,
         cognitoId: response.UserSub // Add this
       };
       // Optional DB sync
