@@ -20,12 +20,15 @@ import { CandidateController } from './candidate/candidate.controller';
 import { AuthController } from './auth/auth.controller';
 import { ClientService } from './client/client.service';
 import { ClientController } from './client/client.controller';
+import {LinkedinService} from './linkedin/linkedin.service';
+import { LinkedinController } from './linkedin/linkedin.controller';
+ 
 @Module({
   imports: [ ConfigModule.forRoot({
       isGlobal: true, // So you can use ConfigService anywhere without importing again
     }),],
-  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController ],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService ],
+  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController ],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService ],
 })
 //with middle ware 
 //without export class AppModule
