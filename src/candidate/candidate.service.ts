@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto,updateCandidateTaskDto,CandidateTaskDto} from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -272,109 +272,109 @@ export class CandidateService {
 
   async insertExtractedData(extractedData) {
     try {
-     console.log(extractedData,'extractedData')
-  extractedData= {
-  "name": "Akash Sonowal",
-  "phoneNumber": "+91-8812054820 / 8638450690",
-  "email": "work.akashsonowal@gmail.com",
-  "linkedinProfile": "linkedin.com/in/akashsonowal",
-  "githubProfile": "github.com/akashsonowal",
-  "experience": [
-    {
-      "company": "NoBroker.com",
-      "role": "Data Scientist II",
-      "duration": "Oct 2024 - Present",
-      "responsibilities": []
-    },
-    {
-      "company": "HERE Technologies",
-      "role": "Senior AI/ML Engineer",
-      "duration": "Mar 2024 - Oct 2024",
-      "responsibilities": []
-    },
-    {
-      "company": "MPHASIS",
-      "role": "Data Scientist, Applied Research",
-      "duration": "July 2022 - Mar 2024",
-      "responsibilities": []
-    }
-  ],
-  "education": [
-    {
-      "institution": "IIT Kanpur",
-      "degree": "MTech",
-      "duration": "2020-2022",
-      "percentage": null,
-      "cgpa": null
-    },
-    {
-      "institution": "IIT Guwahati",
-      "degree": "BTech",
-      "duration": "2016-2020",
-      "percentage": null,
-      "cgpa": null
-    }
-  ],
-  "skillset": [
-    "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
-    "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
-    "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
-    "NLP", "Computer Vision", "Graphs", "Speech", "Time Series", "Tabular",
-    "Generative AI", "Recommender Systems", "Classification", "Regression",
-    "Forecasting", "Supervised", "Unsupervised", "Self-Supervised",
-    "Algorithms", "Data Structures"
-  ],
-  "pastOrganisations": [
-    "NoBroker.com",
-    "HERE Technologies",
-    "MPHASIS"
-  ],
-  "technicalSkills": [
-    "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
-    "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
-    "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
-    "NLP", "Computer Vision", "Speech", "Time Series", "Tabular"
-  ],
-  "workExperience": [
-    "Real-time multilingual voicebot development",
-    "Model fine-tuning with Llama 3.2 and xTTS",
-    "Model deployment and inference optimization on GKE and AWS ECS",
-    "Business impact analysis and cost reduction",
-    "Development of RAG systems using vector databases",
-    "Data pipeline implementation with CDC, SQS, EFS",
-    "Synthetic data generation and medical image analysis",
-    "Research presentations and papers"
-  ],
-  "projects": null,
-  "location": [
-    {
-      "firstline": "Bengaluru",
-      "city": "Bengaluru",
-      "pincode": null,
-      "district": null,
-      "state": null,
-      "country": null
-    },
-    {
-      "firstline": "Mumbai",
-      "city": "Mumbai",
-      "pincode": null,
-      "district": null,
-      "state": null,
-      "country": null
-    },
-    {
-      "firstline": "Remote",
-      "city": null,
-      "pincode": null,
-      "district": null,
-      "state": null,
-      "country": null
-    }
-  ],
-  "institutionTier": "one",
-  "companyTier": "one"
-}
+    //  console.log(extractedData,'extractedData')
+//   extractedData= {
+//   "name": "Akash Sonowal",
+//   "phoneNumber": "+91-8812054820 / 8638450690",
+//   "email": "work.akashsonowal@gmail.com",
+//   "linkedinProfile": "linkedin.com/in/akashsonowal",
+//   "githubProfile": "github.com/akashsonowal",
+//   "experience": [
+//     {
+//       "company": "NoBroker.com",
+//       "role": "Data Scientist II",
+//       "duration": "Oct 2024 - Present",
+//       "responsibilities": []
+//     },
+//     {
+//       "company": "HERE Technologies",
+//       "role": "Senior AI/ML Engineer",
+//       "duration": "Mar 2024 - Oct 2024",
+//       "responsibilities": []
+//     },
+//     {
+//       "company": "MPHASIS",
+//       "role": "Data Scientist, Applied Research",
+//       "duration": "July 2022 - Mar 2024",
+//       "responsibilities": []
+//     }
+//   ],
+//   "education": [
+//     {
+//       "institution": "IIT Kanpur",
+//       "degree": "MTech",
+//       "duration": "2020-2022",
+//       "percentage": null,
+//       "cgpa": null
+//     },
+//     {
+//       "institution": "IIT Guwahati",
+//       "degree": "BTech",
+//       "duration": "2016-2020",
+//       "percentage": null,
+//       "cgpa": null
+//     }
+//   ],
+//   "skillset": [
+//     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
+//     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
+//     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
+//     "NLP", "Computer Vision", "Graphs", "Speech", "Time Series", "Tabular",
+//     "Generative AI", "Recommender Systems", "Classification", "Regression",
+//     "Forecasting", "Supervised", "Unsupervised", "Self-Supervised",
+//     "Algorithms", "Data Structures"
+//   ],
+//   "pastOrganisations": [
+//     "NoBroker.com",
+//     "HERE Technologies",
+//     "MPHASIS"
+//   ],
+//   "technicalSkills": [
+//     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
+//     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
+//     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
+//     "NLP", "Computer Vision", "Speech", "Time Series", "Tabular"
+//   ],
+//   "workExperience": [
+//     "Real-time multilingual voicebot development",
+//     "Model fine-tuning with Llama 3.2 and xTTS",
+//     "Model deployment and inference optimization on GKE and AWS ECS",
+//     "Business impact analysis and cost reduction",
+//     "Development of RAG systems using vector databases",
+//     "Data pipeline implementation with CDC, SQS, EFS",
+//     "Synthetic data generation and medical image analysis",
+//     "Research presentations and papers"
+//   ],
+//   "projects": null,
+//   "location": [
+//     {
+//       "firstline": "Bengaluru",
+//       "city": "Bengaluru",
+//       "pincode": null,
+//       "district": null,
+//       "state": null,
+//       "country": null
+//     },
+//     {
+//       "firstline": "Mumbai",
+//       "city": "Mumbai",
+//       "pincode": null,
+//       "district": null,
+//       "state": null,
+//       "country": null
+//     },
+//     {
+//       "firstline": "Remote",
+//       "city": null,
+//       "pincode": null,
+//       "district": null,
+//       "state": null,
+//       "country": null
+//     }
+//   ],
+//   "institutionTier": "one",
+//   "companyTier": "one"
+// }
 
 
       let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
@@ -557,7 +557,7 @@ export class CandidateService {
       const insertion = await this.dbService.insertData('candidate_notes', setData);
       return this.utilService.successResponse(insertion, 'Candidate Notes created successfully.');
     } catch (error) {
-      console.error('Create candidate Error:', error);
+      console.error('Create candidate notes Error:', error);
       throw error;
     }
   }
@@ -588,6 +588,50 @@ export class CandidateService {
       throw new NotFoundException(`candidates with ID ${id} not found`);
     }
     return this.utilService.successResponse(result, "Candidates Notes retrieved successfully.");
+  }
+
+
+    async createCandidatesTask(dto: CandidateTaskDto) {
+    try {
+      const setData = [
+        { set: 'candidate_id', value: String(dto.candidate_id) },
+        { set: 'author_id', value: String(dto.author_id) },
+        { set: 'task', value: String(dto.task) },
+      ];
+      const insertion = await this.dbService.insertData('candidate_task', setData);
+      return this.utilService.successResponse(insertion, 'Candidate task created successfully.');
+    } catch (error) {
+      console.error('Create candidate task Error:', error);
+      throw error;
+    }
+  }
+
+
+  async updateCandidateTask(id: number, dto:updateCandidateTaskDto) {
+    try {
+      // Convert DTO to key=value pairs for update
+      const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+      const where = [`id=${id}`];
+      const updateResult = await this.dbService.updateData('candidate_task', set, where);
+      if (updateResult.affectedRows === 0) {
+        return this.utilService.failResponse('candidates Task  not found or no changes made.');
+      }
+      return this.utilService.successResponse('candidates Task updated successfully.');
+    } catch (error) {
+      console.error('Error updating candidates Notes:', error);
+      return this.utilService.failResponse('Failed to update candidates, Task');
+    }
+  }
+
+  
+
+    async getCandidateTask(id: number) {
+    const query = `SELECT * FROM candidate_notes WHERE candidate_id = ${id}`;
+    const result = await this.dbService.execute(query);
+    if (!result.length) {
+      throw new NotFoundException(`candidates with ID ${id} not found`);
+    }
+    return this.utilService.successResponse(result, "Candidates Task retrieved successfully.");
   }
 
 }

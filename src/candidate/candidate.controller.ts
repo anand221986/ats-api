@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -263,4 +263,47 @@ export class CandidateController {
     return res.status(HttpStatus.OK).json(jobResult);
 
   }
+
+
+  @Post('addCandidateTask')
+  @ApiOperation({ summary: 'add Candidate Task' })
+  @ApiBody({ type: CandidateTaskDto }) // <== Array of DTOs
+  @ApiResponse({ status: 201, description: 'task created' })
+  async addCandidateTask(
+    @Body() dtos: CandidateTaskDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const response = await this.candidateService.createCandidatesTask(dtos);
+      return res.status(HttpStatus.CREATED).json(response);
+    } catch (error) {
+      console.error('candidate Task Insertion error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to insert candidate Task',
+      });
+    }
+  }
+
+  @Post('task/:id')
+  @ApiOperation({ summary: 'Update candidate task  by task Id' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: updateCandidateTaskDto })
+  async updateTask(@Param('id') id: number, @Body() body: updateCandidateTaskDto, @Res() res: Response) {
+    const jobResult = await this.candidateService.updateCandidateTask(id, body);
+    return res.status(HttpStatus.OK).json(jobResult);
+
+  }
+
+  @Get('task/:id')
+  @ApiOperation({ summary: 'Get Candidate task By candidateId' })
+  @ApiParam({ name: 'id', type: Number })
+  async getCandidateTask(@Param('id') id: number, @Res() res: Response) {
+    const jobResult = await this.candidateService.getCandidateTask(id);
+    return res.status(HttpStatus.OK).json(jobResult);
+
+  }
+
+
+
+
 }

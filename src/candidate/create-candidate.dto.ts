@@ -64,3 +64,13 @@ export class updateCandidateNotesDto {
   id: number;
   note: string;
 }
+
+export class CandidateTaskDto {
+  candidate_id: number;
+  author_id: number;
+  task: string;
+}
+export class updateCandidateTaskDto {
+  id: number;
+  task: string;
+}
