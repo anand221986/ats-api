@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body,BadRequestException, } from "@nestjs/common";
 import { CognitoService } from './cognito.service';
 import { UserService } from '../user/user.service';
 import { Response } from "express";
@@ -7,7 +7,7 @@ import { AuthService } from "./auth.service";
 import { OAuth2Client } from 'google-auth-library';
 import { UtilService } from 'src/util/util.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SignUpDto } from './dto/signup.dto';
+import { SignUpDto,SignInDto } from './dto/signup.dto';
 @ApiTags('Auth')
 @Controller("auth")
 export class AuthController {
@@ -24,7 +24,16 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User signed up successfully' })
   @ApiResponse({ status: 400, description: 'Signup failed or input error' })
   async signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto.email, signUpDto.password, signUpDto.name);
+    return this.authService.signUp(signUpDto);
+  }
+
+    @Post('signin')
+  @ApiOperation({ summary: 'Authenticate user and return JWT tokens from Cognito' })
+  @ApiBody({ type: SignInDto })
+  @ApiResponse({ status: 200, description: 'User signed in successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto);
   }
 
 

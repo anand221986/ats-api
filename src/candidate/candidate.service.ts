@@ -273,68 +273,109 @@ export class CandidateService {
   async insertExtractedData(extractedData) {
     try {
      console.log(extractedData,'extractedData')
-      //     extractedData= {
-      //         "name": "Udayveer Singh",
-      //         "phoneNumber": "93352 96725",
-      //         "email": "veerukalpi2018@gmail.com",
-      //         "linkedInProfile": null,
-      //         "experience": [
-      //             {
-      //                 "title": "Software Engineer Intern",
-      //                 "description": "Worked on projects involving Java, Python, React, SpringBoot, and MongoDB. Developed e-commerce website and a lost item finder app. Gained experience in web and mobile app development, database management, and version control."
-      //             }
-      //         ],
-      //         "education": [
-      //             {
-      //                 "institution": "AXIS INSTITUTE OF TECHNOLOGY & MANAGEMENT",
-      //                 "degree": "B.Tech in Information Technology",
-      //                 "period": "July 2021 - July 2025",
-      //                 "percentage": "68%"
-      //             },
-      //             {
-      //                 "institution": "DR. AMBEDKAR INTERCOLLEGE ATA",
-      //                 "degree": "PCM Intermediate",
-      //                 "period": "July 2019 - July 2020",
-      //                 "percentage": "68%"
-      //             },
-      //             {
-      //                 "institution": "M.J.H INTERCOLLEGE ATA",
-      //                 "degree": "High School",
-      //                 "period": "July 2017 - July 2018",
-      //                 "percentage": "85%"
-      //             }
-      //         ],
-      //         "skills": [
-      //             "Java",
-      //             "Python",
-      //             "JavaScript",
-      //             "React",
-      //             "Git",
-      //             "VS Code",
-      //             "MongoDb",
-      //             "MySql"
-      //         ],
-      //         "projects": [
-      //             {
-      //                 "name": "Lostio User Friendly Application",
-      //                 "description": "React-Native, SpringBoot, MongoDb. Simplifies finding lost items and their owners, enhancing user experience."
-      //             },
-      //             {
-      //                 "name": "E-Commerce Website",
-      //                 "description": "Responsive frontend developed with React.js, including product listings, reusable UI components, and modern design practices."
-      //             }
-      //         ],
-      //         "certifications": [
-      //             "Cybersecurity Virtual Internship - AICTE",
-      //             "Cybersecurity Virtual Internship - AICTE",
-      //             "DIT PLUS (Microsoft Office) - ICL Kalpi"
-      //         ],
-      //         "honorsAndAwards": [
-      //             "Solved 200+ questions on LeetCode, HackerRank, and GeeksforGeeks."
-      //         ],
-      //         "overallScore": 75
+  extractedData= {
+  "name": "Akash Sonowal",
+  "phoneNumber": "+91-8812054820 / 8638450690",
+  "email": "work.akashsonowal@gmail.com",
+  "linkedinProfile": "linkedin.com/in/akashsonowal",
+  "githubProfile": "github.com/akashsonowal",
+  "experience": [
+    {
+      "company": "NoBroker.com",
+      "role": "Data Scientist II",
+      "duration": "Oct 2024 - Present",
+      "responsibilities": []
+    },
+    {
+      "company": "HERE Technologies",
+      "role": "Senior AI/ML Engineer",
+      "duration": "Mar 2024 - Oct 2024",
+      "responsibilities": []
+    },
+    {
+      "company": "MPHASIS",
+      "role": "Data Scientist, Applied Research",
+      "duration": "July 2022 - Mar 2024",
+      "responsibilities": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "IIT Kanpur",
+      "degree": "MTech",
+      "duration": "2020-2022",
+      "percentage": null,
+      "cgpa": null
+    },
+    {
+      "institution": "IIT Guwahati",
+      "degree": "BTech",
+      "duration": "2016-2020",
+      "percentage": null,
+      "cgpa": null
+    }
+  ],
+  "skillset": [
+    "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
+    "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
+    "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
+    "NLP", "Computer Vision", "Graphs", "Speech", "Time Series", "Tabular",
+    "Generative AI", "Recommender Systems", "Classification", "Regression",
+    "Forecasting", "Supervised", "Unsupervised", "Self-Supervised",
+    "Algorithms", "Data Structures"
+  ],
+  "pastOrganisations": [
+    "NoBroker.com",
+    "HERE Technologies",
+    "MPHASIS"
+  ],
+  "technicalSkills": [
+    "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
+    "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
+    "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
+    "NLP", "Computer Vision", "Speech", "Time Series", "Tabular"
+  ],
+  "workExperience": [
+    "Real-time multilingual voicebot development",
+    "Model fine-tuning with Llama 3.2 and xTTS",
+    "Model deployment and inference optimization on GKE and AWS ECS",
+    "Business impact analysis and cost reduction",
+    "Development of RAG systems using vector databases",
+    "Data pipeline implementation with CDC, SQS, EFS",
+    "Synthetic data generation and medical image analysis",
+    "Research presentations and papers"
+  ],
+  "projects": null,
+  "location": [
+    {
+      "firstline": "Bengaluru",
+      "city": "Bengaluru",
+      "pincode": null,
+      "district": null,
+      "state": null,
+      "country": null
+    },
+    {
+      "firstline": "Mumbai",
+      "city": "Mumbai",
+      "pincode": null,
+      "district": null,
+      "state": null,
+      "country": null
+    },
+    {
+      "firstline": "Remote",
+      "city": null,
+      "pincode": null,
+      "district": null,
+      "state": null,
+      "country": null
+    }
+  ],
+  "institutionTier": "one",
+  "companyTier": "one"
+}
 
-      // }
 
       let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
       const existingCandidate = await this.dbService.execute(query);
