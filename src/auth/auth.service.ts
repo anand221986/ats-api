@@ -50,6 +50,7 @@ export class AuthService {
   async signUp(request: { email: string; password: string; name: string, phone_number: string }): Promise<any> {
     const { email, password, name, phone_number } = request;
     const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
+     const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
     const command = new SignUpCommand({
       ClientId: this.clientId,
       Username: email,
@@ -88,10 +89,11 @@ export class AuthService {
         created_dt: new Date(),
         email_verified: 0,
         phone_verified: 0,
+        password: hashedPassword,
+        cognitoId: response.UserSub // Add this
       };
       // Optional DB sync
-      await this.createUser(usercreatePayload);
-
+     return  await this.createUser(usercreatePayload);
     } catch (error) {
       if (error.name === 'UsernameExistsException') {
         throw new BadRequestException('User already exists');
@@ -120,12 +122,12 @@ export class AuthService {
 
   async createUser(usercreatePayload) {
     try {
-      const hashedPassword = await bcrypt.hash(usercreatePayload.password, 10); // 10 is the salt rounds
+      //const hashedPassword = await bcrypt.hash(usercreatePayload.password, 10); // 10 is the salt rounds
       const setData = [
         { set: 'first_name', value: String(usercreatePayload.first_name) },
         { set: 'last_name', value: String(usercreatePayload.last_name) },
         { set: 'email', value: String(usercreatePayload.email) },
-        { set: 'password', value: String(hashedPassword ?? '') },
+        { set: 'password', value: String(usercreatePayload.password?? '') },
         { set: 'phone', value: String(usercreatePayload.phone_number ?? '') },
       ]
       const insertion = await this.dbService.insertData('users', setData);
