@@ -23,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.826.0",
     "@aws-sdk/client-sts": "^3.816.0",
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
