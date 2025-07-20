@@ -48,11 +48,11 @@ export class JobsService {
         { set: 'salary_to', value: String(dto.salary.to) },
         { set: 'salary_currency', value: String(dto.salary.currency) },
       ];
-    let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
+let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
 const jobPayload = {
   elements: [
     {
-      integrationContext: "urn:li:application:78gpiceqljhr1u",  // Your company’s URN
+      integrationContext: "urn:li:application:86oy62sudwvpdy",  // Your company’s URN
       companyApplyUrl: "https://yourcompany.com/careers/apply/789",
       description: "We’re seeking a passionate Software Engineer to design, develop, and install software solutions. Must have 3+ years experience with Node.js, NestJS, and cloud deployment. Responsibilities include gathering requirements, building APIs, and collaborating in agile teams. Benefits include health insurance, flexible hours, and training budget.",
       employmentStatus: "FULL_TIME",    // e.g. "PART_TIME", "CONTRACT"
