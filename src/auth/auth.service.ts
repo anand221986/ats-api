@@ -15,7 +15,12 @@ import * as bcrypt from 'bcrypt';
 
 
 
-import { CognitoIdentityProviderClient, SignUpCommand,InitiateAuthCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { 
+  CognitoIdentityProviderClient, 
+  SignUpCommand,InitiateAuthCommand,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand
+} from '@aws-sdk/client-cognito-identity-provider';
 
 @Injectable()
 export class AuthService {
@@ -172,4 +177,49 @@ export class AuthService {
     throw new UnauthorizedException('Invalid email or password');
   }
 }
+
+  async forgotPassword(email: string): Promise<any> {
+    const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
+    
+    const command = new ForgotPasswordCommand({
+      ClientId: this.clientId,
+      Username: email,
+      SecretHash: secretHash,
+    });
+
+    try {
+      const response = await this.cognitoClient.send(command);
+      return {
+        success: true,
+        message: 'Password reset code sent to your email',
+        codeDeliveryDetails: response.CodeDeliveryDetails
+      };
+    } catch (err) {
+      console.error('Cognito forgot password error:', err);
+      throw new BadRequestException(err.message || 'Failed to initiate password reset');
+    }
+  }
+
+  async resetPassword(email: string, verificationCode: string, newPassword: string): Promise<any> {
+    const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
+    
+    const command = new ConfirmForgotPasswordCommand({
+      ClientId: this.clientId,
+      Username: email,
+      ConfirmationCode: verificationCode,
+      Password: newPassword,
+      SecretHash: secretHash,
+    });
+
+    try {
+      await this.cognitoClient.send(command);
+      return {
+        success: true,
+        message: 'Password has been reset successfully'
+      };
+    } catch (err) {
+      console.error('Cognito reset password error:', err);
+      throw new BadRequestException(err.message || 'Failed to reset password');
+    }
+  }
 }
