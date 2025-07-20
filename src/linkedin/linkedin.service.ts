@@ -32,7 +32,7 @@ export class LinkedinService {
       'X-Restli-Protocol-Version': '2.0.0',
     };
 
-    const response = await axios.post('https://api.linkedin.com/v2/jobs', jobData, { headers });
+    const response = await axios.post('https://api.linkedin.com/v2/jobPosts', jobData, { headers });
     return response.data;
   }
 }
