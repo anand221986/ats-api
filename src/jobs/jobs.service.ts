@@ -48,7 +48,7 @@ export class JobsService {
         { set: 'salary_to', value: String(dto.salary.to) },
         { set: 'salary_currency', value: String(dto.salary.currency) },
       ];
-      let code='';
+    let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
 const jobPayload = {
   elements: [
     {
@@ -66,7 +66,10 @@ const jobPayload = {
   ]
 };
 
-    const accessToken = await this.linkdinService.getAccessToken(code);
+    //const accessToken = await this.linkdinService.getAccessToken(code);
+
+     const accessToken =process.env.LINKDINACCESSTOKEN;
+    console.log(accessToken,'accessToken')
     const linkedInResponse = await this.linkdinService.postJob(accessToken, jobPayload);
     console.log(linkedInResponse,'linkedin response')
       const insertion = await this.dbService.insertData('jobs', setData);

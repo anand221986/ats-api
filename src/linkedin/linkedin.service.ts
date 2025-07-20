@@ -24,7 +24,7 @@ export class LinkedinService {
     return response.data; // contains access_token and expires_in
   }
 
-  async postJob(accessToken: string, jobData: any): Promise<any> {
+  async postJob(accessToken: any, jobData: any): Promise<any> {
     // This assumes you're an approved LinkedIn Partner with API access
     const headers = {
       Authorization: `Bearer ${accessToken}`,
