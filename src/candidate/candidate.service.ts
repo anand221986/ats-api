@@ -396,7 +396,7 @@ export class CandidateService {
         { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
         { set: 'skill', value: extractedData.skills ?? [] },
         { set: 'linkedinprofile', value: extractedData.linkedinProfile ?? '' },
-        { set: 'address', value: JSON.stringify(extractedData.education ?? [])},
+        { set: 'address', value: JSON.stringify(extractedData.location ?? [])},
         { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
         { set: 'companytier', value: extractedData.companyTier ?? [] }
       ];
