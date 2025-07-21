@@ -395,10 +395,10 @@ export class CandidateService {
         { set: 'education', value: JSON.stringify(extractedData.education ?? []) },
         { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
         { set: 'skill', value: extractedData.skills ?? [] },
-        { set: 'linkedinProfile', value: extractedData.linkedinProfile ?? '' },
+        { set: 'linkedinprofile', value: extractedData.linkedinProfile ?? '' },
         { set: 'address', value: extractedData.location ?? [] },
-        { set: 'institutionTier', value: extractedData.institutionTier ?? [] },
-        { set: 'companyTier', value: extractedData.companyTier ?? [] }
+        { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
+        { set: 'companytier', value: extractedData.companyTier ?? [] }
       ];
       const insertion = await this.dbService.insertData('candidates', setData);
       return this.utilService.successResponse(insertion, 'Candidate created successfully.');
