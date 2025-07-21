@@ -11,6 +11,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { Response, Express } from 'express';
@@ -163,12 +164,12 @@ export class CandidateController {
     },
   }))
   async bulk(
-    @UploadedFile() files: Express.Multer.File[],
+    @UploadedFiles() files: Express.Multer.File[],
     @Body() body: { jobIds: number[]; candidateIds: number[] },
     @Res() res: Response,
   ): Promise<any> {
     try {
-
+console.log(files,'files------------------------')
       const allExtractedData: ExtractedDataItem[] = [];
       for (const file of files) {
         const pdfPath = file.path;
