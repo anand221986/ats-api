@@ -19,10 +19,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/s
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-interface ExtractedDataItem {
-  fileName: string;
-  extractedData: any; // replace with actual type if known
-}
+
 @Controller('candidate')
 @ApiTags('candidate')
 export class CandidateController {
@@ -163,43 +160,24 @@ export class CandidateController {
     },
   }))
   async bulk(
-    @UploadedFile() files: Express.Multer.File[],
+    @UploadedFile() file: Express.Multer.File,
     @Body() body: { jobIds: number[]; candidateIds: number[] },
     @Res() res: Response,
   ): Promise<any> {
     try {
-      const allExtractedData: ExtractedDataItem[] = [];
-      for (const file of files) {
-        const pdfPath = file.path;
-        const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
-        const result = await this.candidateService.insertExtractedData(extractedData);
-
-        if (!result.status) {
-          return res.status(HttpStatus.CONFLICT).json(result);
-        }
-
-        allExtractedData.push({
-          fileName: file.filename,
-          extractedData,
-        });
+      const pdfPath = file.path; // full path to uploaded PDF
+      const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
+      // Do something with the uploaded PDF file if needed (file.path)
+      const response = 'PDF file uploaded and process successfully'
+      const result = await this.candidateService.insertExtractedData(extractedData);
+      if (!result.status) {
+        return res.status(HttpStatus.CONFLICT).json(result);
       }
       return res.status(HttpStatus.CREATED).json({
         message: 'Bulk operation successful',
-        uploadedFiles: allExtractedData,
+        fileName: file.filename,
+        extractedData, // Python parsed output
       });
-      // const pdfPath = file.path; // full path to uploaded PDF
-      // const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
-      // // Do something with the uploaded PDF file if needed (file.path)
-      // const response = 'PDF file uploaded and process successfully'
-      // const result = await this.candidateService.insertExtractedData(extractedData);
-      // if (!result.status) {
-      //   return res.status(HttpStatus.CONFLICT).json(result);
-      // }
-      // return res.status(HttpStatus.CREATED).json({
-      //   message: 'Bulk operation successful',
-      //   fileName: file.filename,
-      //   extractedData, // Python parsed output
-      // });
     } catch (error) {
       console.error('Bulk update error:', error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
