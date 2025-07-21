@@ -272,7 +272,7 @@ export class CandidateService {
 
   async insertExtractedData(extractedData) {
     try {
-    //  console.log(extractedData,'extractedData')
+    console.log(extractedData,'extractedData')
 //   extractedData= {
 //   "name": "Akash Sonowal",
 //   "phoneNumber": "+91-8812054820 / 8638450690",
@@ -394,7 +394,11 @@ export class CandidateService {
         { set: 'address', value: String(extractedData.address ?? '') },
         { set: 'education', value: JSON.stringify(extractedData.education ?? []) },
         { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
-        { set: 'skill', value: extractedData.skills ?? [] }
+        { set: 'skill', value: extractedData.skills ?? [] },
+        { set: 'linkedinProfile', value: extractedData.linkedinProfile ?? '' },
+        { set: 'address', value: extractedData.location ?? [] },
+        { set: 'institutionTier', value: extractedData.institutionTier ?? [] },
+        { set: 'companyTier', value: extractedData.companyTier ?? [] }
       ];
       const insertion = await this.dbService.insertData('candidates', setData);
       return this.utilService.successResponse(insertion, 'Candidate created successfully.');
