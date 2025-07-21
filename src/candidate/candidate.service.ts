@@ -391,11 +391,12 @@ export class CandidateService {
         { set: 'last_name', value: String(last_name) },
         { set: 'email', value: String(extractedData.email) },
         { set: 'phone', value: String(extractedData.phoneNumber ?? '') },
+
         { set: 'education', value: JSON.stringify(extractedData.education ?? []) },
         { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
         { set: 'skill', value: extractedData.skills ?? [] },
         { set: 'linkedinprofile', value: extractedData.linkedinProfile ?? '' },
-        { set: 'address', value: extractedData.location ?? [] },
+        { set: 'address', value: JSON.stringify(extractedData.education ?? [])},
         { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
         { set: 'companytier', value: extractedData.companyTier ?? [] }
       ];
