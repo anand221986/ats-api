@@ -391,7 +391,6 @@ export class CandidateService {
         { set: 'last_name', value: String(last_name) },
         { set: 'email', value: String(extractedData.email) },
         { set: 'phone', value: String(extractedData.phoneNumber ?? '') },
-        { set: 'address', value: String(extractedData.address ?? '') },
         { set: 'education', value: JSON.stringify(extractedData.education ?? []) },
         { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
         { set: 'skill', value: extractedData.skills ?? [] },
