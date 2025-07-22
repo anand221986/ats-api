@@ -272,109 +272,109 @@ export class CandidateService {
 
   async insertExtractedData(extractedData) {
     try {
-    console.log(extractedData,'extractedData')
-//   extractedData= {
-//   "name": "Akash Sonowal",
-//   "phoneNumber": "+91-8812054820 / 8638450690",
-//   "email": "work.akashsonowal@gmail.com",
-//   "linkedinProfile": "linkedin.com/in/akashsonowal",
-//   "githubProfile": "github.com/akashsonowal",
-//   "experience": [
-//     {
-//       "company": "NoBroker.com",
-//       "role": "Data Scientist II",
-//       "duration": "Oct 2024 - Present",
-//       "responsibilities": []
-//     },
-//     {
-//       "company": "HERE Technologies",
-//       "role": "Senior AI/ML Engineer",
-//       "duration": "Mar 2024 - Oct 2024",
-//       "responsibilities": []
-//     },
-//     {
-//       "company": "MPHASIS",
-//       "role": "Data Scientist, Applied Research",
-//       "duration": "July 2022 - Mar 2024",
-//       "responsibilities": []
-//     }
-//   ],
-//   "education": [
-//     {
-//       "institution": "IIT Kanpur",
-//       "degree": "MTech",
-//       "duration": "2020-2022",
-//       "percentage": null,
-//       "cgpa": null
-//     },
-//     {
-//       "institution": "IIT Guwahati",
-//       "degree": "BTech",
-//       "duration": "2016-2020",
-//       "percentage": null,
-//       "cgpa": null
-//     }
-//   ],
-//   "skillset": [
-//     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
-//     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
-//     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
-//     "NLP", "Computer Vision", "Graphs", "Speech", "Time Series", "Tabular",
-//     "Generative AI", "Recommender Systems", "Classification", "Regression",
-//     "Forecasting", "Supervised", "Unsupervised", "Self-Supervised",
-//     "Algorithms", "Data Structures"
-//   ],
-//   "pastOrganisations": [
-//     "NoBroker.com",
-//     "HERE Technologies",
-//     "MPHASIS"
-//   ],
-//   "technicalSkills": [
-//     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
-//     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
-//     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
-//     "NLP", "Computer Vision", "Speech", "Time Series", "Tabular"
-//   ],
-//   "workExperience": [
-//     "Real-time multilingual voicebot development",
-//     "Model fine-tuning with Llama 3.2 and xTTS",
-//     "Model deployment and inference optimization on GKE and AWS ECS",
-//     "Business impact analysis and cost reduction",
-//     "Development of RAG systems using vector databases",
-//     "Data pipeline implementation with CDC, SQS, EFS",
-//     "Synthetic data generation and medical image analysis",
-//     "Research presentations and papers"
-//   ],
-//   "projects": null,
-//   "location": [
-//     {
-//       "firstline": "Bengaluru",
-//       "city": "Bengaluru",
-//       "pincode": null,
-//       "district": null,
-//       "state": null,
-//       "country": null
-//     },
-//     {
-//       "firstline": "Mumbai",
-//       "city": "Mumbai",
-//       "pincode": null,
-//       "district": null,
-//       "state": null,
-//       "country": null
-//     },
-//     {
-//       "firstline": "Remote",
-//       "city": null,
-//       "pincode": null,
-//       "district": null,
-//       "state": null,
-//       "country": null
-//     }
-//   ],
-//   "institutionTier": "one",
-//   "companyTier": "one"
-// }
+      console.log(extractedData, 'extractedData')
+      //   extractedData= {
+      //   "name": "Akash Sonowal",
+      //   "phoneNumber": "+91-8812054820 / 8638450690",
+      //   "email": "work.akashsonowal@gmail.com",
+      //   "linkedinProfile": "linkedin.com/in/akashsonowal",
+      //   "githubProfile": "github.com/akashsonowal",
+      //   "experience": [
+      //     {
+      //       "company": "NoBroker.com",
+      //       "role": "Data Scientist II",
+      //       "duration": "Oct 2024 - Present",
+      //       "responsibilities": []
+      //     },
+      //     {
+      //       "company": "HERE Technologies",
+      //       "role": "Senior AI/ML Engineer",
+      //       "duration": "Mar 2024 - Oct 2024",
+      //       "responsibilities": []
+      //     },
+      //     {
+      //       "company": "MPHASIS",
+      //       "role": "Data Scientist, Applied Research",
+      //       "duration": "July 2022 - Mar 2024",
+      //       "responsibilities": []
+      //     }
+      //   ],
+      //   "education": [
+      //     {
+      //       "institution": "IIT Kanpur",
+      //       "degree": "MTech",
+      //       "duration": "2020-2022",
+      //       "percentage": null,
+      //       "cgpa": null
+      //     },
+      //     {
+      //       "institution": "IIT Guwahati",
+      //       "degree": "BTech",
+      //       "duration": "2016-2020",
+      //       "percentage": null,
+      //       "cgpa": null
+      //     }
+      //   ],
+      //   "skillset": [
+      //     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
+      //     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
+      //     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
+      //     "NLP", "Computer Vision", "Graphs", "Speech", "Time Series", "Tabular",
+      //     "Generative AI", "Recommender Systems", "Classification", "Regression",
+      //     "Forecasting", "Supervised", "Unsupervised", "Self-Supervised",
+      //     "Algorithms", "Data Structures"
+      //   ],
+      //   "pastOrganisations": [
+      //     "NoBroker.com",
+      //     "HERE Technologies",
+      //     "MPHASIS"
+      //   ],
+      //   "technicalSkills": [
+      //     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
+      //     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
+      //     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
+      //     "NLP", "Computer Vision", "Speech", "Time Series", "Tabular"
+      //   ],
+      //   "workExperience": [
+      //     "Real-time multilingual voicebot development",
+      //     "Model fine-tuning with Llama 3.2 and xTTS",
+      //     "Model deployment and inference optimization on GKE and AWS ECS",
+      //     "Business impact analysis and cost reduction",
+      //     "Development of RAG systems using vector databases",
+      //     "Data pipeline implementation with CDC, SQS, EFS",
+      //     "Synthetic data generation and medical image analysis",
+      //     "Research presentations and papers"
+      //   ],
+      //   "projects": null,
+      //   "location": [
+      //     {
+      //       "firstline": "Bengaluru",
+      //       "city": "Bengaluru",
+      //       "pincode": null,
+      //       "district": null,
+      //       "state": null,
+      //       "country": null
+      //     },
+      //     {
+      //       "firstline": "Mumbai",
+      //       "city": "Mumbai",
+      //       "pincode": null,
+      //       "district": null,
+      //       "state": null,
+      //       "country": null
+      //     },
+      //     {
+      //       "firstline": "Remote",
+      //       "city": null,
+      //       "pincode": null,
+      //       "district": null,
+      //       "state": null,
+      //       "country": null
+      //     }
+      //   ],
+      //   "institutionTier": "one",
+      //   "companyTier": "one"
+      // }
 
 
       let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
@@ -384,8 +384,16 @@ export class CandidateService {
           `Candidate with email "${extractedData.email}" already exists.`
         );
       }
-      const [first_name, ...lastNameParts] = extractedData.name.split(" ");
-      const last_name = lastNameParts.join(" ");
+      // const [first_name, ...lastNameParts] = extractedData.name.split(" ");
+      // const last_name = lastNameParts.join(" ");
+      let first_name = '';
+      let last_name = '';
+      if (extractedData.name) {
+        const [first, ...lastParts] = extractedData.name.split(" ");
+        first_name = first;
+        last_name = lastParts.join(" ");
+      }
+      
       const setData = [
         { set: 'first_name', value: String(first_name) },
         { set: 'last_name', value: String(last_name) },
@@ -396,7 +404,7 @@ export class CandidateService {
         { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
         { set: 'skill', value: extractedData.skills ?? [] },
         { set: 'linkedinprofile', value: extractedData.linkedinProfile ?? '' },
-        { set: 'address', value: JSON.stringify(extractedData.location ?? [])},
+        { set: 'address', value: JSON.stringify(extractedData.location ?? []) },
         { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
         { set: 'companytier', value: extractedData.companyTier ?? [] }
       ];
