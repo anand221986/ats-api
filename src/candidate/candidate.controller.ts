@@ -24,6 +24,12 @@ interface ExtractedDataItem {
   fileName: string;
   extractedData: any; // Replace 'any' with a specific type if you have one
 }
+ const allResults: {
+      fileName: string;
+      success: boolean;
+      message: string;
+      extractedData?: any;
+    }[] = []
 @Controller('candidate')
 @ApiTags('candidate')
 export class CandidateController {
@@ -169,7 +175,6 @@ export class CandidateController {
     @Res() res: Response,
   ): Promise<any> {
     try {
-console.log(files,'files------------------------')
       const allExtractedData: ExtractedDataItem[] = [];
       for (const file of files) {
         const pdfPath = file.path;
@@ -177,7 +182,19 @@ console.log(files,'files------------------------')
         const result = await this.candidateService.insertExtractedData(extractedData);
 
         if (!result.status) {
-          return res.status(HttpStatus.CONFLICT).json(result);
+          allResults.push({
+            fileName: file.filename,
+            success: false,
+            message: result.message || 'Conflict inserting data (e.g. duplicate email)',
+          });
+          continue;
+        } else {
+          allResults.push({
+            fileName: file.filename,
+            success: true,
+            message: 'Inserted successfully',
+            extractedData,
+          });
         }
 
         allExtractedData.push({
@@ -188,21 +205,8 @@ console.log(files,'files------------------------')
       return res.status(HttpStatus.CREATED).json({
         message: 'Bulk operation successful',
         uploadedFiles: allExtractedData,
+        results: allResults,
       });
-
-      // const pdfPath = file.path; // full path to uploaded PDF
-      // const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
-      // // Do something with the uploaded PDF file if needed (file.path)
-      // const response = 'PDF file uploaded and process successfully'
-      // const result = await this.candidateService.insertExtractedData(extractedData);
-      // if (!result.status) {
-      //   return res.status(HttpStatus.CONFLICT).json(result);
-      // }
-      // return res.status(HttpStatus.CREATED).json({
-      //   message: 'Bulk operation successful',
-      //   fileName: file.filename,
-      //   extractedData, // Python parsed output
-      // });
     } catch (error) {
       console.error('Bulk update error:', error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
