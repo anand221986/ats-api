@@ -72,7 +72,7 @@ async storeLead(leadData: any): Promise<any> {
       { set: 'created_at', value: new Date().toISOString() },
     ];
 
-    const insertion = await this.dbService.insertData('leads', setData);
+    const insertion = await this.dbService.insertData('contact_forms', setData);
     
     return this.utilService.successResponse(insertion ,'Thank you for contacting us!'
     );
