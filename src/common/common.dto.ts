@@ -462,3 +462,31 @@ export class SubmitLandingQueryDto {
   })
   ad_id?: string;
 }
+
+export class ContactFormDto {
+  @ApiProperty({
+    description: 'Name of the person submitting the form',
+    example: 'John Doe',
+  })
+  name: string;
+  @ApiProperty({
+    description: 'Email address of the person',
+    example: 'john.doe@example.com',
+  })
+  email: string;
+  @ApiProperty({
+    description: 'Subject of the inquiry',
+    example: 'Inquiry about services',
+  })
+  subject: string;
+  @ApiProperty({
+    description: 'Phone number of the person',
+    example: '+91-6287639867',
+  })
+  phone?: string;
+  @ApiProperty({
+    description: 'Message content',
+    example: 'Hello, I would like to know more about your offerings. Please get back to me. Thanks!',
+  })
+  message: string;
+}

@@ -15,6 +15,7 @@ import {
   AddPackageImageDto,
   AddQueryDto,
   AddUTMSourceDto,
+  ContactFormDto,
   SaveCMSDto,
   SendWhatsappQuoteDto,
   SubmitLandingQueryDto,
@@ -57,5 +58,28 @@ export class CommonController {
   async getAll(@Res() res: Response) {
       let data = await this.service.getDashboardStats();
     return res.status(HttpStatus.OK).json(data);
+  }
+
+  @Post("addLead")
+  @ApiOperation({summary:'Submit contact form'})
+  @ApiBody({type:ContactFormDto })
+  async submitContactForm(
+    @Body() contactFormDto: ContactFormDto,
+    @Res() res: Response,
+  ) {
+    try 
+    {
+      const result=await this.service.storeLead(contactFormDto);
+      return res.status(200).json(result);
+    }
+     catch (error) 
+     {
+      console.error('Contact form submission error:', error);
+      return res.status(500).json({
+        status: false,
+        message: error.message || 'Failed to submit contact form',
+        error: 'Internal Server Error',
+      });
+    }
   }
 }

@@ -61,6 +61,24 @@ async getDashboardStats() {
   return this.utilService.successResponse(response, "Dashboard stats retrieved successfully.");
 }
 
- 
+async storeLead(leadData: any): Promise<any> {
+  try {
+    const setData = [
+      { set: 'name', value: String(leadData.name) },
+      { set: 'email', value: String(leadData.email) },
+      { set: 'subject', value: String(leadData.subject) },
+      { set: 'phone', value: String(leadData.phone ?? '') },
+      { set: 'message', value: String(leadData.message) },
+      { set: 'created_at', value: new Date().toISOString() },
+    ];
+
+    const insertion = await this.dbService.insertData('contact_forms', setData);
+    
+    return this.utilService.successResponse(insertion ,'Thank you for contacting us!'
+    );
+  } catch (error) {
+    throw new Error('Failed to submit your inquiry.');
+  }
+}
 
 }
