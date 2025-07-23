@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonController } from './common/common.controller';
 import { CommonService } from './common/common.service';
+import { EmailService } from './email/email.service';
 import { ApiMiddleware } from './middleware/api.middleware';
 import { UtilService } from './util/util.service';
 import { DbService } from './db/db.service';
@@ -28,7 +29,7 @@ import { LinkedinController } from './linkedin/linkedin.controller';
       isGlobal: true, // So you can use ConfigService anywhere without importing again
     }),],
   controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController ],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService ],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService ],
 })
 //with middle ware 
 //without export class AppModule
