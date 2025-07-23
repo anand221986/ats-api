@@ -25,7 +25,7 @@ export class EmailService {
     phone?: string;
     message: string;
   }): Promise<void> {
-    const ownerEmail = this.configService.get('OWNER_EMAIL', 'noreply@a1selectors.com');
+    const ownerEmail = this.configService.get('OWNER_EMAIL');
     
     const htmlContent = `
     <h2>New Lead Notification</h2>
@@ -38,7 +38,7 @@ export class EmailService {
     `;
 
     const mailOptions = {
-      from: this.configService.get('SMTP_FROM_EMAIL', 'noreply@a1selectors.com'),
+      from: this.configService.get('SMTP_FROM_EMAIL'),
       to: ownerEmail,
       subject: `New Lead: ${leadData.subject}`,
       html: htmlContent,
@@ -66,7 +66,7 @@ export class EmailService {
     `;
 
     const mailOptions = {
-      from: this.configService.get('SMTP_FROM_EMAIL', 'noreply@yourcompany.com'),
+      from: this.configService.get('SMTP_FROM_EMAIL'),
       to: leadData.email,
       subject: `Thank you for contacting us - ${leadData.subject}`,
       html: htmlContent,

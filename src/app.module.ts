@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonController } from './common/common.controller';
 import { CommonService } from './common/common.service';
-import { EmailService } from './common/email.service';
+import { EmailService } from './email/email.service';
 import { ApiMiddleware } from './middleware/api.middleware';
 import { UtilService } from './util/util.service';
 import { DbService } from './db/db.service';

@@ -60,7 +60,7 @@ export class CommonController {
     return res.status(HttpStatus.OK).json(data);
   }
 
-  @Post("contact-form")
+  @Post("addLead")
   @ApiOperation({summary:'Submit contact form'})
   @ApiBody({type:ContactFormDto })
   async submitContactForm(
