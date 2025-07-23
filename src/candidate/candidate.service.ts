@@ -270,113 +270,9 @@ export class CandidateService {
 
 
 
-  async insertExtractedData(extractedData) {
+  async insertExtractedData(extractedData, resumefilename) {
     try {
       console.log(extractedData, 'extractedData')
-      //   extractedData= {
-      //   "name": "Akash Sonowal",
-      //   "phoneNumber": "+91-8812054820 / 8638450690",
-      //   "email": "work.akashsonowal@gmail.com",
-      //   "linkedinProfile": "linkedin.com/in/akashsonowal",
-      //   "githubProfile": "github.com/akashsonowal",
-      //   "experience": [
-      //     {
-      //       "company": "NoBroker.com",
-      //       "role": "Data Scientist II",
-      //       "duration": "Oct 2024 - Present",
-      //       "responsibilities": []
-      //     },
-      //     {
-      //       "company": "HERE Technologies",
-      //       "role": "Senior AI/ML Engineer",
-      //       "duration": "Mar 2024 - Oct 2024",
-      //       "responsibilities": []
-      //     },
-      //     {
-      //       "company": "MPHASIS",
-      //       "role": "Data Scientist, Applied Research",
-      //       "duration": "July 2022 - Mar 2024",
-      //       "responsibilities": []
-      //     }
-      //   ],
-      //   "education": [
-      //     {
-      //       "institution": "IIT Kanpur",
-      //       "degree": "MTech",
-      //       "duration": "2020-2022",
-      //       "percentage": null,
-      //       "cgpa": null
-      //     },
-      //     {
-      //       "institution": "IIT Guwahati",
-      //       "degree": "BTech",
-      //       "duration": "2016-2020",
-      //       "percentage": null,
-      //       "cgpa": null
-      //     }
-      //   ],
-      //   "skillset": [
-      //     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
-      //     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
-      //     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
-      //     "NLP", "Computer Vision", "Graphs", "Speech", "Time Series", "Tabular",
-      //     "Generative AI", "Recommender Systems", "Classification", "Regression",
-      //     "Forecasting", "Supervised", "Unsupervised", "Self-Supervised",
-      //     "Algorithms", "Data Structures"
-      //   ],
-      //   "pastOrganisations": [
-      //     "NoBroker.com",
-      //     "HERE Technologies",
-      //     "MPHASIS"
-      //   ],
-      //   "technicalSkills": [
-      //     "Python", "PyTorch", "Tensorflow", "Huggingface", "Scikit-learn", "AWS",
-      //     "Azure", "GCP", "Flask", "Docker", "Kubernetes", "ElasticSearch", "Mongo",
-      //     "Airbyte", "Airflow", "MySQL", "Streamlit", "Gradio", "Bash", "SQL",
-      //     "NLP", "Computer Vision", "Speech", "Time Series", "Tabular"
-      //   ],
-      //   "workExperience": [
-      //     "Real-time multilingual voicebot development",
-      //     "Model fine-tuning with Llama 3.2 and xTTS",
-      //     "Model deployment and inference optimization on GKE and AWS ECS",
-      //     "Business impact analysis and cost reduction",
-      //     "Development of RAG systems using vector databases",
-      //     "Data pipeline implementation with CDC, SQS, EFS",
-      //     "Synthetic data generation and medical image analysis",
-      //     "Research presentations and papers"
-      //   ],
-      //   "projects": null,
-      //   "location": [
-      //     {
-      //       "firstline": "Bengaluru",
-      //       "city": "Bengaluru",
-      //       "pincode": null,
-      //       "district": null,
-      //       "state": null,
-      //       "country": null
-      //     },
-      //     {
-      //       "firstline": "Mumbai",
-      //       "city": "Mumbai",
-      //       "pincode": null,
-      //       "district": null,
-      //       "state": null,
-      //       "country": null
-      //     },
-      //     {
-      //       "firstline": "Remote",
-      //       "city": null,
-      //       "pincode": null,
-      //       "district": null,
-      //       "state": null,
-      //       "country": null
-      //     }
-      //   ],
-      //   "institutionTier": "one",
-      //   "companyTier": "one"
-      // }
-
-
       let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
       const existingCandidate = await this.dbService.execute(query);
       if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
@@ -384,8 +280,7 @@ export class CandidateService {
           `Candidate with email "${extractedData.email}" already exists.`
         );
       }
-      // const [first_name, ...lastNameParts] = extractedData.name.split(" ");
-      // const last_name = lastNameParts.join(" ");
+
       let first_name = '';
       let last_name = '';
       if (extractedData.name) {
@@ -393,7 +288,7 @@ export class CandidateService {
         first_name = first;
         last_name = lastParts.join(" ");
       }
-      
+
       const setData = [
         { set: 'first_name', value: String(first_name) },
         { set: 'last_name', value: String(last_name) },
@@ -405,10 +300,26 @@ export class CandidateService {
         { set: 'linkedinprofile', value: extractedData.linkedinProfile ?? '' },
         { set: 'address', value: JSON.stringify(extractedData.location ?? []) },
         { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
-        { set: 'companytier', value: extractedData.companyTier ?? [] }
+        { set: 'companytier', value: extractedData.companyTier ?? [] },
+        { set: 'resume_url', value: resumefilename }
       ];
-      const insertion = await this.dbService.insertData('candidates', setData);
-      return this.utilService.successResponse(insertion, 'Candidate created successfully.');
+      const candidateInsertion = await this.dbService.insertData('candidates', setData);
+      const candidateId = candidateInsertion.insertId;
+         const set = [`is_current=false`];
+      const where = [`id ='${candidateId}'`];
+      await this.dbService.updateData(
+        'candidate_resumes',
+        set,
+        where
+      );
+      await this.dbService.insertData('candidate_resumes', [
+        { set: 'candidate_id', value: candidateId },
+        { set: 'resume_url', value: resumefilename },
+        { set: 'uploaded_by', value: 'Admin' },
+        { set: 'is_current', value: true }
+      ]);
+   
+      return this.utilService.successResponse(candidateInsertion, 'Candidate created successfully.');
     } catch (error) {
       console.error('Create candidate Error:', error);
       throw new Error('Failed to create candidate. Please ensure all fields are valid and meet constraints.');

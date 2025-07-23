@@ -179,7 +179,7 @@ export class CandidateController {
       for (const file of files) {
         const pdfPath = file.path;
         const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
-        const result = await this.candidateService.insertExtractedData(extractedData);
+        const result = await this.candidateService.insertExtractedData(extractedData,file.filename);
 
         if (!result.status) {
           allResults.push({
