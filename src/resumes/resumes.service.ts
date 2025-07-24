@@ -10,7 +10,7 @@ export class ResumesService {
   ) {
   }
   async getResumesByUser(id) {
-        const query = `SELECT * FROM candidates WHERE id = ${id}`;
+        const query = `SELECT * FROM candidate_resumes WHERE candidate_id = ${id}`;
         const result = await this.dbService.execute(query);
         if (!result.length) {
           throw new NotFoundException(`No Resumes for this candidates with ID ${id} not found`);
