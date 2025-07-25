@@ -48,30 +48,29 @@ export class JobsService {
         { set: 'salary_to', value: String(dto.salary.to) },
         { set: 'salary_currency', value: String(dto.salary.currency) },
       ];
-let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
-const jobPayload = {
-  elements: [
-    {
-      integrationContext: "urn:li:application:86oy62sudwvpdy",  // Your company’s URN
-      companyApplyUrl: "https://yourcompany.com/careers/apply/789",
-      description: "We’re seeking a passionate Software Engineer to design, develop, and install software solutions. Must have 3+ years experience with Node.js, NestJS, and cloud deployment. Responsibilities include gathering requirements, building APIs, and collaborating in agile teams. Benefits include health insurance, flexible hours, and training budget.",
-      employmentStatus: "FULL_TIME",    // e.g. "PART_TIME", "CONTRACT"
-      externalJobPostingId: "job-001",  // Unique ID from your system
-      listedAt: Math.floor(Date.now() / 1000), // Current UNIX timestamp
-      jobPostingOperationType: "CREATE",
-      title: "Software Engineer",
-      location: "Faridabad, Haryana, India",
-      workplaceTypes: ["HYBRID"]       // e.g. ["ONSITE"], ["REMOTE"], or mix
-    }
-  ]
-};
+// let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
+// const jobPayload = {
+//   elements: [
+//     {
+//       integrationContext: "urn:li:application:86oy62sudwvpdy",  // Your company’s URN
+//       companyApplyUrl: "https://yourcompany.com/careers/apply/789",
+//       description: "We’re seeking a passionate Software Engineer to design, develop, and install software solutions. Must have 3+ years experience with Node.js, NestJS, and cloud deployment. Responsibilities include gathering requirements, building APIs, and collaborating in agile teams. Benefits include health insurance, flexible hours, and training budget.",
+//       employmentStatus: "FULL_TIME",    // e.g. "PART_TIME", "CONTRACT"
+//       externalJobPostingId: "job-001",  // Unique ID from your system
+//       listedAt: Math.floor(Date.now() / 1000), // Current UNIX timestamp
+//       jobPostingOperationType: "CREATE",
+//       title: "Software Engineer",
+//       location: "Faridabad, Haryana, India",
+//       workplaceTypes: ["HYBRID"]       // e.g. ["ONSITE"], ["REMOTE"], or mix
+//     }
+//   ]
+// };
 
     //const accessToken = await this.linkdinService.getAccessToken(code);
-
-     const accessToken =process.env.LINKDINACCESSTOKEN;
-    console.log(accessToken,'accessToken')
-    const linkedInResponse = await this.linkdinService.postJob(accessToken, jobPayload);
-    console.log(linkedInResponse,'linkedin response')
+    //  const accessToken =process.env.LINKDINACCESSTOKEN;
+    // console.log(accessToken,'accessToken')
+    // const linkedInResponse = await this.linkdinService.postJob(accessToken, jobPayload);
+    // console.log(linkedInResponse,'linkedin response')
       const insertion = await this.dbService.insertData('jobs', setData);
       return this.utilService.successResponse(insertion, 'Job created successfully.');
     } catch (error) {
