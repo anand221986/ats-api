@@ -146,10 +146,12 @@ ORDER BY jobs.id DESC;`;
     ORDER BY c.id DESC
   `;
     const result = await this.dbService.execute(query);
-    if (!result.length) {
-      throw new NotFoundException(`No candidates found for Job ID ${jobId}`);
-    }
-    return this.utilService.successResponse(result, "Candidates with job details retrieved successfully.");
+   return this.utilService.successResponse(
+    result,
+    result.length
+      ? "Candidates with job details retrieved successfully."
+      : "No candidates found for this job."
+  );
   }
 
 
