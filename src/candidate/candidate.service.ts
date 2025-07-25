@@ -548,7 +548,7 @@ export class CandidateService {
   
 
     async getCandidateTask(id: number) {
-    const query = `SELECT * FROM candidate_notes WHERE candidate_id = ${id}`;
+    const query = `SELECT * FROM candidate_task WHERE candidate_id = ${id}`;
     const result = await this.dbService.execute(query);
     if (!result.length) {
       throw new NotFoundException(`candidates with ID ${id} not found`);
