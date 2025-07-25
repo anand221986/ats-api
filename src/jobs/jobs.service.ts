@@ -38,6 +38,8 @@ export class JobsService {
         { set: 'employment_type', value: String(dto.employmentDetails.employmentType) },
         { set: 'experience', value: String(dto.employmentDetails.experience) },
         { set: 'education', value: String(dto.employmentDetails.education) },
+        { set: 'company', value: String(dto.company) },
+        { set: 'about_company', value: String(dto.about_company) },
         {
           set: 'keywords',
           value: dto.employmentDetails.keywords?.length

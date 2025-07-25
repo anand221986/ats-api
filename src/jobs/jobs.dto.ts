@@ -104,6 +104,8 @@ export class CreateJobDto {
   @ValidateNested()
   @Type(() => SalaryDto)
   salary: SalaryDto;
+  company: string;
+  about_company:string
 }
 
 export class UpdateJobDto extends CreateJobDto {}
