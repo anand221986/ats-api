@@ -25,6 +25,7 @@ import {
   UploadImageToCdnDto,
   UploadPassengerImageDto,
   UploadVideoToCDNDto,
+  UserSkill
 } from "./common.dto";
 import {
   ApiTags,
@@ -37,7 +38,7 @@ import {
 
 @Controller("common")
 export class CommonController {
-  constructor(public service: CommonService) {}
+  constructor(public service: CommonService) { }
 
   @Get("hello")
   @ApiOperation({
@@ -53,27 +54,25 @@ export class CommonController {
     res.status(HttpStatus.OK).json("hello");
   }
 
-    @Get("getDashboardStats")
+  @Get("getDashboardStats")
   @ApiOperation({ summary: 'Get all Dashboard' })
   async getAll(@Res() res: Response) {
-      let data = await this.service.getDashboardStats();
+    let data = await this.service.getDashboardStats();
     return res.status(HttpStatus.OK).json(data);
   }
 
   @Post("addLead")
-  @ApiOperation({summary:'Submit contact form'})
-  @ApiBody({type:ContactFormDto })
+  @ApiOperation({ summary: 'Submit contact form' })
+  @ApiBody({ type: ContactFormDto })
   async submitContactForm(
     @Body() contactFormDto: ContactFormDto,
     @Res() res: Response,
   ) {
-    try 
-    {
-      const result=await this.service.storeLead(contactFormDto);
+    try {
+      const result = await this.service.storeLead(contactFormDto);
       return res.status(200).json(result);
     }
-     catch (error) 
-     {
+    catch (error) {
       console.error('Contact form submission error:', error);
       return res.status(500).json({
         status: false,
@@ -82,4 +81,41 @@ export class CommonController {
       });
     }
   }
+
+
+
+@Get("getSkills")
+@ApiOperation({ summary: 'Get all user skills' })
+async getUserSkills(@Res() res: Response) {
+  try {
+    const skills = await this.service.getUserSkills();
+    return res.status(200).json({ data: skills });
+  } catch (error) {
+    console.error("Error fetching user skills:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+  @Post("addskills")
+  //@UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Add Skills' })
+  @ApiBody({ type: UserSkill })
+  async addSkill(
+    @Body() userSkill: UserSkill,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.service.addUserSkill(userSkill);
+      return res.status(200).json(result);
+    }
+    catch (error) {
+      console.error('Contact form submission error:', error);
+      return res.status(500).json({
+        status: false,
+        message: error.message || 'Failed to submit contact form',
+        error: 'Internal Server Error',
+      });
+    }
+  }
+
 }
