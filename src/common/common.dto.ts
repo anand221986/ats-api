@@ -490,3 +490,8 @@ export class ContactFormDto {
   })
   message: string;
 }
+
+export class UserSkill {
+  skill: string;
+  created_at: Date;
+}
