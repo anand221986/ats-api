@@ -16,7 +16,8 @@ import {
   CreateCustomerDto,
   UpdateCustomerDto,
   LoginAdminDto,
-  RegisterDto
+  RegisterDto,
+  BulkDeleteCandidateDto
 } from "./user.dto";
 @ApiTags("user")
 @Controller("user")
@@ -128,4 +129,26 @@ async loginAdmin(@Body() body: LoginAdminDto, @Res() res: Response) {
     // await this.service.deleteUser(id);
     res.status(HttpStatus.OK).json({ message: `User with id ${id} deleted` });
   }
+
+ 
+
+    //bulk Delete Candidate:
+    @Post('bulk-delete')
+    @ApiOperation({ summary: 'Bulk deletion of candidates' })
+    @ApiBody({ type: BulkDeleteCandidateDto })
+    async bulkDeleteCandidates(
+      @Body() body: BulkDeleteCandidateDto,
+      @Res() res: Response,
+    ) {
+      try {
+        const result = await this.service.bulkDeleteCandidates(body.data.ids);
+        return res.status(HttpStatus.OK).json(result);
+      } catch (error) {
+        console.error('Bulk delete error:', error);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          message: 'Failed to delete candidates',
+          error: error.message,
+        });
+      }
+    }
 }

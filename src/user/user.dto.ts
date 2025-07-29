@@ -164,3 +164,10 @@ export class LoginAdminDto {
     password: string;
 }
 
+
+export class BulkDeleteCandidateDto {
+  data: {
+    ids: number[];
+  };
+}
+
