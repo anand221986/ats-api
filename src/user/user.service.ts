@@ -102,7 +102,7 @@ export class UserService {
 
   //get All userlist from the table 
   async getAllUsers() {
-    const query = `SELECT * FROM "users" ORDER BY id ASC;`;
+    const query = `SELECT * FROM "users" ORDER BY id Desc;`;
     const result = await this.dbService.execute(query);
     return this.utilService.successResponse(result, "User list retrieved successfully.");
     //return users;
