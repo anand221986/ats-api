@@ -222,6 +222,53 @@ export class UserService {
       throw new Error(error.message || error);
     }
   }
+
+   async bulkUpdateUser(
+    ids: number[],
+    updates: { field: string; action: string; value: any }[],
+  ) {
+    try {
+      type BulkUpdateResult = {
+        id: number;
+        updated: boolean;
+        message?: string;
+        error?: string;
+      };
+
+      const updatedResults: BulkUpdateResult[] = [];
+
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        return this.utilService.failResponse('No candidate IDs provided.');
+      }
+
+      if (!updates || !Array.isArray(updates) || updates.length === 0) {
+        return this.utilService.failResponse('No update fields provided.');
+      }
+
+      const setData = updates
+        .filter(u => u.action === 'change_to') // Only process 'change_to' actions
+        .map(u => `${u.field}='${u.value}'`);
+
+      for (const id of ids) {
+        try {
+          const where = [`id=${id}`];
+          const result = await this.dbService.updateData('users', setData, where);
+
+          if (result.affectedRows === 0) {
+            updatedResults.push({ id, updated: false, message: 'No record updated' });
+          } else {
+            updatedResults.push({ id, updated: true });
+          }
+        } catch (error) {
+          updatedResults.push({ id, updated: false, error: error.message });
+        }
+      }
+      return this.utilService.successResponse(updatedResults, 'User Bulk Updation has been Done .');
+    } catch (err) {
+      console.error('Bulk update failed:', err);
+      return this.utilService.failResponse('An error occurred during bulk update.');
+    }
+  }
 }
 
 

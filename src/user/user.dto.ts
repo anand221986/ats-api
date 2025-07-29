@@ -170,4 +170,13 @@ export class BulkDeleteCandidateDto {
     ids: number[];
   };
 }
+export class UpdateActionDto {
+  field: string;
+  action: 'change_to'; // can be extended later
+  value: any;
+}
+export class BulkUpdateCandidateDto {
+  ids: number[];
+  updates: UpdateActionDto[];
+}
 
