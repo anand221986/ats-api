@@ -19,6 +19,9 @@ export class OfficeLocationDto {
   @IsArray()
   @IsString({ each: true })
   additional?: string[];
+ office_primary_location:string;
+ office_on_careers_page:string
+
 }
 
 export class DescriptionDto {
@@ -71,12 +74,6 @@ export class SalaryDto {
 }
 
 export class CreateJobDto {
-  @IsString()
-  jobTitle: string;
-
-  @IsOptional()
-  @IsString()
-  jobCode?: string;
 
   @IsOptional()
   @IsString()
@@ -105,7 +102,24 @@ export class CreateJobDto {
   @Type(() => SalaryDto)
   salary: SalaryDto;
   company: string;
-  about_company:string
+  about_company:string;
+  office_primary_location:string;
+  office_on_careers_page:string;
+  description_about:string;
+  description_requirements: string;
+  description_benefits: string;
+  company_industry: string;
+  company_job_function: string;
+  employment_type: string;
+  experience: string;
+  education: string;
+ salary_from: string;
+ salary_to: string;
+ salary_currency: string;
+ keywords:string[];
+ job_title:string;
+ job_code:string;
+
 }
 
 export class UpdateJobDto extends CreateJobDto {}

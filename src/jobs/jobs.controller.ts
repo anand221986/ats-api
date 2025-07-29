@@ -28,7 +28,6 @@ export class JobsController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async create(@Body() body: CreateJobDto, @Res() res: Response) {
     const job = await this.jobsService.createJob(body);
-    console.log(this.jobsService, 'jobs')
     return res.status(HttpStatus.CREATED).json(job);
   }
   @Get("getAllJobs")

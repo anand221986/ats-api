@@ -18,37 +18,32 @@ export class JobsService {
   async createJob(dto: CreateJobDto) {
     try {
       const setData = [
-        { set: 'job_title', value: String(dto.jobTitle) },
-        { set: 'job_code', value: String(dto.jobCode) },
+        { set: 'job_title', value: String(dto.job_title) },
+        { set: 'job_code', value: String(dto.job_code) },
         { set: 'department', value: String(dto.department) },
         { set: 'workplace', value: String(dto.workplace) },
-        { set: 'office_primary_location', value: String(dto.officeLocation.primary) },
-        { set: 'office_on_careers_page', value: String(dto.officeLocation.onCareersPage) },
-        {
-          set: 'office_location_additional',
-          value: dto.officeLocation.additional?.length
-            ? `{${dto.officeLocation.additional.join(',')}}`
-            : '{}',
-        },
-        { set: 'description_about', value: String(dto.description.about) },
-        { set: 'description_requirements', value: String(dto.description.requirements) },
-        { set: 'description_benefits', value: String(dto.description.benefits) },
-        { set: 'company_industry', value: String(dto.companyDetails.industry) },
-        { set: 'company_job_function', value: String(dto.companyDetails.jobFunction) },
-        { set: 'employment_type', value: String(dto.employmentDetails.employmentType) },
-        { set: 'experience', value: String(dto.employmentDetails.experience) },
-        { set: 'education', value: String(dto.employmentDetails.education) },
+        { set: 'office_primary_location', value: String(dto.office_primary_location) },
+        { set: 'office_on_careers_page', value: String(dto.office_on_careers_page) },
+       
+        { set: 'description_about', value: String(dto.description_about) },
+        { set: 'description_requirements', value: String(dto.description_requirements) },
+        { set: 'description_benefits', value: String(dto.description_benefits) },
+        { set: 'company_industry', value: String(dto.company_industry) },
+        { set: 'company_job_function', value: String(dto.company_job_function) },
+        { set: 'employment_type', value: String(dto.employment_type) },
+        { set: 'experience', value: String(dto.experience) },
+        { set: 'education', value: String(dto.education) },
         { set: 'company', value: String(dto.company) },
         { set: 'about_company', value: String(dto.about_company) },
         {
           set: 'keywords',
-          value: dto.employmentDetails.keywords?.length
-            ? `{${dto.employmentDetails.keywords.join(',')}}`
+          value: dto.keywords?.length
+            ? `{${dto.keywords.join(',')}}`
             : '{}',
         },
-        { set: 'salary_from', value: String(dto.salary.from) },
-        { set: 'salary_to', value: String(dto.salary.to) },
-        { set: 'salary_currency', value: String(dto.salary.currency) },
+        { set: 'salary_from', value: String(dto.salary_from) },
+        { set: 'salary_to', value: String(dto.salary_to) },
+        { set: 'salary_currency', value: String(dto.salary_currency) },
       ];
 // let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
 // const jobPayload = {
