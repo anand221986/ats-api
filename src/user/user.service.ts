@@ -194,7 +194,37 @@ export class UserService {
       };
     }
   }
+
+  async bulkDeleteCandidates(id: number | number[]) {
+    try {
+      // Prepare the condition
+      let condition = '';
+      if (Array.isArray(id)) {
+        if (id.length === 0) {
+          return this.utilService.failResponse(null, "No IDs provided.");
+        }
+        const idList = id.map(Number).join(','); // Ensures all are numbers
+        condition = `id IN (${idList})`;
+      } else {
+        condition = `id = ${Number(id)}`;
+      }
+
+      const query = `DELETE FROM "users" WHERE ${condition} RETURNING *;`;
+      const result = await this.dbService.execute(query);
+
+      if (result.length === 0) {
+        return this.utilService.failResponse(null, "User(s) not found or already deleted.");
+      }
+
+      return this.utilService.successResponse(result, "User(s) deleted successfully.");
+    } catch (error) {
+      console.error('Delete jobs Error:', error);
+      throw new Error(error.message || error);
+    }
+  }
 }
+
+
 
 interface Booking {
   type: string;
