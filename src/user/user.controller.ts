@@ -17,7 +17,8 @@ import {
   UpdateCustomerDto,
   LoginAdminDto,
   RegisterDto,
-  BulkDeleteCandidateDto
+  BulkDeleteCandidateDto,
+  BulkUpdateCandidateDto
 } from "./user.dto";
 @ApiTags("user")
 @Controller("user")
@@ -151,4 +152,24 @@ async loginAdmin(@Body() body: LoginAdminDto, @Res() res: Response) {
         });
       }
     }
+
+  //bulk update candidate
+  @Post('bulk-update')
+  @ApiOperation({ summary: 'Bulk update candidates' })
+  @ApiBody({ type: BulkUpdateCandidateDto })
+  async bulkUpdateCandidates(
+    @Body() body: BulkUpdateCandidateDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.service.bulkUpdateUser(body.ids, body.updates);
+      return res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      console.error('Bulk update error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to update candidates',
+        error: error.message,
+      });
+    }
+  }
 }
