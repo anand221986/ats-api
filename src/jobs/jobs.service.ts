@@ -41,7 +41,7 @@ export class JobsService {
         { set: 'salary_from', value: String(dto.salary_from) },
         { set: 'salary_to', value: String(dto.salary_to) },
         { set: 'salary_currency', value: String(dto.salary_currency) },
-        { set: 'notice_period', value: String(dto.salary_currency) },
+        { set: 'notice_period', value: String(dto.notice_period) },
       ];
 
       // Step 2: Insert the job
