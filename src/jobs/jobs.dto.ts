@@ -1,5 +1,5 @@
 // jobs.dto.ts
-import { IsString, IsEnum, IsOptional, IsBoolean, IsArray, IsNumber, ValidateNested, MinLength } from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsBoolean, IsArray, IsNumber, ValidateNested, MinLength,IsInt,Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum WorkplaceEnum {
@@ -119,6 +119,12 @@ export class CreateJobDto {
  keywords:string[];
  job_title:string;
  job_code:string;
+insertId: number;
+ affectedRows?: number;
+ @IsOptional() // if it's not a required field
+  @IsInt()
+  @Min(0) // ensures no negative values
+  notice_period?: number;
 
 }
 

@@ -1,5 +1,5 @@
 // jobs.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException,HttpException,HttpStatus } from '@nestjs/common';
 import { CreateJobDto, UpdateJobDto } from './jobs.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
@@ -17,14 +17,13 @@ export class JobsService {
 
   async createJob(dto: CreateJobDto) {
     try {
+      // Step 1: Prepare the data (excluding job_code initially)
       const setData = [
         { set: 'job_title', value: String(dto.job_title) },
-        { set: 'job_code', value: String(dto.job_code) },
         { set: 'department', value: String(dto.department) },
         { set: 'workplace', value: String(dto.workplace) },
         { set: 'office_primary_location', value: String(dto.office_primary_location) },
         { set: 'office_on_careers_page', value: String(dto.office_on_careers_page) },
-       
         { set: 'description_about', value: String(dto.description_about) },
         { set: 'description_requirements', value: String(dto.description_requirements) },
         { set: 'description_benefits', value: String(dto.description_benefits) },
@@ -37,44 +36,45 @@ export class JobsService {
         { set: 'about_company', value: String(dto.about_company) },
         {
           set: 'keywords',
-          value: dto.keywords?.length
-            ? `{${dto.keywords.join(',')}}`
-            : '{}',
+          value: dto.keywords?.length ? `{${dto.keywords.join(',')}}` : '{}',
         },
         { set: 'salary_from', value: String(dto.salary_from) },
         { set: 'salary_to', value: String(dto.salary_to) },
         { set: 'salary_currency', value: String(dto.salary_currency) },
+        { set: 'notice_period', value: String(dto.notice_period) },
       ];
-// let code='AQTMdnboQODm-GaHiq7dbflfQJR01IH-EdTh691_GSnhUGnrDt3AquJu5js-Hou9kK-YyLlPcMMCLsXPnrbpXUrQ4F1FWUUbKZUxDKkaHxIpjcXQ_OpHaESJHty2BC57Rusg9zYsI0zqV9vJcVYJQP-UCSzlV_-hBUbQwwqKBprg_Zv408jfrBPE4eC39zlCPaOgj3-Rx0QQBmuDT_Q';
-// const jobPayload = {
-//   elements: [
-//     {
-//       integrationContext: "urn:li:application:86oy62sudwvpdy",  // Your company’s URN
-//       companyApplyUrl: "https://yourcompany.com/careers/apply/789",
-//       description: "We’re seeking a passionate Software Engineer to design, develop, and install software solutions. Must have 3+ years experience with Node.js, NestJS, and cloud deployment. Responsibilities include gathering requirements, building APIs, and collaborating in agile teams. Benefits include health insurance, flexible hours, and training budget.",
-//       employmentStatus: "FULL_TIME",    // e.g. "PART_TIME", "CONTRACT"
-//       externalJobPostingId: "job-001",  // Unique ID from your system
-//       listedAt: Math.floor(Date.now() / 1000), // Current UNIX timestamp
-//       jobPostingOperationType: "CREATE",
-//       title: "Software Engineer",
-//       location: "Faridabad, Haryana, India",
-//       workplaceTypes: ["HYBRID"]       // e.g. ["ONSITE"], ["REMOTE"], or mix
-//     }
-//   ]
-// };
 
-    //const accessToken = await this.linkdinService.getAccessToken(code);
-    //  const accessToken =process.env.LINKDINACCESSTOKEN;
-    // console.log(accessToken,'accessToken')
-    // const linkedInResponse = await this.linkdinService.postJob(accessToken, jobPayload);
-    // console.log(linkedInResponse,'linkedin response')
-      const insertion = await this.dbService.insertData('jobs', setData);
-      return this.utilService.successResponse(insertion, 'Job created successfully.');
+      // Step 2: Insert the job
+      const insertedJob = await this.dbService.insertData('jobs', setData);
+      const jobId = insertedJob?.insertId;
+
+      if (!jobId) {
+        throw new Error('Failed to retrieve job ID after insertion.');
+      }
+
+      // Step 3: Generate and update job_code
+      const jobCode = `JOBS-${jobId}`;
+      const jobStatus = `Open`;
+      await this.dbService.updateData(
+        'jobs',
+        [`job_code = '${jobCode}'`, `job_status = '${jobStatus}'`],
+        [`id = ${jobId}`]
+      );
+
+      // Step 4: Return response
+      return this.utilService.successResponse(
+        { ...insertedJob, job_code: jobCode },
+        'Job created successfully.'
+      );
     } catch (error) {
       console.error('Create Job Error:', error);
-      throw new Error('Failed to create job. Please ensure all fields are valid and meet constraints.');
+    throw new HttpException(
+  `Failed to create job: ${error?.message || 'Unknown error'}`,
+  HttpStatus.BAD_REQUEST
+);
     }
   }
+
 
 
 
@@ -83,13 +83,38 @@ export class JobsService {
 FROM jobs
 LEFT JOIN candidates ON candidates.job_id = jobs.id
 ORDER BY jobs.id DESC;`;
-    const result = await this.dbService.execute(query);
-    return this.utilService.successResponse(result, "Jobs list retrieved successfully.");
+    const jobs = await this.dbService.execute(query);
+      // 2. Get count of jobs grouped by status
+  const countQuery = `
+    SELECT status, COUNT(*) AS count
+    FROM jobs
+    GROUP BY status;
+  `;
+  const countResult = await this.dbService.execute(countQuery);
+  // 3. Map result into a key-value object (e.g. { Draft: 4, Open: 10, ... })
+  const statusCounts: Record<string, number> = {
+    Draft: 0,
+    Open: 0,
+    Paused: 0,
+    Closed: 0,
+    Archived: 0,
+  };
+   countResult.forEach((row) => {
+    statusCounts[row.status] = Number(row.count);
+  });
+   const jobsWithIndex = jobs.map((job) => ({
+  ...job,
+  index: statusCounts, // whole statusCounts object
+}));
+
+ 
+    return this.utilService.successResponse(jobsWithIndex, "Jobs list retrieved successfully.");
   }
 
   async getJobById(id: number) {
     const query = `SELECT * FROM jobs WHERE id = ${id}`;
     const result = await this.dbService.execute(query);
+    
     if (!result.length) {
       throw new NotFoundException(`Job with ID ${id} not found`);
     }
