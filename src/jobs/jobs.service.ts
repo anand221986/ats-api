@@ -58,7 +58,7 @@ export class JobsService {
       const jobStatus = `Open`;
       await this.dbService.updateData(
         'jobs',
-        [`job_code = '${jobCode}'`, `job_status = '${jobStatus}'`],
+        [`job_code = '${jobCode}'`, `status = '${jobStatus}'`],
         [`id = ${jobId}`]
       );
 
