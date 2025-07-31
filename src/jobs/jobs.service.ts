@@ -45,9 +45,9 @@ export class JobsService {
       ];
 
       // Step 2: Insert the job
-      const insertedJob = await this.dbService.insertData('jobs', setData);
+      const insertedJob = await this.dbService.insertData('jobs', setData)  ;
       console.log(insertedJob,'return result of table ')
-      const jobId = insertedJob?.insertId;
+      const jobId = insertedJob.id;
 
       if (!jobId) {
         throw new Error('Failed to retrieve job ID after insertion.');

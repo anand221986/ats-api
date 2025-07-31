@@ -9,6 +9,7 @@ export class InsertionDTO {
   changedRows: number;
   // sqlMessage: string;
   code: string;
+  id:number;
   // errno: number;
   // sqlMessage: string;
   // sqlState: string;
