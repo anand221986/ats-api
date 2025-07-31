@@ -41,11 +41,12 @@ export class JobsService {
         { set: 'salary_from', value: String(dto.salary_from) },
         { set: 'salary_to', value: String(dto.salary_to) },
         { set: 'salary_currency', value: String(dto.salary_currency) },
-        { set: 'notice_period', value: String(dto.notice_period) },
+        { set: 'notice_period', value: String(dto.salary_currency) },
       ];
 
       // Step 2: Insert the job
       const insertedJob = await this.dbService.insertData('jobs', setData);
+      console.log(insertedJob,'return result of table ')
       const jobId = insertedJob?.insertId;
 
       if (!jobId) {
