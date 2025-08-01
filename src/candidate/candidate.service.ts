@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
 import * as path from 'path';
 import { spawn } from 'child_process';
+import { safeNumeric } from '../util/number.util';
 @Injectable()
 export class CandidateService {
   private jobs: any[] = [];
@@ -16,6 +17,8 @@ export class CandidateService {
     public utilService: UtilService,
   ) {
   }
+
+ 
 
   async createCandidate(dto: CreateCandidateDto) {
     try {
@@ -59,14 +62,21 @@ export class CandidateService {
       ];
 
       if (dto.current_ctc !== null && dto.current_ctc !== undefined) {
-        setData.push({ set: 'current_ctc', value: String(dto.current_ctc) });
+     setData.push({
+  set: 'current_ctc',
+  value: String(dto.current_ctc && !isNaN(dto.current_ctc) ? dto.current_ctc : 0)
+});
       }
       if (dto.expected_ctc !== null && dto.expected_ctc !== undefined) {
-        setData.push({ set: 'expected_ctc', value: String(dto.expected_ctc) });
+     setData.push({
+  set: 'expected_ctc',
+  value: String(dto.expected_ctc && !isNaN(dto.expected_ctc) ? dto.expected_ctc : 0)
+});
       }
-      if (dto.rating !== null && dto.rating !== undefined) {
-        setData.push({ set: 'rating', value: String(dto.rating) });
-      }
+setData.push({
+  set: 'rating',
+  value: String(safeNumeric(dto.rating ?? 1)), // default rating to 1
+});
       const insertion = await this.dbService.insertData('candidates', setData);
       return this.utilService.successResponse(insertion, 'Candidate created successfully.');
     } catch (error) {
