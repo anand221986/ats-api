@@ -4,6 +4,8 @@ import { CreateJobDto, UpdateJobDto } from './jobs.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { LinkedinService } from "../linkedin/linkedin.service";
+import * as path from 'path';
+import { spawn } from 'child_process';
 
 @Injectable()
 export class JobsService {
@@ -174,6 +176,90 @@ ORDER BY jobs.id DESC;`;
       : "No candidates found for this job."
   );
   }
+
+  async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
+      const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
+      const scriptPath = path.resolve(__dirname, '../../../python/jdparser.py');
+      return new Promise((resolve, reject) => {
+        const process = spawn(pythonPath, [scriptPath, pdfPath]);
+        let output = '';
+        let error = '';
+        process.stdout.on('data', (data) => {
+          output += data.toString();
+        });
+        process.stderr.on('data', (data) => {
+          error += data.toString();
+        });
+        process.on('close', (code) => {
+          if (code !== 0) {
+            return reject(new Error(`Python script exited with code ${code}: ${error}`));
+          }
+          try {
+            const parsed = JSON.parse(output);
+            resolve(parsed);
+          } catch {
+            resolve(output); // fallback if not JSON
+          }
+        });
+      });
+    }
+
+      async insertExtractedData(extractedData, resumefilename) {
+    try {
+      console.log(extractedData, 'extractedData')
+      let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
+      const existingCandidate = await this.dbService.execute(query);
+      if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
+        return this.utilService.failResponse(
+          `Candidate with email "${extractedData.email}" already exists.`
+        );
+      }
+
+      let first_name = '';
+      let last_name = '';
+      if (extractedData.name) {
+        const [first, ...lastParts] = extractedData.name.split(" ");
+        first_name = first;
+        last_name = lastParts.join(" ");
+      }
+
+      const setData = [
+        { set: 'first_name', value: String(first_name) },
+        { set: 'last_name', value: String(last_name) },
+        { set: 'email', value: String(extractedData.email) },
+        { set: 'phone', value: String(extractedData.phoneNumber ?? '') },
+        { set: 'education', value: JSON.stringify(extractedData.education ?? []) },
+        { set: 'experience', value: JSON.stringify(extractedData.experience ?? []) },
+        { set: 'skill', value: extractedData.skillset ?? [] },
+        { set: 'linkedinprofile', value: extractedData.linkedinProfile ?? '' },
+        { set: 'address', value: JSON.stringify(extractedData.location ?? []) },
+        { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
+        { set: 'companytier', value: extractedData.companyTier ?? [] },
+        { set: 'resume_url', value: resumefilename }
+      ];
+      const candidateInsertion = await this.dbService.insertData('candidates', setData);
+      const candidateId = candidateInsertion.insertId;
+         const set = [`is_current=false`];
+      const where = [`id ='${candidateId}'`];
+      await this.dbService.updateData(
+        'candidate_resumes',
+        set,
+        where
+      );
+      await this.dbService.insertData('candidate_resumes', [
+        { set: 'candidate_id', value: candidateId },
+        { set: 'resume_url', value: resumefilename },
+        { set: 'uploaded_by', value: 'Admin' },
+        { set: 'is_current', value: true }
+      ]);
+   
+      return this.utilService.successResponse(candidateInsertion, 'Candidate created successfully.');
+    } catch (error) {
+      console.error('Create candidate Error:', error);
+      throw new Error('Failed to create candidate. Please ensure all fields are valid and meet constraints.');
+    }
+  }
+  
 
 
 }

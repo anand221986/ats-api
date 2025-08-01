@@ -9,12 +9,18 @@ import {
   Post,
   Put,
   Res,
+    UseInterceptors,
+     UploadedFile,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JobsService } from './jobs.service';
 import { CreateJobDto, UpdateJobDto } from './jobs.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
-
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+ 
 @Controller('jobs')
 @ApiTags('jobs')
 export class JobsController {
@@ -94,6 +100,72 @@ export class JobsController {
       return res
         .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         .json(error.response || { message: error.message });
+    }
+  }
+
+   //JD parser functionality 
+ @Post('extractJob')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueName}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Only PDF files are allowed'), false);
+        }
+      },
+    }),
+  )
+  async job(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { jobIds: number[]; candidateIds: number[] },
+    @Res() res: Response,
+  ): Promise<any> {
+    try {
+      const allExtractedData: any[] = [];
+       const allResults: any[] = [];
+      const pdfPath = file.path;
+      console.log(pdfPath,'pdf path')
+       const extractedData = await this.jobsService.runPythonScriptWithSpawn(pdfPath);
+      //const result = await this.jobsService.insertExtractedData(extractedData, file.filename);
+
+      if (!extractedData) {
+        allResults.push({
+          fileName: file.filename,
+          success: false,
+          message: 'Uploaded File data not extracted properly.',
+        });
+      } else {
+        allResults.push({
+          fileName: file.filename,
+          success: true,
+          message: 'Inserted successfully',
+          extractedData,
+        });
+
+        allExtractedData.push({
+          fileName: file.filename,
+          extractedData,
+        });
+      }
+
+      return res.status(HttpStatus.CREATED).json({
+        message: 'Operation successful',
+        uploadedFiles: allExtractedData,
+        results: allResults,
+      });
+    } catch (error) {
+      console.error('File processing error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to upload file',
+      });
     }
   }
 }
