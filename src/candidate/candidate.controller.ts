@@ -10,7 +10,6 @@ import {
   Put,
   Res,
   UseInterceptors,
-  UploadedFile,
   UploadedFiles,
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
@@ -20,6 +19,8 @@ import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/s
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+
+
 interface ExtractedDataItem {
   fileName: string;
   extractedData: any; // Replace 'any' with a specific type if you have one
@@ -333,6 +334,5 @@ export class CandidateController {
   }
 
 
-
-
+ 
 }
