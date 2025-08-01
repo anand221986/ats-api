@@ -22,6 +22,7 @@ export class CreateCandidateDto  {
   degree?: string;
   rating?: number;  // Rating like 4.5
   extra?: string;   // Optional extra field
+  notice_period?:string
   
 }
 export class assignedJobDto {
