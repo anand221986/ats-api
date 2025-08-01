@@ -120,6 +120,7 @@ export class CreateJobDto {
  job_title:string;
  job_code:string;
 insertId: number;
+id: number;
  affectedRows?: number;
  @IsOptional() // if it's not a required field
   @IsInt()

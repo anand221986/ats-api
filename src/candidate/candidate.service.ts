@@ -55,6 +55,7 @@ export class CandidateService {
         { set: 'skill', value: Array.isArray(dto.skill) ? `{${dto.skill.join(',')}}` : '{}' }, // PostgreSQL array format
         { set: 'college', value: String(dto.college ?? '') },
         { set: 'degree', value: String(dto.degree ?? '') },
+        { set: 'notice_period', value: String(dto.notice_period ?? '') },
       ];
 
       if (dto.current_ctc !== null && dto.current_ctc !== undefined) {
