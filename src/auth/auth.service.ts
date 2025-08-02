@@ -78,6 +78,7 @@ export class AuthService {
     });
     try {
       const response = await this.cognitoClient.send(command);
+      
       const newUser = {
         email,
         name,
