@@ -87,17 +87,20 @@ export class CandidateService {
 
   async getAllCandidates() {
     const query = `
-    SELECT 
-      c.*, 
-      j.id AS job_id, 
-      j.job_title 
-    FROM 
-      candidates c
-    LEFT JOIN 
-      jobs j ON c.job_id = j.id
-    ORDER BY 
-      c.id DESC;
-  `;
+     SELECT 
+    c.*, 
+    j.id AS job_id, 
+    j.job_title 
+  FROM 
+    candidates c
+  LEFT JOIN 
+    candidate_jobs cj ON c.id = cj.candidate_id
+  LEFT JOIN 
+    jobs j ON cj.job_id = j.id
+  ORDER BY 
+    c.id DESC;
+`;
+  
     const result = await this.dbService.execute(query);
     return this.utilService.successResponse(result, "Candidates list retrieved successfully.");
   }
