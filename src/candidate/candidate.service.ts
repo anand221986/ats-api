@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto,updateCandidateTaskDto,CandidateTaskDto} from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -18,7 +18,7 @@ export class CandidateService {
   ) {
   }
 
- 
+
 
   async createCandidate(dto: CreateCandidateDto) {
     try {
@@ -62,21 +62,21 @@ export class CandidateService {
       ];
 
       if (dto.current_ctc !== null && dto.current_ctc !== undefined) {
-     setData.push({
-  set: 'current_ctc',
-  value: String(dto.current_ctc && !isNaN(dto.current_ctc) ? dto.current_ctc : 0)
-});
+        setData.push({
+          set: 'current_ctc',
+          value: String(dto.current_ctc && !isNaN(dto.current_ctc) ? dto.current_ctc : 0)
+        });
       }
       if (dto.expected_ctc !== null && dto.expected_ctc !== undefined) {
-     setData.push({
-  set: 'expected_ctc',
-  value: String(dto.expected_ctc && !isNaN(dto.expected_ctc) ? dto.expected_ctc : 0)
-});
+        setData.push({
+          set: 'expected_ctc',
+          value: String(dto.expected_ctc && !isNaN(dto.expected_ctc) ? dto.expected_ctc : 0)
+        });
       }
-setData.push({
-  set: 'rating',
-  value: String(safeNumeric(dto.rating ?? 1)), // default rating to 1
-});
+      setData.push({
+        set: 'rating',
+        value: String(safeNumeric(dto.rating ?? 1)), // default rating to 1
+      });
       const insertion = await this.dbService.insertData('candidates', setData);
       return this.utilService.successResponse(insertion, 'Candidate created successfully.');
     } catch (error) {
@@ -209,26 +209,44 @@ setData.push({
       if (missingCandidateIds.length > 0) {
         return this.utilService.failResponse(`Candidate ID(s) not found: ${missingCandidateIds.join(', ')}`);
       }
-
-      // 3. Proceed with update
-      if (jobIds.length === 1) {
-        const jobId = jobIds[0];
-        const set = [`job_id=${jobId}`];
-        const where = [`id IN (${candidateIdList})`];
-        const result = await this.dbService.updateData('candidates', set, where);
-        return this.utilService.successResponse('Candidates assigned to job successfully.');
-      }
-
-      // 4. Assign multiple jobs to multiple candidates
-      const updates: Promise<any>[] = [];
+      const rows: string[] = [];
+      //update insert query 
       for (const candidateId of candidateIds) {
         for (const jobId of jobIds) {
-          const set = [`job_id=${jobId}`];
-          const where = [`id=${candidateId}`];
-          updates.push(this.dbService.updateData('candidates', set, where));
+          if (Number.isInteger(candidateId) && Number.isInteger(jobId)) {
+            rows.push(`(${candidateId}, ${jobId})`);
+          } else {
+            throw new Error('Invalid candidateId or jobId – must be integers.');
+          }
         }
       }
-      const results = await Promise.all(updates);
+
+      const query = `
+  INSERT INTO candidate_jobs (candidate_id, job_id)
+  VALUES ${rows.join(', ')}
+  ON CONFLICT (candidate_id, job_id) DO NOTHING;
+`;
+
+      await this.dbService.execute(query);
+      // 3. Proceed with update
+      // if (jobIds.length === 1) {
+      //   const jobId = jobIds[0];
+      //   const set = [`job_id=${jobId}`];
+      //   const where = [`id IN (${candidateIdList})`];
+      //   const result = await this.dbService.updateData('candidates', set, where);
+      //   return this.utilService.successResponse('Candidates assigned to job successfully.');
+      // }
+
+      // // 4. Assign multiple jobs to multiple candidates
+      // const updates: Promise<any>[] = [];
+      // for (const candidateId of candidateIds) {
+      //   for (const jobId of jobIds) {
+      //     const set = [`job_id=${jobId}`];
+      //     const where = [`id=${candidateId}`];
+      //     updates.push(this.dbService.updateData('candidates', set, where));
+      //   }
+      // }
+      // const results = await Promise.all(updates);
       return this.utilService.successResponse('Candidates assigned to jobs successfully.');
     } catch (error) {
       console.error('Error assigning candidates:', error);
@@ -316,7 +334,7 @@ setData.push({
       ];
       const candidateInsertion = await this.dbService.insertData('candidates', setData);
       const candidateId = candidateInsertion.insertId;
-         const set = [`is_current=false`];
+      const set = [`is_current=false`];
       const where = [`id ='${candidateId}'`];
       await this.dbService.updateData(
         'candidate_resumes',
@@ -329,7 +347,7 @@ setData.push({
         { set: 'uploaded_by', value: 'Admin' },
         { set: 'is_current', value: true }
       ]);
-   
+
       return this.utilService.successResponse(candidateInsertion, 'Candidate created successfully.');
     } catch (error) {
       console.error('Create candidate Error:', error);
@@ -512,9 +530,9 @@ setData.push({
     }
   }
 
-  
 
-    async getCandidateNotes(id: number) {
+
+  async getCandidateNotes(id: number) {
     const query = `SELECT * FROM candidate_notes WHERE candidate_id = ${id}`;
     const result = await this.dbService.execute(query);
     if (!result.length) {
@@ -524,7 +542,7 @@ setData.push({
   }
 
 
-    async createCandidatesTask(dto: CandidateTaskDto) {
+  async createCandidatesTask(dto: CandidateTaskDto) {
     try {
       const setData = [
         { set: 'candidate_id', value: String(dto.candidate_id) },
@@ -540,7 +558,7 @@ setData.push({
   }
 
 
-  async updateCandidateTask(id: number, dto:updateCandidateTaskDto) {
+  async updateCandidateTask(id: number, dto: updateCandidateTaskDto) {
     try {
       // Convert DTO to key=value pairs for update
       const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
@@ -556,9 +574,9 @@ setData.push({
     }
   }
 
-  
 
-    async getCandidateTask(id: number) {
+
+  async getCandidateTask(id: number) {
     const query = `SELECT * FROM candidate_task WHERE candidate_id = ${id}`;
     const result = await this.dbService.execute(query);
     if (!result.length) {

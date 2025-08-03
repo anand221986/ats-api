@@ -11,6 +11,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFiles,
+  UseGuards
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { Response, Express } from 'express';
@@ -19,6 +20,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/s
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { AuthGuard } from '../auth/auth.guard';
 
 
 interface ExtractedDataItem {
@@ -35,7 +37,7 @@ interface ExtractedDataItem {
 @ApiTags('candidate')
 export class CandidateController {
   constructor(private readonly candidateService: CandidateService) { }
-
+@UseGuards(AuthGuard)
   @Post("createCandidate")
   @ApiOperation({ summary: 'Create a new candidate' })
   @ApiResponse({ status: 201, description: 'Candidates created' })
@@ -63,7 +65,7 @@ export class CandidateController {
     }
   }
 
-
+@UseGuards(AuthGuard)
   @Get("getAllCandidates")
   @ApiOperation({ summary: 'Get all Candidate' })
   async getAll(@Res() res: Response) {

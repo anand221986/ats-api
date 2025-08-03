@@ -82,11 +82,19 @@ export class JobsService {
 
 
   async getAllJobs() {
-    const query = `SELECT DISTINCT jobs.*
-FROM jobs
-LEFT JOIN candidates ON candidates.job_id = jobs.id
-ORDER BY jobs.id DESC;`;
-    const jobs = await this.dbService.execute(query);
+//     const query = `SELECT DISTINCT jobs.*
+// FROM jobs
+// LEFT JOIN candidates ON candidates.job_id = jobs.id
+// ORDER BY jobs.id DESC;`;
+//     const jobs = await this.dbService.execute(query);
+
+  const query = `
+    SELECT DISTINCT jobs.*
+    FROM jobs
+    LEFT JOIN candidate_jobs ON candidate_jobs.job_id = jobs.id
+    ORDER BY jobs.id DESC;
+  `;
+  const jobs = await this.dbService.execute(query);
       // 2. Get count of jobs grouped by status
   const countQuery = `
     SELECT status, COUNT(*) AS count
