@@ -158,7 +158,9 @@ export class CandidateController {
   @Post('uploadPdf')
   @UseInterceptors(FilesInterceptor('resumes', 10, {
     storage: diskStorage({
-      destination: './uploads',
+      // destination: './uploads',
+      destination: '/var/www/html/ats-api/uploads',
+      
       filename: (req, file, cb) => {
         const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, `${uniqueName}${extname(file.originalname)}`);
