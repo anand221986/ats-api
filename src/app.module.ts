@@ -25,6 +25,7 @@ import {LinkedinService} from './linkedin/linkedin.service';
 import { LinkedinController } from './linkedin/linkedin.controller';
 import {ResumesService} from './resumes/resumes.service';
 import { ResumesController } from './resumes/resumes.controller';
+
  
 @Module({
   imports: [ ConfigModule.forRoot({

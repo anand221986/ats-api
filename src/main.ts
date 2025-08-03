@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as https from 'https';
+import * as compression from 'compression';
+import helmet from 'helmet';
 async function bootstrap() {
   // const httpsOptions = {
   //   key: fs.readFileSync('/etc/ssl/private/ssl-cert-snakeoil.key'),
@@ -19,7 +21,8 @@ async function bootstrap() {
    ...(httpsOptions && { httpsOptions }),
      logger: ['error', 'warn', 'log', 'debug', 'verbose']} 
     );
-
+app.use(compression());
+app.use(helmet());
   // 👇 Allow requests from your React frontend (http://localhost:8081)
   app.enableCors({
     origin: ['http://localhost:8081','http://localhost:8080', 'http://ats-admin-panel.s3-website.eu-north-1.amazonaws.com','http://51.20.181.155','http://xbeeshire.com',
