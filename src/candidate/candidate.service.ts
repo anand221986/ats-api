@@ -97,6 +97,8 @@ export class CandidateService {
     candidate_jobs cj ON c.id = cj.candidate_id
   LEFT JOIN 
     jobs j ON cj.job_id = j.id
+    GROUP BY 
+    c.id
   ORDER BY 
     c.id DESC;
 `;
