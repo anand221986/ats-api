@@ -37,7 +37,7 @@ interface ExtractedDataItem {
 @ApiTags('candidate')
 export class CandidateController {
   constructor(private readonly candidateService: CandidateService) { }
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
   @Post("createCandidate")
   @ApiOperation({ summary: 'Create a new candidate' })
   @ApiResponse({ status: 201, description: 'Candidates created' })
@@ -65,7 +65,7 @@ export class CandidateController {
     }
   }
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
   @Get("getAllCandidates")
   @ApiOperation({ summary: 'Get all Candidate' })
   async getAll(@Res() res: Response) {
