@@ -95,12 +95,46 @@ async insertData(tableName: string, data: { set: string; value: string }[]): Pro
   const values = data.map((d) => d.value);
 
   const query = `INSERT INTO "${tableName}" (${columns.join(", ")}) VALUES (${placeholders.join(", ")}) RETURNING *`;
-
   try {
     const result = await this.pool.query(query, values);
     return result.rows[0];
   } catch (error) {
     console.error("Insert Error:", error);
+    throw error;
+  }
+}
+
+
+async upsertData(
+  tableName: string,
+  data: { set: string; value: any }[],
+  conflictFields: string[],
+  updateFields?: string[]
+): Promise<InsertionDTO> {
+  const columns = data.map((d) => `"${d.set}"`);
+  const placeholders = data.map((_, i) => `$${i + 1}`);
+  const values = data.map((d) => d.value);
+
+  // Default to updating all columns except conflict ones
+  const fieldsToUpdate = updateFields ?? data.map((d) => d.set).filter((col) => !conflictFields.includes(col));
+
+  const updateClause = fieldsToUpdate
+    .map((col) => `"${col}" = EXCLUDED."${col}"`)
+    .join(", ");
+
+  const query = `
+    INSERT INTO "${tableName}" (${columns.join(", ")})
+    VALUES (${placeholders.join(", ")})
+    ON CONFLICT (${conflictFields.map((f) => `"${f}"`).join(", ")})
+    DO UPDATE SET ${updateClause}
+    RETURNING *;
+  `;
+
+  try {
+    const result = await this.pool.query(query, values);
+    return result.rows[0];
+  } catch (error) {
+    console.error("Upsert Error:", error);
     throw error;
   }
 }

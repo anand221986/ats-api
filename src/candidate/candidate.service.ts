@@ -307,13 +307,13 @@ export class CandidateService {
   async insertExtractedData(extractedData, resumefilename) {
     try {
       console.log(extractedData, 'extractedData')
-      let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
-      const existingCandidate = await this.dbService.execute(query);
-      if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
-        return this.utilService.failResponse(
-          `Candidate with email "${extractedData.email}" already exists.`
-        );
-      }
+      // let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
+      // const existingCandidate = await this.dbService.execute(query);
+      // if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
+      //   return this.utilService.failResponse(
+      //     `Candidate with email "${extractedData.email}" already exists.`
+      //   );
+      // }
 
       let first_name = '';
       let last_name = '';
@@ -337,7 +337,7 @@ export class CandidateService {
         { set: 'companytier', value: extractedData.companyTier ?? [] },
         { set: 'resume_url', value: resumefilename }
       ];
-      const candidateInsertion = await this.dbService.insertData('candidates', setData);
+      const candidateInsertion =await this.dbService.upsertData('candidates', setData, ['email']);
       const candidateId = candidateInsertion.insertId;
       const set = [`is_current=false`];
       const where = [`id ='${candidateId}'`];
