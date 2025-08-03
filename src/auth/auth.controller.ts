@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body,BadRequestException, } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body,BadRequestException, Param, } from "@nestjs/common";
 import { CognitoService } from './cognito.service';
 import { UserService } from '../user/user.service';
 import { Response } from "express";
@@ -59,7 +59,13 @@ export class AuthController {
       resetPasswordDto.newPassword
     );
   }
-
+@Get('generate-token')
+  generateToken() {
+    const userId = 'default-user-id';
+    const email = 'default@example.com';
+    const token = this.authService.getToken(userId, email);
+    return { access_token: token };
+  }
 
 
 

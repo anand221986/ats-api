@@ -589,5 +589,15 @@ export class CandidateService {
     }
     return this.utilService.successResponse(result, "Candidates Task retrieved successfully.");
   }
+    async getCandidateResumes(id: number) {
+    const query = `SELECT * FROM candidate_resumes WHERE candidate_id = ${id}`;
+    const result = await this.dbService.execute(query);
+    if (!result.length) {
+      throw new NotFoundException(`Bo resume found in this table with  ${id}`);
+    }
+    return this.utilService.successResponse(result, "Candidates Resumes retrieved successfully.");
+  }
+
+  
 
 }

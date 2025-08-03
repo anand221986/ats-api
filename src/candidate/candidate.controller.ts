@@ -335,6 +335,16 @@ export class CandidateController {
 
   }
 
+    @Get('candidateResumes/:id')
+  @ApiOperation({ summary: 'Get Candidate task By candidateId' })
+  @ApiParam({ name: 'id', type: Number })
+  async getcandidateResumes(@Param('id') id: number, @Res() res: Response) {
+    const jobResult = await this.candidateService.getCandidateResumes(id);
+    return res.status(HttpStatus.OK).json(jobResult);
+
+  }
+
+
 
  
 }
