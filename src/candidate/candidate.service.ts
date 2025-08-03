@@ -89,8 +89,8 @@ export class CandidateService {
     const query = `
      SELECT 
     c.*, 
-    j.id AS job_id, 
-    j.job_title 
+ ARRAY_AGG(j.id) AS job_ids,
+    ARRAY_AGG(j.job_title) AS job_titles
   FROM 
     candidates c
   LEFT JOIN 
