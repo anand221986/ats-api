@@ -187,31 +187,48 @@ const query = `
   }
 
   async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
-      const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
-      const scriptPath = path.resolve(__dirname, '../../../python/jdparser.py');
-      return new Promise((resolve, reject) => {
-        const process = spawn(pythonPath, [scriptPath, pdfPath]);
-        let output = '';
-        let error = '';
-        process.stdout.on('data', (data) => {
-          output += data.toString();
-        });
-        process.stderr.on('data', (data) => {
-          error += data.toString();
-        });
-        process.on('close', (code) => {
-          if (code !== 0) {
-            return reject(new Error(`Python script exited with code ${code}: ${error}`));
-          }
-          try {
-            const parsed = JSON.parse(output);
-            resolve(parsed);
-          } catch {
-            resolve(output); // fallback if not JSON
-            console.log(output,'output')
-          }
-        });
+     const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
+  const scriptPath = path.resolve(__dirname, '../../../python/jdparser.py');
+
+  return new Promise((resolve, reject) => {
+    try {
+      const process = spawn(pythonPath, [scriptPath, pdfPath]);
+
+      let output = '';
+      let error = '';
+
+      process.stdout.on('data', (data) => {
+        output += data.toString();
       });
+
+      process.stderr.on('data', (data) => {
+        error += data.toString();
+      });
+
+      process.on('error', (err) => {
+        // Catch spawn-level errors like permissions or path issues
+        return reject(new Error(`Failed to start Python script: ${err.message}`));
+      });
+
+      process.on('close', (code) => {
+        if (code !== 0) {
+          return reject(new Error(`Python script exited with code ${code}: ${error}`));
+        }
+
+        try {
+          const parsed = JSON.parse(output);
+          return resolve(parsed);
+        } catch (e) {
+          console.warn('Warning: Could not parse JSON. Returning raw output.');
+          console.log('Raw Output:', output);
+          return resolve(output); // fallback if output is not JSON
+        }
+      });
+
+    } catch (err: any) {
+      return reject(new Error(`Unexpected error running Python script: ${err.message}`));
+    }
+  });
     }
 
       async insertExtractedData(extractedData, resumefilename) {
