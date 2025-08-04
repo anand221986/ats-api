@@ -208,6 +208,7 @@ const query = `
             resolve(parsed);
           } catch {
             resolve(output); // fallback if not JSON
+            console.log(output,'output')
           }
         });
       });

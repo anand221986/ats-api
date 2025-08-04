@@ -134,6 +134,7 @@ export class JobsController {
       const pdfPath = file.path;
       console.log(pdfPath,'pdf path')
        const extractedData = await this.jobsService.runPythonScriptWithSpawn(pdfPath);
+       console.log(extractedData,'extractedData')
       //const result = await this.jobsService.insertExtractedData(extractedData, file.filename);
 
       if (!extractedData) {
