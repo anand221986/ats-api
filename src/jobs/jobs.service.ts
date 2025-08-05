@@ -200,6 +200,7 @@ const query = `
       process.stdout.on('data', (data) => {
         output += data.toString();
       });
+       console.log(output,'output')
 
       process.stderr.on('data', (data) => {
         error += data.toString();
