@@ -219,6 +219,7 @@ async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
         }
 
         try {
+          console.log(output,'debug before output ')
           const parsed = JSON.parse(output);
           return resolve(parsed);
         } catch (e) {
