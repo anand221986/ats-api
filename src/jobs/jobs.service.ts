@@ -186,8 +186,8 @@ const query = `
   );
   }
 
-  async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
-     const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
+async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
+  const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
   const scriptPath = path.resolve(__dirname, '../../../python/jdparser.py');
 
   return new Promise((resolve, reject) => {
@@ -198,32 +198,32 @@ const query = `
       let error = '';
 
       process.stdout.on('data', (data) => {
-        output += data.toString();
+        const chunk = data.toString();
+        output += chunk;
+        console.log('Python chunk:', chunk); // Real-time logging
       });
-       console.log(output,'output')
 
       process.stderr.on('data', (data) => {
         error += data.toString();
+        console.error('Python error:', data.toString());
       });
 
       process.on('error', (err) => {
-        // Catch spawn-level errors like permissions or path issues
         return reject(new Error(`Failed to start Python script: ${err.message}`));
       });
 
       process.on('close', (code) => {
+        console.log('Final output:', output); // Full result after script finishes
         if (code !== 0) {
           return reject(new Error(`Python script exited with code ${code}: ${error}`));
         }
 
         try {
-          console.log(output,'output')
           const parsed = JSON.parse(output);
           return resolve(parsed);
         } catch (e) {
           console.warn('Warning: Could not parse JSON. Returning raw output.');
-          console.log('Raw Output:', output);
-          return resolve(output); // fallback if output is not JSON
+          return resolve(output);
         }
       });
 
@@ -231,7 +231,8 @@ const query = `
       return reject(new Error(`Unexpected error running Python script: ${err.message}`));
     }
   });
-    }
+}
+
 
       async insertExtractedData(extractedData, resumefilename) {
     try {
