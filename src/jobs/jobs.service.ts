@@ -188,7 +188,7 @@ const query = `
 
 async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
   const pythonPath = path.resolve(__dirname, '../../../python/venv/bin/python3');
-  const scriptPath = path.resolve(__dirname, '../../../python/jdparser.py');
+  const scriptPath = path.resolve(__dirname, '../../../python/jd_parser_entry.py');
 
   return new Promise((resolve, reject) => {
     try {
