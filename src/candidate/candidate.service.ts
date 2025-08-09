@@ -87,14 +87,9 @@ export class CandidateService {
 
   async getAllCandidates() {
     const query = `
+
 SELECT 
-  c.id,
-  c.first_name,
-  c.last_name,
-  c.email,
-  c.phone,
-  c.current_title,
-  c.current_company,
+ c.*, 
   COALESCE(
     json_agg(
       DISTINCT jsonb_build_object(
