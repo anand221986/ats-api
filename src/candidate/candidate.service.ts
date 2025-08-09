@@ -87,20 +87,51 @@ export class CandidateService {
 
   async getAllCandidates() {
     const query = `
-     SELECT 
-    c.*, 
- ARRAY_AGG(j.id) AS job_ids,
-    ARRAY_AGG(j.job_title) AS job_titles
-  FROM 
-    candidates c
-  LEFT JOIN 
-   candidate_job_applications cj ON c.id = cj.candidate_id
-  LEFT JOIN 
-    jobs j ON cj.job_id = j.id
-    GROUP BY 
-    c.id
-  ORDER BY 
-    c.id DESC;
+//      SELECT 
+//     c.*, 
+//  ARRAY_AGG(j.id) AS job_ids,
+//     ARRAY_AGG(j.job_title) AS job_titles
+//   FROM 
+//     candidates c
+//   LEFT JOIN 
+//    candidate_job_applications cj ON c.id = cj.candidate_id
+//   LEFT JOIN 
+//     jobs j ON cj.job_id = j.id
+//     GROUP BY 
+//     c.id
+//   ORDER BY 
+//     c.id DESC;
+SELECT 
+  c.id,
+  c.first_name,
+  c.last_name,
+  c.email,
+  c.phone,
+  c.current_title,
+  c.current_company,
+  COALESCE(
+    json_agg(
+      DISTINCT jsonb_build_object(
+        'job_id', j.id,
+        'job_title', j.job_title,
+        'status', cj.status,
+        'recruiter_status', cj.recruiter_status,
+        'hmapproval', cj.hmapproval
+      )
+    ) FILTER (WHERE j.id IS NOT NULL),
+    '[]'
+  ) AS jobs_assigned
+FROM 
+  candidates c
+LEFT JOIN 
+  candidate_job_applications cj ON c.id = cj.candidate_id
+LEFT JOIN 
+  jobs j ON cj.job_id = j.id
+GROUP BY 
+  c.id
+ORDER BY 
+  c.id DESC;
+
 `;
   
     const result = await this.dbService.execute(query);
