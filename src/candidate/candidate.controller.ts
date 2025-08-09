@@ -177,15 +177,16 @@ export class CandidateController {
   }))
   async bulk(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() body: { jobIds: number[]; candidateIds: number[] },
+    @Body() body: { job_id: number; candidateIds: number[] },
     @Res() res: Response,
   ): Promise<any> {
     try {
+      const { job_id, candidateIds } = body;
       const allExtractedData: ExtractedDataItem[] = [];
       for (const file of files) {
         const pdfPath = file.path;
         const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
-        const result = await this.candidateService.insertExtractedData(extractedData,file.filename);
+        const result = await this.candidateService.insertExtractedData(job_id,extractedData,file.filename);
 
         if (!result.status) {
           allResults.push({

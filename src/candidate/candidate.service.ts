@@ -322,7 +322,7 @@ ORDER BY
 
 
 
-  async insertExtractedData(extractedData, resumefilename) {
+  async insertExtractedData(job_id, extractedData, resumefilename) {
     try {
       console.log(extractedData, 'extractedData')
       // let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
@@ -355,7 +355,8 @@ ORDER BY
         { set: 'companytier', value: extractedData.companyTier ?? [] },
         { set: 'resume_url', value: resumefilename }
       ];
-      const candidateInsertion =await this.dbService.upsertData('candidates', setData, ['email']);
+     const candidateInsertion = await this.dbService.upsertData('candidates', setData, ['email']);
+     console.log('Upserted candidate:', candidateInsertion);
       const candidateId = candidateInsertion.insertId;
       const set = [`is_current=false`];
       const where = [`id ='${candidateId}'`];
@@ -371,6 +372,17 @@ ORDER BY
         { set: 'is_current', value: true }
       ]);
 
+      //if job_id 
+
+      if (job_id)// If no job_id, skip
+      try {
+        await this.dbService.insertData('candidate_job_applications', [
+          { set: 'job_id', value: job_id },
+          { set: 'candidate_id', value: candidateId },
+        ])} catch (error) {
+  console.error('Failed to insert candidate job application:', error);
+  // Handle error appropriately, e.g. throw, return error response, etc.
+}
       return this.utilService.successResponse(candidateInsertion, 'Candidate created successfully.');
     } catch (error) {
       console.error('Create candidate Error:', error);
