@@ -78,7 +78,7 @@ export class CandidateService {
         value: String(safeNumeric(dto.rating ?? 1)), // default rating to 1
       });
       const insertion = await this.dbService.insertData('candidates', setData);
-      return this.utilService.successResponse(insertion, 'Candidate created successfully.');
+      return this.utilService.successResponse('Candidate created successfully.');
     } catch (error) {
       console.error('Create candidate Error:', error);
       throw error;
@@ -125,7 +125,7 @@ export class CandidateService {
       if (updateResult.affectedRows === 0) {
         return this.utilService.failResponse('candidates not found or no changes made.');
       }
-      return this.utilService.successResponse(updateResult, 'candidates updated successfully.');
+      return this.utilService.successResponse('candidates updated successfully.');
     } catch (error) {
       console.error('Error updating candidates:', error);
       return this.utilService.failResponse('Failed to update candidates.');
