@@ -226,8 +226,14 @@ export class CandidateService {
         }
       }
 
-      const query = `
-  INSERT INTO candidate_jobs (candidate_id, job_id)
+//       const query = `
+//   INSERT INTO candidate_jobs (candidate_id, job_id)
+//   VALUES ${rows.join(', ')}
+//   ON CONFLICT (candidate_id, job_id) DO NOTHING;
+// `;
+
+ const query = `
+  INSERT INTO candidate_job_applications (candidate_id, job_id)
   VALUES ${rows.join(', ')}
   ON CONFLICT (candidate_id, job_id) DO NOTHING;
 `;
