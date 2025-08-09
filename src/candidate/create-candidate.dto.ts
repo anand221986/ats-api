@@ -1,5 +1,5 @@
 
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray, IsNumber,IsInt,Min,Max,IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 export class CreateCandidateDto  {
   first_name: string;
@@ -74,4 +74,23 @@ export class CandidateTaskDto {
 export class updateCandidateTaskDto {
   id: number;
   task: string;
+}
+
+export class RateCandidateDto {
+  @IsInt()
+  candidate_id: number;
+
+  @IsInt()
+  job_id: number;
+
+  @IsInt()
+  rated_by: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  rating: number;
+
+  @IsString()
+  feedback: string;
 }

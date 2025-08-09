@@ -1,6 +1,6 @@
 // jobs.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto } from './create-candidate.dto';
+import { Injectable, NotFoundException,BadRequestException } from '@nestjs/common';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto,RateCandidateDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -603,6 +603,41 @@ export class CandidateService {
     }
     return this.utilService.successResponse(result, "Candidates Resumes retrieved successfully.");
   }
+
+
+   
+
+async rateCandidate(dto: RateCandidateDto) {
+const query = `
+    WITH check_entities AS (
+      SELECT 
+        EXISTS(SELECT 1 FROM candidates WHERE id = ${dto.candidate_id}) AS candidate_exists,
+        EXISTS(SELECT 1 FROM jobs WHERE id = ${dto.job_id}) AS job_exists
+    )
+    UPDATE candidate_job_ratings
+    SET 
+      rating = ${dto.rating},
+      feedback = '${dto.feedback}',
+      updated_at = NOW()
+    FROM check_entities
+    WHERE candidate_id = ${dto.candidate_id}
+      AND job_id = ${dto.job_id}
+      AND rated_by = ${dto.rated_by}
+      AND candidate_exists
+      AND job_exists
+    RETURNING *;
+  `;
+  const result = await this.dbService.execute(query);
+
+  if (!result || result.length === 0) {
+    throw new BadRequestException(
+      'Candidate or Job does not exist, or no existing rating found'
+    );
+  }
+
+  return result[0];
+}
+
 
   
 

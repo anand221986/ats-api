@@ -11,11 +11,12 @@ import {
   Res,
   UseInterceptors,
   UploadedFiles,
-  UseGuards
+  UseGuards,
+ 
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -346,7 +347,14 @@ export class CandidateController {
 
   }
 
-
+  @Put('candidateRating:id')
+  @ApiOperation({ summary: 'Update candidate Rating by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateCandidateDto })
+  async candidateRating(@Param('id') id: number, @Body() dto: RateCandidateDto, @Res() res: Response) {
+    const job = await this.candidateService.rateCandidate(dto);
+    return res.status(HttpStatus.OK).json(job);
+  }
 
  
 }
