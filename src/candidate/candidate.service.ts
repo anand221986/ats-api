@@ -357,7 +357,7 @@ ORDER BY
       ];
      const candidateInsertion = await this.dbService.upsertData('candidates', setData, ['email']);
      console.log('Upserted candidate:', candidateInsertion);
-      const candidateId = candidateInsertion.insertId;
+      const candidateId = candidateInsertion.insertId  ||  candidateInsertion.id ;
       const set = [`is_current=false`];
       const where = [`id ='${candidateId}'`];
       await this.dbService.updateData(
