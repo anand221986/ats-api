@@ -94,7 +94,7 @@ export class CandidateService {
   FROM 
     candidates c
   LEFT JOIN 
-    candidate_jobs cj ON c.id = cj.candidate_id
+   candidate_job_applications cj ON c.id = cj.candidate_id
   LEFT JOIN 
     jobs j ON cj.job_id = j.id
     GROUP BY 

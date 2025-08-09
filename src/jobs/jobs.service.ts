@@ -91,7 +91,7 @@ export class JobsService {
   const query = `
     SELECT DISTINCT jobs.*
     FROM jobs
-    LEFT JOIN candidate_jobs ON candidate_jobs.job_id = jobs.id
+    LEFT JOIN candidate_job_applications ON candidate_job_applications.job_id = jobs.id
     ORDER BY jobs.id DESC;
   `;
   const jobs = await this.dbService.execute(query);
@@ -172,7 +172,7 @@ const query = `
     j.description_about AS job_description,
     j.office_primary_location AS job_location 
   FROM candidates c
-  INNER JOIN candidate_jobs cj ON cj.candidate_id = c.id
+  INNER JOIN candidate_job_applications cj ON cj.candidate_id = c.id
   INNER JOIN jobs j ON cj.job_id = j.id
   WHERE j.id = ${jobId}
   ORDER BY c.id DESC;
