@@ -1,5 +1,5 @@
 // jobs.service.ts
-import { Injectable, NotFoundException,BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException,BadRequestException,HttpException,HttpStatus } from '@nestjs/common';
 import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto,RateCandidateDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
@@ -120,12 +120,46 @@ ORDER BY
   }
 
   async getCandidateId(id: number) {
-    const query = `SELECT * FROM candidates WHERE id = ${id}`;
-    const result = await this.dbService.execute(query);
-    if (!result.length) {
-      throw new NotFoundException(`candidates with ID ${id} not found`);
+    try {
+      const query = `
+  SELECT 
+    c.*, 
+    COALESCE(
+      json_agg(
+        DISTINCT jsonb_build_object(
+          'job_id', j.id,
+          'job_title', j.job_title,
+          'status', cj.status,
+          'recruiter_status', cj.recruiter_status,
+          'hmapproval', cj.hmapproval
+        )
+      ) FILTER (WHERE j.id IS NOT NULL),
+      '[]'
+    ) AS jobs_assigned
+  FROM candidates c
+  LEFT JOIN candidate_job_applications cj ON c.id = cj.candidate_id
+  LEFT JOIN jobs j ON cj.job_id = j.id
+  WHERE c.id = ${id}
+  GROUP BY c.id
+  ORDER BY c.id DESC;
+`;
+      const result = await this.dbService.execute(query);
+      if (!result.length) {
+        throw new NotFoundException(`candidates with ID ${id} not found`);
+      }
+      return this.utilService.successResponse(result, "Candidates  retrieved successfully.");
+
+    } catch (error) {
+ console.error('Database operation failed:', error);
+
+  // Throw NestJS HttpException to send proper HTTP response
+  // For example, a 500 Internal Server Error:
+  throw new HttpException(
+    'Internal server error, failed to insert data',
+    HttpStatus.INTERNAL_SERVER_ERROR,
+  );
+
     }
-    return this.utilService.successResponse(result, "Candidates  retrieved successfully.");
   }
 
   async updateCandidate(id: number, dto: UpdateCandidateDto) {
