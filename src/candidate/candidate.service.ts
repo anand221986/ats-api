@@ -87,20 +87,6 @@ export class CandidateService {
 
   async getAllCandidates() {
     const query = `
-//      SELECT 
-//     c.*, 
-//  ARRAY_AGG(j.id) AS job_ids,
-//     ARRAY_AGG(j.job_title) AS job_titles
-//   FROM 
-//     candidates c
-//   LEFT JOIN 
-//    candidate_job_applications cj ON c.id = cj.candidate_id
-//   LEFT JOIN 
-//     jobs j ON cj.job_id = j.id
-//     GROUP BY 
-//     c.id
-//   ORDER BY 
-//     c.id DESC;
 SELECT 
   c.id,
   c.first_name,
