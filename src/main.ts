@@ -18,7 +18,7 @@ async function bootstrap() {
   };
 
   const app = await NestFactory.create(AppModule,  {
-   ...(httpsOptions && { httpsOptions }),
+  //  ...(httpsOptions && { httpsOptions }),
      logger: ['error', 'warn', 'log', 'debug', 'verbose']} 
     );
 app.use(compression());
