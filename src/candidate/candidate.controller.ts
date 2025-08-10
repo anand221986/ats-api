@@ -359,7 +359,7 @@ export class CandidateController {
 
 
 
-@Put('candidate-job-assignment/update')
+@Put('job-assignment/update')
 @ApiOperation({ summary: 'Update candidate job mapping field' })
 @ApiBody({ type: UpdateCandidateJobAssignmentDto })
 async jobMappingUpdate(
