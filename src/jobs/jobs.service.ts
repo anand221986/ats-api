@@ -187,7 +187,7 @@ LEFT JOIN
 LEFT JOIN 
   jobs j ON j.id = cj.job_id
 GROUP BY 
-  c.id
+  cj.job_id
 ORDER BY 
   c.id DESC;
 `;
