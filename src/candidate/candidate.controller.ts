@@ -359,16 +359,39 @@ export class CandidateController {
 
 
 
-     @Put('job-assignment/update')
-  @ApiOperation({ summary: 'Update candidate job mapping field' })
-  @ApiBody({ type: UpdateCandidateJobAssignmentDto })
-  async jobMappingUpdate(
-    @Body() dto: UpdateCandidateJobAssignmentDto,
-    @Res() res: Response,
-  ) {
+@Put('candidate-job-assignment/update')
+@ApiOperation({ summary: 'Update candidate job mapping field' })
+@ApiBody({ type: UpdateCandidateJobAssignmentDto })
+async jobMappingUpdate(
+  @Body() dto: UpdateCandidateJobAssignmentDto,
+  @Res() res: Response,
+) {
+  try {
+    // Manually check if body is missing or empty
+    if (!dto || Object.keys(dto).length === 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Request body is missing',
+      });
+    }
+
+    // Extra manual checks if needed
+    if (!dto.candidateId || !dto.jobId || !dto.field || !dto.value) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Required fields are missing',
+      });
+    }
+
     const result = await this.candidateService.updateCandidateJobAssignment(dto);
     return res.status(HttpStatus.OK).json(result);
+
+  } catch (error) {
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Error updating candidate job mapping',
+      error: error.message,
+    });
   }
+}
+
 
   
 
