@@ -94,3 +94,15 @@ export class RateCandidateDto {
   @IsString()
   feedback: string;
 }
+
+
+export class UpdateCandidateJobAssignmentDto {
+  @IsNumber()
+  candidateId: number;
+
+  @IsNumber()
+  jobId: number;
+  field: 'status' | 'recruiter_status' | 'hmapproval';
+  @IsString()
+  value: string;
+}

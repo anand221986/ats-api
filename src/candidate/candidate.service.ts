@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException,BadRequestException,HttpException,HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto,RateCandidateDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto,RateCandidateDto ,UpdateCandidateJobAssignmentDto} from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -695,6 +695,34 @@ const query = `
 
   return result[0];
 }
+
+  async updateCandidateJobAssignment(dto: UpdateCandidateJobAssignmentDto) {
+    const { candidateId, jobId, field, value } = dto;
+  const query = `
+  WITH check_entities AS (
+    SELECT 
+      EXISTS(SELECT 1 FROM candidates WHERE id = ${candidateId}) AS candidate_exists,
+      EXISTS(SELECT 1 FROM jobs WHERE id = ${jobId}) AS job_exists
+  )
+  UPDATE candidate_job_applications
+  SET 
+    ${field} = '${value}',
+    updated_at = NOW()
+  FROM check_entities
+  WHERE candidate_id = ${dto.candidateId}
+    AND job_id = ${dto.jobId}
+    AND candidate_exists
+    AND job_exists
+  RETURNING *;
+`;
+    const result = await this.dbService.execute(query);
+
+    if (!result || result.length === 0) {
+      throw new NotFoundException('Candidate-job mapping not found');
+    }
+
+    return { message: 'Candidate job mapping updated successfully', updated: result[0] };
+  }
 
 
   

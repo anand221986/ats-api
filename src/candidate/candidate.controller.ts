@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -356,6 +356,21 @@ export class CandidateController {
     const job = await this.candidateService.rateCandidate(dto);
     return res.status(HttpStatus.OK).json(job);
   }
+
+
+
+     @Put('candidate-job-assignment/update')
+  @ApiOperation({ summary: 'Update candidate job mapping field' })
+  @ApiBody({ type: UpdateCandidateJobAssignmentDto })
+  async jobMappingUpdate(
+    @Body() dto: UpdateCandidateJobAssignmentDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.candidateService.updateCandidateJobAssignment(dto);
+    return res.status(HttpStatus.OK).json(result);
+  }
+
+  
 
  
 }
