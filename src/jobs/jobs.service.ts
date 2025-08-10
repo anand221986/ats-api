@@ -166,16 +166,34 @@ export class JobsService {
 
   async getAllApplicantsByJobId(jobId: number) {
 const query = `
-  SELECT 
-    c.*,
-    j.job_title AS job_title,
-    j.description_about AS job_description,
-    j.office_primary_location AS job_location 
-  FROM candidates c
-  INNER JOIN candidate_job_applications cj ON cj.candidate_id = c.id
-  INNER JOIN jobs j ON cj.job_id = j.id
-  WHERE j.id = ${jobId}
-  ORDER BY c.id DESC;
+SELECT 
+  c.*,
+  COALESCE(
+    json_agg(
+      DISTINCT jsonb_build_object(
+        'job_id', j.id,
+        'job_title', j.job_title,
+        'job_description', j.description_about,
+        'job_location', j.office_primary_location,
+        'status', cj.status,
+        'recruiter_status', cj.recruiter_status,
+        'hmapproval', cj.hmapproval
+      )
+    ) FILTER (WHERE j.id IS NOT NULL),
+    '[]'
+  ) AS jobs_assigned
+FROM 
+  candidates c
+INNER JOIN 
+  candidate_job_applications cj ON cj.candidate_id = c.id
+INNER JOIN 
+  jobs j ON cj.job_id = j.id
+WHERE 
+  j.id = ${jobId}
+GROUP BY 
+  c.id
+ORDER BY 
+  c.id DESC;
 `;
     const result = await this.dbService.execute(query);
    return this.utilService.successResponse(
