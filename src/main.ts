@@ -17,10 +17,11 @@ async function bootstrap() {
     cert: fs.readFileSync('/etc/letsencrypt/live/xbeeshire.com/fullchain.pem'),
   };
 
-  const app = await NestFactory.create(AppModule,  {
-  //  ...(httpsOptions && { httpsOptions }),
-     logger: ['error', 'warn', 'log', 'debug', 'verbose']} 
-    );
+  // const app = await NestFactory.create(AppModule,  {
+  // //  ...(httpsOptions && { httpsOptions }),
+  //    logger: ['error', 'warn', 'log', 'debug', 'verbose']} 
+  //   );
+const app = await NestFactory.create(AppModule, {logger: ['error', 'warn', 'log', 'debug', 'verbose']} );
 app.use(compression());
 app.use(helmet());
   // 👇 Allow requests from your React frontend (http://localhost:8081)
