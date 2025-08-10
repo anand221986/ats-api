@@ -169,9 +169,9 @@ ORDER BY
         if ((key === 'current_ctc' || key === 'expected_ctc') && (value == null)) {
           value = 0;
         }
-         if (key === 'skill' ) {
-       value = JSON.stringify(value);
-       }
+    if (key === 'skill') {
+  value = `{${value.map(v => `"${v}"`).join(',')}}`; // Postgres array format
+}
         return `${key}='${value}'`;
       });
       const where = [`id=${id}`];
