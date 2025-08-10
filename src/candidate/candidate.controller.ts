@@ -393,7 +393,7 @@ async jobMappingUpdate(
 }
 
 // job-detachment/candidate
-  @Post('job-detachment/candidate')
+  @Post('job-detachment')
  @ApiOperation({ summary: 'Detach multiple candidates  from jobs' })
   @ApiBody({
     schema: {
@@ -416,7 +416,7 @@ async jobMappingUpdate(
     } catch (error) {
       console.error('Bulk update error:', error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'Failed to insert candidates',
+        message: 'Failed to detach job from candiadate',
       });
     }
   }
