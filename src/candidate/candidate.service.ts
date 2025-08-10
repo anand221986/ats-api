@@ -166,6 +166,7 @@ ORDER BY
     try {
       // Convert DTO to key=value pairs for update
         const set = Object.entries(dto).map(([key, value]) => {
+      
         if ((key === 'current_ctc' || key === 'expected_ctc' || key === 'rating') && (value == null)) {
           value = 0;
         }
@@ -742,6 +743,50 @@ const query = `
 
     return { message: 'Candidate job mapping updated successfully', updated: result[0] };
   }
+
+  async unassignCandidatesFromJobs(jobIds: number[], candidateIds: number[]) {
+  try {
+    if (!jobIds?.length || !candidateIds?.length) {
+      return this.utilService.failResponse('Both jobIds and candidateIds must be provided.');
+    }
+
+    // 1. Validate jobIds
+    const jobIdList = jobIds.join(',');
+    const jobCheckQuery = `SELECT id FROM jobs WHERE id IN (${jobIdList})`;
+    const existingJobs = await this.dbService.execute(jobCheckQuery);
+    const existingJobIds = existingJobs.map((job: any) => job.id);
+    const missingJobIds = jobIds.filter(id => !existingJobIds.includes(id));
+
+    if (missingJobIds.length > 0) {
+      return this.utilService.failResponse(`Job ID(s) not found: ${missingJobIds.join(', ')}`);
+    }
+
+    // 2. Validate candidateIds
+    const candidateIdList = candidateIds.join(',');
+    const candidateCheckQuery = `SELECT id FROM candidates WHERE id IN (${candidateIdList})`;
+    const existingCandidates = await this.dbService.execute(candidateCheckQuery);
+    const existingCandidateIds = existingCandidates.map((c: any) => c.id);
+    const missingCandidateIds = candidateIds.filter(id => !existingCandidateIds.includes(id));
+
+    if (missingCandidateIds.length > 0) {
+      return this.utilService.failResponse(`Candidate ID(s) not found: ${missingCandidateIds.join(', ')}`);
+    }
+
+    // 3. Perform delete instead of insert
+    const deleteQuery = `
+      DELETE FROM candidate_job_applications
+      WHERE candidate_id IN (${candidateIdList})
+      AND job_id IN (${jobIdList});
+    `;
+
+    await this.dbService.execute(deleteQuery);
+
+    return this.utilService.successResponse('Candidates unassigned from jobs successfully.');
+  } catch (error) {
+    console.error('Error unassigning candidates:', error);
+    return this.utilService.failResponse('Failed to unassign candidates.');
+  }
+}
 
 
   

@@ -392,6 +392,35 @@ async jobMappingUpdate(
   }
 }
 
+// job-detachment/candidate
+  @Post('job-detachment/candidate')
+ @ApiOperation({ summary: 'Detach multiple candidates  from jobs' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        jobIds: { type: 'array', items: { type: 'number' }, example: [15] },
+        candidateIds: { type: 'array', items: { type: 'number' }, example: [25] },
+      },
+      required: ['jobIds', 'candidateIds'],
+    },
+  })
+  async DetachmentToJobs(
+    @Body() body: { jobIds: number[]; candidateIds: number[] },
+    @Res() res: Response,
+  ) {
+    try {
+      const {jobIds,candidateIds}=body;
+      const response = await this.candidateService.unassignCandidatesFromJobs(jobIds, candidateIds);
+      return res.status(HttpStatus.CREATED).json(response);
+    } catch (error) {
+      console.error('Bulk update error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to insert candidates',
+      });
+    }
+  }
+
 
   
 
