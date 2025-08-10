@@ -166,7 +166,7 @@ ORDER BY
     try {
       // Convert DTO to key=value pairs for update
         const set = Object.entries(dto).map(([key, value]) => {
-        if ((key === 'current_ctc' || key === 'expected_ctc') && (value == null)) {
+        if ((key === 'current_ctc' || key === 'expected_ctc' || key === 'rating') && (value == null)) {
           value = 0;
         }
   if (key === 'skill') {
