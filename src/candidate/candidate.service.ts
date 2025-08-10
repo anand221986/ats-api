@@ -165,7 +165,15 @@ ORDER BY
   async updateCandidate(id: number, dto: UpdateCandidateDto) {
     try {
       // Convert DTO to key=value pairs for update
-      const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+        const set = Object.entries(dto).map(([key, value]) => {
+        if ((key === 'current_ctc' || key === 'expected_ctc') && (value == null)) {
+          value = 0;
+        }
+         if (key === 'skill' ) {
+       value = JSON.stringify(value);
+       }
+        return `${key}='${value}'`;
+      });
       const where = [`id=${id}`];
       const updateResult = await this.dbService.updateData('candidates', set, where);
       if (updateResult.affectedRows === 0) {
