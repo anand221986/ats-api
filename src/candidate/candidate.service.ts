@@ -169,9 +169,20 @@ ORDER BY
         if ((key === 'current_ctc' || key === 'expected_ctc') && (value == null)) {
           value = 0;
         }
-    if (key === 'skill') {
-  value = `{${value.map(v => `"${v}"`).join(',')}}`; // Postgres array format
-}
+  if (key === 'skill') {
+    // Ensure value is an array
+    if (typeof value === 'string') {
+      try {
+        value = JSON.parse(value); // Try to parse JSON string
+      } catch {
+        value = [value]; // Fallback: wrap single string in array
+      }
+    }
+    if (Array.isArray(value)) {
+      // Convert to Postgres array format
+      value = `{${value.map(v => `"${v}"`).join(',')}}`;
+    }
+  }
         return `${key}='${value}'`;
       });
       const where = [`id=${id}`];
