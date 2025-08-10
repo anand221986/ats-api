@@ -186,8 +186,9 @@ LEFT JOIN
   candidate_job_applications cj ON cj.candidate_id = c.id
 LEFT JOIN 
   jobs j ON j.id = cj.job_id
+where   j.id = ${jobId}
 GROUP BY 
-  cj.job_id
+  c.id
 ORDER BY 
   c.id DESC;
 `;
