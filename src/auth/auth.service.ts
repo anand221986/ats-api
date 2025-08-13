@@ -19,7 +19,8 @@ import {
   CognitoIdentityProviderClient, 
   SignUpCommand,InitiateAuthCommand,
   ForgotPasswordCommand,
-  ConfirmForgotPasswordCommand
+  ConfirmForgotPasswordCommand,
+  AdminUpdateUserAttributesCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 
 @Injectable()
@@ -72,13 +73,23 @@ export class AuthService {
         },
         {
           Name: 'phone_number',
-          Value: request.phone_number, // Use E.164 format. Example: +11234567890 for US.
+          Value: "+917043097908", // Use E.164 format. Example: +11234567890 for US.
         },
       ],
+      // MessageAction: 'SUPPRESS'
     });
     try {
       const response = await this.cognitoClient.send(command);
-      
+
+  const confirmCommand = new AdminUpdateUserAttributesCommand({
+  UserPoolId: process.env.COGNITO_USER_POOL_ID,
+  Username: email,
+  UserAttributes: [
+    { Name: 'email_verified', Value: 'true' },
+    { Name: 'phone_number_verified', Value: 'true' }
+  ]
+});
+await this.cognitoClient.send(confirmCommand);
       const newUser = {
         email,
         name,
@@ -104,7 +115,6 @@ export class AuthService {
       if (error.name === 'UsernameExistsException') {
         throw new BadRequestException('User already exists');
       }
-
       // Add more specific Cognito errors as needed
       throw new BadRequestException(error.message || 'Signup failed');
     }
