@@ -2,13 +2,16 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu/nest-app
+    destination: /home/ubuntu
 hooks:
+  BeforeInstall:
+    - location: scripts/stop_server.sh
+      runas: ubuntu
   AfterInstall:
     - location: scripts/install_dependencies.sh
-      timeout: 300
+      runas: ubuntu
+    - location: scripts/build_app.sh
       runas: ubuntu
   ApplicationStart:
     - location: scripts/start_server.sh
-      timeout: 300
       runas: ubuntu
