@@ -135,7 +135,21 @@ export class JobsService {
   async updateJob(id: number, dto: UpdateJobDto) {
     try {
       // Convert DTO to key=value pairs for update
-      const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+      // const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+
+      const set = Object.entries(dto).map(([key, value]) => {
+        if (key === 'office_location_additional' && (value === '' || value === null)) {
+          return `${key}='{}'`;
+        }
+        if (key === 'keywords' && (value === '' || value === null)) {
+          return `${key}='{}'`;
+        }
+        if (key === 'office_on_careers_page') {
+          return `${key}=${value === 'true' || value === true}`;
+        }
+        // Default handling (wrap in quotes)
+        return `${key}='${value}'`;
+      });
       const where = [`id=${id}`];
       const updateResult = await this.dbService.updateData('jobs', set, where);
       if (updateResult.affectedRows === 0) {
