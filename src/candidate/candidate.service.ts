@@ -1,6 +1,6 @@
 // jobs.service.ts
-import { Injectable, NotFoundException,BadRequestException,HttpException,HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto,RateCandidateDto ,UpdateCandidateJobAssignmentDto} from './create-candidate.dto';
+import { Injectable, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -9,12 +9,16 @@ import * as pdfParse from 'pdf-parse';
 import * as path from 'path';
 import { spawn } from 'child_process';
 import { safeNumeric } from '../util/number.util';
+import { ActivityService } from './activity.service';
+
+
 @Injectable()
 export class CandidateService {
   private jobs: any[] = [];
   constructor(
     public dbService: DbService,
     public utilService: UtilService,
+    public activityService: ActivityService,
   ) {
   }
 
@@ -114,7 +118,7 @@ ORDER BY
   c.id DESC;
 
 `;
-  
+
     const result = await this.dbService.execute(query);
     return this.utilService.successResponse(result, "Candidates list retrieved successfully.");
   }
@@ -150,14 +154,14 @@ ORDER BY
       return this.utilService.successResponse(result, "Candidates  retrieved successfully.");
 
     } catch (error) {
- console.error('Database operation failed:', error);
+      console.error('Database operation failed:', error);
 
-  // Throw NestJS HttpException to send proper HTTP response
-  // For example, a 500 Internal Server Error:
-  throw new HttpException(
-    'Internal server error, failed to insert data',
-    HttpStatus.INTERNAL_SERVER_ERROR,
-  );
+      // Throw NestJS HttpException to send proper HTTP response
+      // For example, a 500 Internal Server Error:
+      throw new HttpException(
+        'Internal server error, failed to insert data',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
 
     }
   }
@@ -165,25 +169,25 @@ ORDER BY
   async updateCandidate(id: number, dto: UpdateCandidateDto) {
     try {
       // Convert DTO to key=value pairs for update
-        const set = Object.entries(dto).map(([key, value]) => {
-      
+      const set = Object.entries(dto).map(([key, value]) => {
+
         if ((key === 'current_ctc' || key === 'expected_ctc' || key === 'rating') && (value == null)) {
           value = 0;
         }
-  if (key === 'skill') {
-    // Ensure value is an array
-    if (typeof value === 'string') {
-      try {
-        value = JSON.parse(value); // Try to parse JSON string
-      } catch {
-        value = [value]; // Fallback: wrap single string in array
-      }
-    }
-    if (Array.isArray(value)) {
-      // Convert to Postgres array format
-      value = `{${value.map(v => `"${v}"`).join(',')}}`;
-    }
-  }
+        if (key === 'skill') {
+          // Ensure value is an array
+          if (typeof value === 'string') {
+            try {
+              value = JSON.parse(value); // Try to parse JSON string
+            } catch {
+              value = [value]; // Fallback: wrap single string in array
+            }
+          }
+          if (Array.isArray(value)) {
+            // Convert to Postgres array format
+            value = `{${value.map(v => `"${v}"`).join(',')}}`;
+          }
+        }
         return `${key}='${value}'`;
       });
       const where = [`id=${id}`];
@@ -292,13 +296,13 @@ ORDER BY
         }
       }
 
-//       const query = `
-//   INSERT INTO candidate_jobs (candidate_id, job_id)
-//   VALUES ${rows.join(', ')}
-//   ON CONFLICT (candidate_id, job_id) DO NOTHING;
-// `;
+      //       const query = `
+      //   INSERT INTO candidate_jobs (candidate_id, job_id)
+      //   VALUES ${rows.join(', ')}
+      //   ON CONFLICT (candidate_id, job_id) DO NOTHING;
+      // `;
 
- const query = `
+      const query = `
   INSERT INTO candidate_job_applications (candidate_id, job_id)
   VALUES ${rows.join(', ')}
   ON CONFLICT (candidate_id, job_id) DO NOTHING;
@@ -409,9 +413,9 @@ ORDER BY
         { set: 'companytier', value: extractedData.companyTier ?? [] },
         { set: 'resume_url', value: resumefilename }
       ];
-     const candidateInsertion = await this.dbService.upsertData('candidates', setData, ['email']);
-     console.log('Upserted candidate:', candidateInsertion);
-      const candidateId = candidateInsertion.insertId  ||  candidateInsertion.id ;
+      const candidateInsertion = await this.dbService.upsertData('candidates', setData, ['email']);
+      console.log('Upserted candidate:', candidateInsertion);
+      const candidateId = candidateInsertion.insertId || candidateInsertion.id;
       const set = [`is_current=false`];
       const where = [`id ='${candidateId}'`];
       await this.dbService.updateData(
@@ -429,14 +433,15 @@ ORDER BY
       //if job_id 
 
       if (job_id)// If no job_id, skip
-      try {
-        await this.dbService.insertData('candidate_job_applications', [
-          { set: 'job_id', value: job_id },
-          { set: 'candidate_id', value: candidateId },
-        ])} catch (error) {
-  console.error('Failed to insert candidate job application:', error);
-  // Handle error appropriately, e.g. throw, return error response, etc.
-}
+        try {
+          await this.dbService.insertData('candidate_job_applications', [
+            { set: 'job_id', value: job_id },
+            { set: 'candidate_id', value: candidateId },
+          ])
+        } catch (error) {
+          console.error('Failed to insert candidate job application:', error);
+          // Handle error appropriately, e.g. throw, return error response, etc.
+        }
       return this.utilService.successResponse(candidateInsertion, 'Candidate created successfully.');
     } catch (error) {
       console.error('Create candidate Error:', error);
@@ -595,6 +600,13 @@ ORDER BY
         { set: 'note', value: String(dto.note) },
       ];
       const insertion = await this.dbService.insertData('candidate_notes', setData);
+      //Insert these activity logs on each tab actions 
+      await this.activityService.logActivity(
+        dto.candidate_id,
+        dto.author_id,
+        'note_added',
+        { note: dto.note }
+      );
       return this.utilService.successResponse(insertion, 'Candidate Notes created successfully.');
     } catch (error) {
       console.error('Create candidate notes Error:', error);
@@ -612,6 +624,7 @@ ORDER BY
       if (updateResult.affectedRows === 0) {
         return this.utilService.failResponse('candidates notes  not found or no changes made.');
       }
+      
       return this.utilService.successResponse('candidates Notes updated successfully.');
     } catch (error) {
       console.error('Error updating candidates Notes:', error);
@@ -639,6 +652,14 @@ ORDER BY
         { set: 'task', value: String(dto.task) },
       ];
       const insertion = await this.dbService.insertData('candidate_task', setData);
+
+       //Insert these activity logs on each tab actions 
+      await this.activityService.logActivity(
+        dto.candidate_id,
+        dto.author_id,
+        'task_added',
+        { note: dto.task }
+      );
       return this.utilService.successResponse(insertion, 'Candidate task created successfully.');
     } catch (error) {
       console.error('Create candidate task Error:', error);
@@ -673,7 +694,7 @@ ORDER BY
     }
     return this.utilService.successResponse(result, "Candidates Task retrieved successfully.");
   }
-    async getCandidateResumes(id: number) {
+  async getCandidateResumes(id: number) {
     const query = `SELECT * FROM candidate_resumes WHERE candidate_id = ${id}`;
     const result = await this.dbService.execute(query);
     if (!result.length) {
@@ -683,10 +704,10 @@ ORDER BY
   }
 
 
-   
 
-async rateCandidate(dto: RateCandidateDto) {
-const query = `
+
+  async rateCandidate(dto: RateCandidateDto) {
+    const query = `
     WITH check_entities AS (
       SELECT 
         EXISTS(SELECT 1 FROM candidates WHERE id = ${dto.candidate_id}) AS candidate_exists,
@@ -705,20 +726,20 @@ const query = `
       AND job_exists
     RETURNING *;
   `;
-  const result = await this.dbService.execute(query);
+    const result = await this.dbService.execute(query);
 
-  if (!result || result.length === 0) {
-    throw new BadRequestException(
-      'Candidate or Job does not exist, or no existing rating found'
-    );
+    if (!result || result.length === 0) {
+      throw new BadRequestException(
+        'Candidate or Job does not exist, or no existing rating found'
+      );
+    }
+
+    return result[0];
   }
-
-  return result[0];
-}
 
   async updateCandidateJobAssignment(dto: UpdateCandidateJobAssignmentDto) {
     const { candidateId, jobId, field, value } = dto;
-  const query = `
+    const query = `
   WITH check_entities AS (
     SELECT 
       EXISTS(SELECT 1 FROM candidates WHERE id = ${candidateId}) AS candidate_exists,
@@ -745,50 +766,47 @@ const query = `
   }
 
   async unassignCandidatesFromJobs(jobIds: number[], candidateIds: number[]) {
-  try {
-    if (!jobIds?.length || !candidateIds?.length) {
-      return this.utilService.failResponse('Both jobIds and candidateIds must be provided.');
-    }
+    try {
+      if (!jobIds?.length || !candidateIds?.length) {
+        return this.utilService.failResponse('Both jobIds and candidateIds must be provided.');
+      }
 
-    // 1. Validate jobIds
-    const jobIdList = jobIds.join(',');
-    const jobCheckQuery = `SELECT id FROM jobs WHERE id IN (${jobIdList})`;
-    const existingJobs = await this.dbService.execute(jobCheckQuery);
-    const existingJobIds = existingJobs.map((job: any) => job.id);
-    const missingJobIds = jobIds.filter(id => !existingJobIds.includes(id));
+      // 1. Validate jobIds
+      const jobIdList = jobIds.join(',');
+      const jobCheckQuery = `SELECT id FROM jobs WHERE id IN (${jobIdList})`;
+      const existingJobs = await this.dbService.execute(jobCheckQuery);
+      const existingJobIds = existingJobs.map((job: any) => job.id);
+      const missingJobIds = jobIds.filter(id => !existingJobIds.includes(id));
 
-    if (missingJobIds.length > 0) {
-      return this.utilService.failResponse(`Job ID(s) not found: ${missingJobIds.join(', ')}`);
-    }
+      if (missingJobIds.length > 0) {
+        return this.utilService.failResponse(`Job ID(s) not found: ${missingJobIds.join(', ')}`);
+      }
 
-    // 2. Validate candidateIds
-    const candidateIdList = candidateIds.join(',');
-    const candidateCheckQuery = `SELECT id FROM candidates WHERE id IN (${candidateIdList})`;
-    const existingCandidates = await this.dbService.execute(candidateCheckQuery);
-    const existingCandidateIds = existingCandidates.map((c: any) => c.id);
-    const missingCandidateIds = candidateIds.filter(id => !existingCandidateIds.includes(id));
+      // 2. Validate candidateIds
+      const candidateIdList = candidateIds.join(',');
+      const candidateCheckQuery = `SELECT id FROM candidates WHERE id IN (${candidateIdList})`;
+      const existingCandidates = await this.dbService.execute(candidateCheckQuery);
+      const existingCandidateIds = existingCandidates.map((c: any) => c.id);
+      const missingCandidateIds = candidateIds.filter(id => !existingCandidateIds.includes(id));
 
-    if (missingCandidateIds.length > 0) {
-      return this.utilService.failResponse(`Candidate ID(s) not found: ${missingCandidateIds.join(', ')}`);
-    }
+      if (missingCandidateIds.length > 0) {
+        return this.utilService.failResponse(`Candidate ID(s) not found: ${missingCandidateIds.join(', ')}`);
+      }
 
-    // 3. Perform delete instead of insert
-    const deleteQuery = `
+      // 3. Perform delete instead of insert
+      const deleteQuery = `
       DELETE FROM candidate_job_applications
       WHERE candidate_id IN (${candidateIdList})
       AND job_id IN (${jobIdList});
     `;
 
-    await this.dbService.execute(deleteQuery);
+      await this.dbService.execute(deleteQuery);
 
-    return this.utilService.successResponse('Candidates unassigned from jobs successfully.');
-  } catch (error) {
-    console.error('Error unassigning candidates:', error);
-    return this.utilService.failResponse('Failed to unassign candidates.');
+      return this.utilService.successResponse('Candidates unassigned from jobs successfully.');
+    } catch (error) {
+      console.error('Error unassigning candidates:', error);
+      return this.utilService.failResponse('Failed to unassign candidates.');
+    }
   }
-}
-
-
-  
 
 }

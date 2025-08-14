@@ -12,9 +12,10 @@ import {
   UseInterceptors,
   UploadedFiles,
   UseGuards,
- 
+
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
+import { ActivityService } from './activity.service';
 import { Response, Express } from 'express';
 import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -28,17 +29,17 @@ interface ExtractedDataItem {
   fileName: string;
   extractedData: any; // Replace 'any' with a specific type if you have one
 }
- const allResults: {
-      fileName: string;
-      success: boolean;
-      message: string;
-      extractedData?: any;
-    }[] = []
+const allResults: {
+  fileName: string;
+  success: boolean;
+  message: string;
+  extractedData?: any;
+}[] = []
 @Controller('candidate')
 @ApiTags('candidate')
 export class CandidateController {
-  constructor(private readonly candidateService: CandidateService) { }
-// @UseGuards(AuthGuard)
+  constructor(private readonly candidateService: CandidateService, private readonly activityService: ActivityService) { }
+  // @UseGuards(AuthGuard)
   @Post("createCandidate")
   @ApiOperation({ summary: 'Create a new candidate' })
   @ApiResponse({ status: 201, description: 'Candidates created' })
@@ -66,7 +67,7 @@ export class CandidateController {
     }
   }
 
-// @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get("getAllCandidates")
   @ApiOperation({ summary: 'Get all Candidate' })
   async getAll(@Res() res: Response) {
@@ -161,7 +162,7 @@ export class CandidateController {
     storage: diskStorage({
       // destination: './uploads',
       destination: '/var/www/html/ats-api/uploads',
-      
+
       filename: (req, file, cb) => {
         const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, `${uniqueName}${extname(file.originalname)}`);
@@ -186,7 +187,7 @@ export class CandidateController {
       for (const file of files) {
         const pdfPath = file.path;
         const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
-        const result = await this.candidateService.insertExtractedData(job_id,extractedData,file.filename);
+        const result = await this.candidateService.insertExtractedData(job_id, extractedData, file.filename);
 
         if (!result.status) {
           allResults.push({
@@ -339,7 +340,7 @@ export class CandidateController {
 
   }
 
-    @Get('candidateResumes/:id')
+  @Get('candidateResumes/:id')
   @ApiOperation({ summary: 'Get Candidate task By candidateId' })
   @ApiParam({ name: 'id', type: Number })
   async getcandidateResumes(@Param('id') id: number, @Res() res: Response) {
@@ -359,42 +360,42 @@ export class CandidateController {
 
 
 
-@Put('job-assignment/update')
-@ApiOperation({ summary: 'Update candidate job mapping field' })
-@ApiBody({ type: UpdateCandidateJobAssignmentDto })
-async jobMappingUpdate(
-  @Body() dto: UpdateCandidateJobAssignmentDto,
-  @Res() res: Response,
-) {
-  try {
-    // Manually check if body is missing or empty
-    if (!dto || Object.keys(dto).length === 0) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Request body is missing',
+  @Put('job-assignment/update')
+  @ApiOperation({ summary: 'Update candidate job mapping field' })
+  @ApiBody({ type: UpdateCandidateJobAssignmentDto })
+  async jobMappingUpdate(
+    @Body() dto: UpdateCandidateJobAssignmentDto,
+    @Res() res: Response,
+  ) {
+    try {
+      // Manually check if body is missing or empty
+      if (!dto || Object.keys(dto).length === 0) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          message: 'Request body is missing',
+        });
+      }
+
+      // Extra manual checks if needed
+      if (!dto.candidateId || !dto.jobId || !dto.field || !dto.value) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          message: 'Required fields are missing',
+        });
+      }
+
+      const result = await this.candidateService.updateCandidateJobAssignment(dto);
+      return res.status(HttpStatus.OK).json(result);
+
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Error updating candidate job mapping',
+        error: error.message,
       });
     }
-
-    // Extra manual checks if needed
-    if (!dto.candidateId || !dto.jobId || !dto.field || !dto.value) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Required fields are missing',
-      });
-    }
-
-    const result = await this.candidateService.updateCandidateJobAssignment(dto);
-    return res.status(HttpStatus.OK).json(result);
-
-  } catch (error) {
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'Error updating candidate job mapping',
-      error: error.message,
-    });
   }
-}
 
-// job-detachment/candidate
+  // job-detachment/candidate
   @Post('job-detachment')
- @ApiOperation({ summary: 'Detach multiple candidates  from jobs' })
+  @ApiOperation({ summary: 'Detach multiple candidates  from jobs' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -410,7 +411,7 @@ async jobMappingUpdate(
     @Res() res: Response,
   ) {
     try {
-      const {jobIds,candidateIds}=body;
+      const { jobIds, candidateIds } = body;
       const response = await this.candidateService.unassignCandidatesFromJobs(jobIds, candidateIds);
       return res.status(HttpStatus.CREATED).json(response);
     } catch (error) {
@@ -422,7 +423,16 @@ async jobMappingUpdate(
   }
 
 
-  
+  @Get('activities/:id')
+  @ApiOperation({ summary: 'Get Candidate task By candidateId' })
+  @ApiParam({ name: 'id', type: Number })
+  async getCandidateactivities(@Param('id') id: number, @Res() res: Response) {
+    const jobResult = await this.activityService.getCandidateActivities(id);
+    return res.status(HttpStatus.OK).json(jobResult);
 
- 
+  }
+
+
+
+
 }
