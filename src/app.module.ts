@@ -25,6 +25,9 @@ import {LinkedinService} from './linkedin/linkedin.service';
 import { LinkedinController } from './linkedin/linkedin.controller';
 import {ResumesService} from './resumes/resumes.service';
 import { ResumesController } from './resumes/resumes.controller';
+import {ActivityService} from './candidate/activity.service';
+
+
 
  
 @Module({
@@ -32,7 +35,7 @@ import { ResumesController } from './resumes/resumes.controller';
       isGlobal: true, // So you can use ConfigService anywhere without importing again
     }),],
   controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController ],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService ],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService ],
 })
 //with middle ware 
 //without export class AppModule
