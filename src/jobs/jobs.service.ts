@@ -138,11 +138,11 @@ export class JobsService {
       // const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
 
       const set = Object.entries(dto).map(([key, value]) => {
-        if (key === 'office_location_additional' && (value === '' || value === null)) {
-          return `${key}='{}'`;
+        if (key === 'office_location_additional') {
+          return `${key}=${JSON.stringify(value)}`;
         }
-        if (key === 'keywords' && (value === '' || value === null)) {
-          return `${key}='{}'`;
+        if (key === 'keywords') {
+          return `${key}=${JSON.stringify(value)}`;
         }
         if (key === 'office_on_careers_page') {
           return `${key}=${value === 'true' || value === true}`;
