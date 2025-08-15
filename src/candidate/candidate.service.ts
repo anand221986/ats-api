@@ -902,7 +902,7 @@ ORDER BY
         { set: 'call_outcome', value: dto.call_outcome },
         { set: 'call_notes', value: dto.call_notes || '' },  // Optional field with default ''
       ];
-      const insertion = await this.dbService.insertData('candidate_sms', setData);
+      const insertion = await this.dbService.insertData('candidate_calls', setData);
       // Log activity (optional: change 'SMS' to a specific log type if needed)
       await this.activityService.logActivity(
         dto.candidate_id,
