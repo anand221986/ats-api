@@ -17,7 +17,7 @@ import {
 import { CandidateService } from './candidate.service';
 import { ActivityService } from './activity.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto,CandidateSchedulesDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -430,6 +430,25 @@ export class CandidateController {
     const jobResult = await this.activityService.getCandidateActivities(id);
     return res.status(HttpStatus.OK).json(jobResult);
 
+  }
+
+  @Post('addCandidateSchedule')
+  @ApiOperation({ summary: 'add Candidate scheuled' })
+  @ApiBody({ type: CandidateSchedulesDto }) // <== Array of DTOs
+  @ApiResponse({ status: 201, description: 'Candidate Schedule created' })
+  async addCandidateSchedule(
+    @Body() dtos: CandidateSchedulesDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const response = await this.candidateService.createCandidateSchedule(dtos);
+      return res.status(HttpStatus.CREATED).json(response);
+    } catch (error) {
+      console.error('candidate schedule Insertion error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to insert candidate schedule',
+      });
+    }
   }
 
 

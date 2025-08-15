@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -808,5 +808,36 @@ ORDER BY
       return this.utilService.failResponse('Failed to unassign candidates.');
     }
   }
+
+
+  
+
+async createCandidateSchedule(dto: CandidateSchedulesDto) {
+  try {
+    const setData = [
+      { set: 'candidate_id', value: String(dto.candidate_id) },
+      { set: 'author_id', value: String(dto.author_id) },
+      { set: 'event_name', value: dto.event_name },
+      { set: 'event_description', value: dto.event_description || '' },
+    ];
+    const insertion = await this.dbService.insertData('candidate_schedule', setData);
+    // Log activity
+    await this.activityService.logActivity(
+      dto.candidate_id,
+      dto.author_id,
+      'schedule_created',
+      {
+        event_name: dto.event_name,
+        event_description: dto.event_description || '',
+      }
+    );
+
+    return this.utilService.successResponse(insertion, 'Candidate schedule created successfully.');
+  } catch (error) {
+    console.error('Create candidate schedule Error:', error);
+    throw error;
+  }
+}
+
 
 }

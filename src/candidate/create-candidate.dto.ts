@@ -106,3 +106,15 @@ export class UpdateCandidateJobAssignmentDto {
   @IsString()
   value: string;
 }
+
+export class CandidateSchedulesDto {
+  @IsInt()
+  candidate_id: number;
+  @IsString()
+  event_name: string;
+  @IsString()
+  event_description?: string;
+
+  @IsInt()
+  author_id: number;
+}
