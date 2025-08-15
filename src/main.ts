@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
@@ -12,6 +13,13 @@ async function bootstrap() {
   // Security & performance middlewares
   app.use(compression());
   app.use(helmet());
+  //  app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     whitelist: true,      // strips unknown fields
+  //     forbidNonWhitelisted: true, // throw error if unknown fields
+  //     transform: true,      // auto-transform payloads to DTO classes
+  //   }),
+  // );
 
   // CORS configuration
   app.enableCors({
