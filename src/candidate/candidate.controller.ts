@@ -17,7 +17,7 @@ import {
 import { CandidateService } from './candidate.service';
 import { ActivityService } from './activity.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, UpdateActionDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto,CandidateSchedulesDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CreateCandidateSmsDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CandidateSchedulesDto, CreateCandidateEmailDto, CreateCallLogDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -451,7 +451,66 @@ export class CandidateController {
     }
   }
 
+  @Post('sendCandidateEmail')
+  @ApiOperation({ summary: 'add Candidate scheuled' })
+  @ApiBody({ type: CreateCandidateEmailDto }) // <== Array of DTOs
+  @ApiResponse({ status: 201, description: 'Candidate Schedule created' })
+  async sendCandidateEmail(
+    @Body() dtos: CreateCandidateEmailDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const response = await this.candidateService.createCandidateEmail(dtos);
+      return res.status(HttpStatus.CREATED).json(response);
+    } catch (error) {
+      console.error('candidate schedule Insertion error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to insert candidate schedule',
+      });
+    }
+  }
 
 
+
+
+  @Post('sendCandidateText')
+  @ApiOperation({ summary: 'send sms to candidate' })
+  @ApiBody({ type: CreateCandidateSmsDto }) // <== Array of DTOs
+  @ApiResponse({ status: 201, description: 'Candidate sms ' })
+  async sendCandidateText(
+    @Body() dtos: CreateCandidateSmsDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const response = await this.candidateService.createCandidateSMS(dtos);
+      return res.status(HttpStatus.CREATED).json(response);
+    } catch (error) {
+      console.error('candidate schedule Insertion error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to insert candidate schedule',
+      });
+    }
+  }
+
+  //
+
+  @Post('createCandidateCallLog')
+  @ApiOperation({ summary: 'candidate calllog' })
+  @ApiBody({ type: CreateCallLogDto }) // <== Array of DTOs
+  @ApiResponse({ status: 201, description: 'Candidate calllog ' })
+  async createCandidateCallLog(
+    @Body() dtos: CreateCallLogDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const response = await this.candidateService.createCandidateCallLog(dtos);
+      return res.status(HttpStatus.CREATED).json(response);
+    } catch (error) {
+      console.error('candidate calllog Insertion error:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Failed to insert candidate calllog',
+      });
+    }
+  }
 
 }

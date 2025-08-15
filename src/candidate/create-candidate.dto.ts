@@ -118,3 +118,37 @@ export class CandidateSchedulesDto {
   @IsInt()
   author_id: number;
 }
+
+export class CreateCandidateEmailDto {
+  @IsInt()
+  candidate_id: number;
+  @IsString()
+  emailSubject: string;
+  @IsString()
+  emailDescription?: string;
+  @IsInt()
+  author_id: number;
+}
+
+export class CreateCandidateSmsDto {
+  @IsInt()
+  candidate_id: number;
+  @IsString()
+  TextMessage: string;
+  @IsInt()
+  author_id: number;
+}
+
+export class CreateCallLogDto {
+  @IsInt()
+  candidate_id: number;
+  @IsInt()
+  author_id: number;
+  meeting_date: string; // ISO date string, e.g. '2025-08-15'
+  @IsString()
+  meeting_type: string;
+  @IsString()
+  call_outcome: string;
+  @IsString()
+  call_notes?: string;
+}

@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -624,7 +624,7 @@ ORDER BY
       if (updateResult.affectedRows === 0) {
         return this.utilService.failResponse('candidates notes  not found or no changes made.');
       }
-      
+
       return this.utilService.successResponse('candidates Notes updated successfully.');
     } catch (error) {
       console.error('Error updating candidates Notes:', error);
@@ -653,7 +653,7 @@ ORDER BY
       ];
       const insertion = await this.dbService.insertData('candidate_task', setData);
 
-       //Insert these activity logs on each tab actions 
+      //Insert these activity logs on each tab actions 
       await this.activityService.logActivity(
         dto.candidate_id,
         dto.author_id,
@@ -810,34 +810,113 @@ ORDER BY
   }
 
 
-  
 
-async createCandidateSchedule(dto: CandidateSchedulesDto) {
-  try {
-    const setData = [
-      { set: 'candidate_id', value: String(dto.candidate_id) },
-      { set: 'author_id', value: String(dto.author_id) },
-      { set: 'event_name', value: dto.event_name },
-      { set: 'event_description', value: dto.event_description || '' },
-    ];
-    const insertion = await this.dbService.insertData('candidate_schedule', setData);
-    // Log activity
-    await this.activityService.logActivity(
-      dto.candidate_id,
-      dto.author_id,
-      'schedule_created',
-      {
-        event_name: dto.event_name,
-        event_description: dto.event_description || '',
-      }
-    );
-
-    return this.utilService.successResponse(insertion, 'Candidate schedule created successfully.');
-  } catch (error) {
-    console.error('Create candidate schedule Error:', error);
-    throw error;
+  //candidate schedule
+  async createCandidateSchedule(dto: CandidateSchedulesDto) {
+    try {
+      const setData = [
+        { set: 'candidate_id', value: String(dto.candidate_id) },
+        { set: 'author_id', value: String(dto.author_id) },
+        { set: 'event_name', value: dto.event_name },
+        { set: 'event_description', value: dto.event_description || '' },
+      ];
+      const insertion = await this.dbService.insertData('candidate_schedule', setData);
+      // Log activity
+      await this.activityService.logActivity(
+        dto.candidate_id,
+        dto.author_id,
+        'schedule_created',
+        {
+          event_name: dto.event_name,
+          event_description: dto.event_description || '',
+        }
+      );
+      return this.utilService.successResponse(insertion, 'Candidate schedule created successfully.');
+    } catch (error) {
+      console.error('Create candidate schedule Error:', error);
+      throw error;
+    }
   }
-}
 
+
+  //CreateCndidateEmail
+  async createCandidateEmail(dto: CreateCandidateEmailDto) {
+    try {
+      const setData = [
+        { set: 'candidate_id', value: String(dto.candidate_id) },
+        { set: 'author_id', value: String(dto.author_id) },
+        { set: 'email_subject', value: dto.emailSubject },
+        { set: 'email_description', value: dto.emailDescription || '' },
+      ];
+      const insertion = await this.dbService.insertData('candidate_emails', setData);
+      // Log activity
+      await this.activityService.logActivity(
+        dto.candidate_id,
+        dto.author_id,
+        'Email',
+        {
+          event_name: dto.emailSubject,
+          event_description: dto.emailDescription || '',
+        }
+      );
+      return this.utilService.successResponse(insertion, 'Candidate email send successfully.');
+    } catch (error) {
+      console.error('send  candidate  email Error:', error);
+      throw error;
+    }
+  }
+
+
+  //CreateCndidateSMS
+  async createCandidateSMS(dto: CreateCandidateSmsDto) {
+    try {
+      const setData = [
+        { set: 'candidate_id', value: String(dto.candidate_id) },
+        { set: 'author_id', value: String(dto.author_id) },
+        { set: 'text_message', value: dto.TextMessage },
+      ];
+      const insertion = await this.dbService.insertData('candidate_sms', setData);
+      // Log activity (optional: change 'SMS' to a specific log type if needed)
+      await this.activityService.logActivity(
+        dto.candidate_id,
+        dto.author_id,
+        'sms_sent',
+        {
+          message: dto.TextMessage,
+        }
+      );
+      return this.utilService.successResponse(insertion, 'Candidate SMS sent successfully.');
+    } catch (error) {
+      console.error('Send candidate SMS Error:', error);
+      throw error;
+    }
+  }
+
+  async createCandidateCallLog(dto: CreateCallLogDto) {
+    try {
+      const setData = [
+        { set: 'candidate_id', value: String(dto.candidate_id) },
+        { set: 'author_id', value: String(dto.author_id) },
+        { set: 'meeting_date', value: dto.meeting_date },   // Assuming string in 'YYYY-MM-DD'
+        { set: 'meeting_type', value: dto.meeting_type },
+        { set: 'call_outcome', value: dto.call_outcome },
+        { set: 'call_notes', value: dto.call_notes || '' },  // Optional field with default ''
+      ];
+      const insertion = await this.dbService.insertData('candidate_sms', setData);
+      // Log activity (optional: change 'SMS' to a specific log type if needed)
+      await this.activityService.logActivity(
+        dto.candidate_id,
+        dto.author_id,
+        'candidate_calls',
+        {
+          message: dto.call_notes,
+        }
+      );
+      return this.utilService.successResponse(insertion, 'Candidate call noted  added successfully.');
+    } catch (error) {
+      console.error('Send candidate  callog Error:', error);
+      throw error;
+    }
+  }
 
 }
