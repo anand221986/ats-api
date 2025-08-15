@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto,CreateStatusDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -918,5 +918,29 @@ ORDER BY
       throw error;
     }
   }
+
+  //createCandidateStatus
+
+async createCandidateStatus(dto: CreateStatusDto) {
+  try {
+    const setData = [
+      { set: 'type', value: String(dto.type) },
+      { set: 'name', value: String(dto.name) },
+      { set: 'color', value: String(dto.color) || null },
+      { set: 'is_active', value: dto.is_active ?? true },
+    ];
+
+    const insertion = await this.dbService.insertData('statuses', setData);
+
+    return this.utilService.successResponse(
+      insertion,
+      'Status added successfully.'
+    );
+  } catch (error) {
+    console.error('Send candidate status Error:', error);
+    throw error;
+  }
+}
+
 
 }

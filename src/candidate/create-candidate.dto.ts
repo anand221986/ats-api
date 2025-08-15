@@ -1,5 +1,5 @@
 
-import { IsArray, IsNumber,IsInt,Min,Max,IsString } from 'class-validator';
+import { IsArray, IsNumber,IsInt,Min,Max,IsString ,IsBoolean,IsOptional,IsNotEmpty} from 'class-validator';
 import { Type } from 'class-transformer';
 export class CreateCandidateDto  {
   first_name: string;
@@ -151,4 +151,20 @@ export class CreateCallLogDto {
   call_outcome: string;
   @IsString()
   call_notes?: string;
+}
+
+
+export class CreateStatusDto {
+  @IsString()
+  @IsNotEmpty()
+  type: string;     // 'candidate' | 'recruiter'
+  @IsString()
+  @IsNotEmpty()
+  name: string;     // ex. 'Screening', 'Offered', etc.
+  @IsString()
+  @IsOptional()
+  color?: string;   // optional color (for badge)
+  @IsBoolean()
+  @IsOptional()
+  is_active?: boolean = true;
 }
