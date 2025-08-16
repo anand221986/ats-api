@@ -22,6 +22,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/s
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { isExplicitFalse } from 'src/util/boolean.utils';
 import { AuthGuard } from '../auth/auth.guard';
 
 
@@ -189,7 +190,8 @@ export class CandidateController {
         const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
         const result = await this.candidateService.insertExtractedData(job_id, extractedData, file.filename);
 
-        if (!result.status) {
+   if (isExplicitFalse(result.status)) {
+  // Handle the case where status is exactly false
           allResults.push({
             fileName: file.filename,
             success: false,
