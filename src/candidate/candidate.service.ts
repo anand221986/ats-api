@@ -382,14 +382,20 @@ ORDER BY
 
   async insertExtractedData(job_id, extractedData, resumefilename) {
     try {
-      console.log(extractedData, 'extractedData')
-      // let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
-      // const existingCandidate = await this.dbService.execute(query);
-      // if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
-      //   return this.utilService.failResponse(
-      //     `Candidate with email "${extractedData.email}" already exists.`
-      //   );
-      // }
+      let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
+      const existingCandidate = await this.dbService.execute(query);
+      let assignedJobQuery="SELECT  * FROM candidate_job_applications WHERE candidate_id='" + existingCandidate.id + "'";
+      const existingAssignedJobCandidate = await this.dbService.execute(assignedJobQuery);
+      if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
+        return this.utilService.failResponse(
+          `Candidate with email "${extractedData.email}" already exists in Ats system.`
+        );
+      }
+        if (Array.isArray(existingAssignedJobCandidate) && existingAssignedJobCandidate.length > 0) {
+        return this.utilService.failResponse(
+          `Candidate with email "${extractedData.email}" already Assigned to another Job in Ats system.`
+        );
+      }
 
       let first_name = '';
       let last_name = '';
