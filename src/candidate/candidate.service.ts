@@ -649,6 +649,16 @@ ORDER BY
     return this.utilService.successResponse(result, "Candidates Notes retrieved successfully.");
   }
 
+  
+   async getCandidatecalls(id: number) {
+    const query = `SELECT * FROM candidate_calls WHERE candidate_id = ${id}`;
+    const result = await this.dbService.execute(query);
+    if (!result.length) {
+      throw new NotFoundException(`candidates with ID ${id} not found`);
+    }
+    return this.utilService.successResponse(result, "Candidates calls retrieved successfully.");
+  }
+
 
   async createCandidatesTask(dto: CandidateTaskDto) {
     try {

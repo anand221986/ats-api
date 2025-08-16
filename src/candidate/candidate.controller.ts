@@ -534,4 +534,13 @@ export class CandidateController {
     }
   }
 
+    @Get('calls/:id')
+  @ApiOperation({ summary: 'Get Candidate calls By Id' })
+  @ApiParam({ name: 'id', type: Number })
+  async getCandidatecalls(@Param('id') id: number, @Res() res: Response) {
+    const jobResult = await this.candidateService.getCandidatecalls(id);
+    return res.status(HttpStatus.OK).json(jobResult);
+
+  }
+
 }
