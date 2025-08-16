@@ -185,13 +185,13 @@ export class CandidateController {
     try {
       const { job_id, candidateIds } = body;
       const allExtractedData: ExtractedDataItem[] = [];
+      const allResults:any[]=[]
       for (const file of files) {
         const pdfPath = file.path;
         const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
         const result = await this.candidateService.insertExtractedData(job_id, extractedData, file.filename);
 
-   if (isExplicitFalse(result.status)) {
-  // Handle the case where status is exactly false
+        if (result.status === false) {
           allResults.push({
             fileName: file.filename,
             success: false,
