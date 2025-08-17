@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto,CreateStatusDto,UpdateStatusDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto, CreateStatusDto, UpdateStatusDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -386,14 +386,14 @@ ORDER BY
     try {
       let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
       const existingCandidate = await this.dbService.execute(query);
-      let assignedJobQuery="SELECT  * FROM candidate_job_applications WHERE candidate_id='" + existingCandidate[0].id + "'";
+      let assignedJobQuery = "SELECT  * FROM candidate_job_applications WHERE candidate_id='" + existingCandidate[0].id + "'";
       const existingAssignedJobCandidate = await this.dbService.execute(assignedJobQuery);
       if (Array.isArray(existingCandidate) && existingCandidate.length > 0) {
         return this.utilService.failResponse(
           `Candidate with email "${extractedData.email}" already exists in Ats system.`
         );
       }
-        if (Array.isArray(existingAssignedJobCandidate) && existingAssignedJobCandidate.length > 0) {
+      if (Array.isArray(existingAssignedJobCandidate) && existingAssignedJobCandidate.length > 0) {
         return this.utilService.failResponse(
           `Candidate with email "${extractedData.email}" already Assigned to another Job in Ats system.`
         );
@@ -651,8 +651,8 @@ ORDER BY
     return this.utilService.successResponse(result, "Candidates Notes retrieved successfully.");
   }
 
-  
-   async getCandidatecalls(id: number) {
+
+  async getCandidatecalls(id: number) {
     const query = `SELECT * FROM candidate_calls WHERE candidate_id = ${id}`;
     const result = await this.dbService.execute(query);
     if (!result.length) {
@@ -867,11 +867,11 @@ ORDER BY
         { set: 'email_description', value: dto.emailDescription || '' },
       ];
       //email has been implemented
-    //     await this.mailService.sendDynamicEmail({
-    //   to: dto.email,   
-    //   subject: dto.emailSubject,       // ✅ dynamic subject
-    //   description: dto.emailDescription, // ✅ dynamic description/body
-    // });
+      //     await this.mailService.sendDynamicEmail({
+      //   to: dto.email,   
+      //   subject: dto.emailSubject,       // ✅ dynamic subject
+      //   description: dto.emailDescription, // ✅ dynamic description/body
+      // });
       const insertion = await this.dbService.insertData('candidate_emails', setData);
       // Log activity
       await this.activityService.logActivity(
@@ -945,46 +945,35 @@ ORDER BY
 
   //createCandidateStatus
 
-async createCandidateStatus(dto: CreateStatusDto) {
-  try {
-    const setData = [
-      { set: 'type', value: String(dto.type) },
-      { set: 'name', value: String(dto.name) },
-      { set: 'color', value: String(dto.color) || null },
-      { set: 'is_active', value: dto.is_active ?? true },
-    ];
-
-    const insertion = await this.dbService.insertData('statuses', setData);
-
-    return this.utilService.successResponse(
-      insertion,
-      'Status added successfully.'
-    );
-  } catch (error) {
-    console.error('Send candidate status Error:', error);
-    throw error;
-  }
-}
-
-
-
-
-
-  async getAllStatus() {
-        const query = `
-SELECT * FROM  
-statuses order by 
-   id DESC;
-`;
-        const result = await this.dbService.execute(query);
-        return this.utilService.successResponse(result, "status list retrieved successfully.");
+  async createCandidateStatus(dto: CreateStatusDto) {
+    try {
+      const setData = [
+        { set: 'type', value: String(dto.type) },
+        { set: 'name', value: String(dto.name) },
+        { set: 'color', value: String(dto.color) || null },
+        { set: 'is_active', value: dto.is_active ?? true },
+      ];
+      const insertion = await this.dbService.insertData('statuses', setData);
+      return this.utilService.successResponse(
+        insertion,
+        'Status added successfully.'
+      );
+    } catch (error) {
+      console.error('Send candidate status Error:', error);
+      throw error;
     }
+  }
+  async getAllStatus() {
+    const query = `SELECT * FROM  statuses order by id DESC;`;
+    const result = await this.dbService.execute(query);
+    return this.utilService.successResponse(result, "status list retrieved successfully.");
+  }
 
 
-     async getStatusById(id: number) {
+  async getStatusById(id: number) {
     const query = `SELECT * FROM status WHERE id = ${id}`;
     const result = await this.dbService.execute(query);
-    
+
     if (!result.length) {
       throw new NotFoundException(`Status with ID ${id} not found`);
     }
@@ -1014,7 +1003,7 @@ statuses order by
 
 
 
-    async deleteStatus(id: number) {
+  async deleteStatus(id: number) {
     try {
       const query = `DELETE FROM "statuses" WHERE id='${id}' RETURNING *;`;
       const result = await this.dbService.execute(query);
