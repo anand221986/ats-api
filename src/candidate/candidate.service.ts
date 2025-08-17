@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto,CreateStatusDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CandidateSchedulesDto, CandidateNotesDto, updateCandidateNotesDto, updateCandidateTaskDto, CandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CreateCandidateEmailDto, CreateCandidateSmsDto, CreateCallLogDto,CreateStatusDto,UpdateStatusDto } from './create-candidate.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { PythonShell } from 'python-shell';
@@ -10,6 +10,7 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { safeNumeric } from '../util/number.util';
 import { ActivityService } from './activity.service';
+import { MailService } from './mail.service';
 
 
 @Injectable()
@@ -19,6 +20,7 @@ export class CandidateService {
     public dbService: DbService,
     public utilService: UtilService,
     public activityService: ActivityService,
+    public mailService: MailService,
   ) {
   }
 
@@ -864,6 +866,12 @@ ORDER BY
         { set: 'email_subject', value: dto.emailSubject },
         { set: 'email_description', value: dto.emailDescription || '' },
       ];
+      //email has been implemented
+    //     await this.mailService.sendDynamicEmail({
+    //   to: dto.email,   
+    //   subject: dto.emailSubject,       // ✅ dynamic subject
+    //   description: dto.emailDescription, // ✅ dynamic description/body
+    // });
       const insertion = await this.dbService.insertData('candidate_emails', setData);
       // Log activity
       await this.activityService.logActivity(
@@ -957,6 +965,71 @@ async createCandidateStatus(dto: CreateStatusDto) {
     throw error;
   }
 }
+
+
+
+
+
+  async getAllStatus() {
+        const query = `
+SELECT * FROM  
+statuses order by 
+   id DESC;
+`;
+        const result = await this.dbService.execute(query);
+        return this.utilService.successResponse(result, "status list retrieved successfully.");
+    }
+
+
+     async getStatusById(id: number) {
+    const query = `SELECT * FROM status WHERE id = ${id}`;
+    const result = await this.dbService.execute(query);
+    
+    if (!result.length) {
+      throw new NotFoundException(`Status with ID ${id} not found`);
+    }
+    return this.utilService.successResponse(result, "Status  retrieved successfully.");
+  }
+
+  async updateStatus(id: number, dto: UpdateStatusDto) {
+    try {
+      // Convert DTO to key=value pairs for update
+      // const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
+
+      const set = Object.entries(dto).map(([key, value]) => {
+        // Default handling (wrap in quotes)
+        return `${key}='${value}'`;
+      });
+      const where = [`id=${id}`];
+      const updateResult = await this.dbService.updateData('statuses', set, where);
+      if (updateResult.affectedRows === 0) {
+        return this.utilService.failResponse('Status not found or no changes made.');
+      }
+      return this.utilService.successResponse(updateResult, 'Status updated successfully.');
+    } catch (error) {
+      console.error('Error updating statuses:', error);
+      return this.utilService.failResponse('Failed to update Status.');
+    }
+  }
+
+
+
+    async deleteStatus(id: number) {
+    try {
+      const query = `DELETE FROM "statuses" WHERE id='${id}' RETURNING *;`;
+      const result = await this.dbService.execute(query);
+      if (result.length === 0) {
+        return this.utilService.failResponse(null, "Status not found or already deleted.");
+      }
+      return this.utilService.successResponse(result[0], "Status deleted successfully.");
+
+    }
+    catch (error) {
+
+      console.error('Delete Status Error:', error);
+      throw new Error(error);
+    }
+  }
 
 
 }

@@ -168,3 +168,5 @@ export class CreateStatusDto {
   @IsOptional()
   is_active?: boolean = true;
 }
+
+export class UpdateStatusDto extends CreateStatusDto {}
