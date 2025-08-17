@@ -30,6 +30,7 @@ import {SettingService} from './setting/setting.service';
 import {SettingsController} from './setting/setting.controller';
 import {MailService} from './candidate/mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
 
 
 
@@ -47,7 +48,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
           pass: 'password',
         },
       },
-    })],
+    }),WhatsappModule],
   controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController],
   providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService ],
 })
