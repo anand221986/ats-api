@@ -11,6 +11,7 @@ import { spawn } from 'child_process';
 import { safeNumeric } from '../util/number.util';
 import { ActivityService } from './activity.service';
 import { MailService } from './mail.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 
 
 @Injectable()
@@ -21,6 +22,7 @@ export class CandidateService {
     public utilService: UtilService,
     public activityService: ActivityService,
     public mailService: MailService,
+    public whatsappService:WhatsappService,
   ) {
   }
 
@@ -899,6 +901,11 @@ ORDER BY
         { set: 'author_id', value: String(dto.author_id) },
         { set: 'text_message', value: dto.TextMessage },
       ];
+      //setup whats app send candidate code 
+      const fetchWhatsappQuery = `SELECT phone  FROM  candidates where id=${dto.candidate_id}`;
+      const whatsappResult = await this.dbService.execute(fetchWhatsappQuery);
+      let sendto=whatsappResult[0].phone;
+       await this.whatsappService.sendWhatsAppMessage(dto.candidate_id,sendto, dto.TextMessage)
       const insertion = await this.dbService.insertData('candidate_sms', setData);
       // Log activity (optional: change 'SMS' to a specific log type if needed)
       await this.activityService.logActivity(

@@ -10,6 +10,6 @@ export class WhatsappController {
     @Body('to') to: string,
     @Body('message') message: string,
   ) {
-    return await this.whatsappService.sendWhatsAppMessage(to, message);
+    return await this.whatsappService.sendWhatsAppMessage(0,to, message);
   }
 }
