@@ -13,7 +13,9 @@ import {
 import { Response } from 'express';
 import { SettingService } from './setting.service';
 import { CreateTemplateDto,UpdateTemplateDto } from './setting.dto';
-import { ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+@Controller('settings')
+@ApiTags('settings')
 export class SettingsController {
      constructor(private readonly settingService: SettingService) { }
       @Post("createTemplate")
