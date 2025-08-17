@@ -14,7 +14,7 @@ import { Response } from 'express';
 import { SetingService } from './setting.service';
 import { CreateTemplateDto,UpdateTemplateDto } from './setting.dto';
 import { ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
-export class JobsController {
+export class SettingsController {
 
      constructor(private readonly settingService: SetingService) { }
       @Post("createTemplate")
