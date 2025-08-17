@@ -971,7 +971,7 @@ ORDER BY
 
 
   async getStatusById(id: number) {
-    const query = `SELECT * FROM status WHERE id = ${id}`;
+    const query = `SELECT * FROM statuses WHERE id = ${id}`;
     const result = await this.dbService.execute(query);
 
     if (!result.length) {

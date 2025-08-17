@@ -564,10 +564,10 @@ export class CandidateController {
 
 
   @Get('status/:id')
-  @ApiOperation({ summary: 'Get Templates by ID' })
+  @ApiOperation({ summary: 'Get status by ID' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 200, description: 'Get Templates Deatils successfully' })
-  @ApiResponse({ status: 404, description: 'Templates not found' })
+  @ApiResponse({ status: 200, description: 'Get status Deatils successfully' })
+  @ApiResponse({ status: 404, description: 'status not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async getStatusById(@Param('id') id: number, @Res() res: Response) {
     try {
@@ -581,7 +581,7 @@ export class CandidateController {
   }
 
   @Put('status/:id')
-  @ApiOperation({ summary: 'Update Templates by ID' })
+  @ApiOperation({ summary: 'Update status by ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: UpdateStatusDto })
   @ApiResponse({ status: 200, description: 'Status updated successfully' })
