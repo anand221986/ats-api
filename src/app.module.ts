@@ -28,6 +28,8 @@ import { ResumesController } from './resumes/resumes.controller';
 import {ActivityService} from './candidate/activity.service';
 import {SettingService} from './setting/setting.service';
 import {SettingsController} from './setting/setting.controller';
+import {MailService} from './candidate/mail.service';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 
 
@@ -35,9 +37,19 @@ import {SettingsController} from './setting/setting.controller';
 @Module({
   imports: [ ConfigModule.forRoot({
       isGlobal: true, // So you can use ConfigService anywhere without importing again
-    }),],
+    }),MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'youremail@gmail.com',
+          pass: 'password',
+        },
+      },
+    })],
   controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService ],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService ],
 })
 //with middle ware 
 //without export class AppModule
