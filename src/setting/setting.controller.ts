@@ -11,12 +11,11 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { SetingService } from './setting.service';
+import { SettingService } from './setting.service';
 import { CreateTemplateDto,UpdateTemplateDto } from './setting.dto';
 import { ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 export class SettingsController {
-
-     constructor(private readonly settingService: SetingService) { }
+     constructor(private readonly settingService: SettingService) { }
       @Post("createTemplate")
       @ApiOperation({ summary: 'Create a new Template' })
       @ApiBody({ type: CreateTemplateDto })
