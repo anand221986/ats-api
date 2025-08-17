@@ -9,8 +9,9 @@ import {
   Post,
   Put,
   Res,
-    UseInterceptors,
-     UploadedFile,
+  UseInterceptors,
+  UploadedFile,
+  InternalServerErrorException
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JobsService } from './jobs.service';
@@ -20,12 +21,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
- 
+
 @Controller('jobs')
 @ApiTags('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) { }
-
   @Post("createJob")
   @ApiOperation({ summary: 'Create a new job' })
   @ApiBody({ type: CreateJobDto })
@@ -39,8 +39,16 @@ export class JobsController {
   @Get("getAllJobs")
   @ApiOperation({ summary: 'Get all jobs' })
   async getAll(@Res() res: Response) {
-    const jobs = await this.jobsService.getAllJobs();
-    return res.status(HttpStatus.OK).json(jobs);
+    try {
+      const jobs = await this.jobsService.getAllJobs();
+      return res.status(HttpStatus.OK).json(jobs);
+    }
+    catch (error) {
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response || { message: error.message });
+    }
+   
   }
 
   @Get(':id')
@@ -103,8 +111,8 @@ export class JobsController {
     }
   }
 
-   //JD parser functionality 
- @Post('extractJob')
+  //JD parser functionality 
+  @Post('extractJob')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -130,11 +138,11 @@ export class JobsController {
   ): Promise<any> {
     try {
       const allExtractedData: any[] = [];
-       const allResults: any[] = [];
+      const allResults: any[] = [];
       const pdfPath = file.path;
-      console.log(pdfPath,'pdf path')
-       const extractedData = await this.jobsService.runPythonScriptWithSpawn(pdfPath);
-       console.log(extractedData,'extractedData')
+      console.log(pdfPath, 'pdf path')
+      const extractedData = await this.jobsService.runPythonScriptWithSpawn(pdfPath);
+      console.log(extractedData, 'extractedData')
       //const result = await this.jobsService.insertExtractedData(extractedData, file.filename);
 
       if (!extractedData) {
