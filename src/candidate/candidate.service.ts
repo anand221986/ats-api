@@ -964,9 +964,9 @@ ORDER BY
     }
   }
   async getAllStatus() {
-    const query = `SELECT * FROM  statuses order by id DESC;`;
+    const query = `SELECT * FROM  statuses order by id DESC`;
     const result = await this.dbService.execute(query);
-    return this.utilService.successResponse(result, "status list retrieved successfully.");
+    return this.utilService.successResponse( result,"status list retrieved successfully.");
   }
 
 

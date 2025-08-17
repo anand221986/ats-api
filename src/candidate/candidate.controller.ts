@@ -17,7 +17,7 @@ import {
 import { CandidateService } from './candidate.service';
 import { ActivityService } from './activity.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, CreateCandidateSmsDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CandidateSchedulesDto, CreateCandidateEmailDto, CreateCallLogDto,CreateStatusDto,UpdateStatusDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CreateCandidateSmsDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CandidateSchedulesDto, CreateCandidateEmailDto, CreateCallLogDto, CreateStatusDto, UpdateStatusDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -75,12 +75,31 @@ export class CandidateController {
     const jobs = await this.candidateService.getAllCandidates();
     return res.status(HttpStatus.OK).json(jobs);
   }
+  
+  @Get("getAllStatus")
+  @ApiOperation({ summary: 'Get all Status' })
+  async getAllStatus(@Res() res: Response) {
+    try {
+     const result = await this.candidateService.getAllStatus();
+      return res.status(HttpStatus.OK).json(result);
+    }
+    catch (error) {
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response || { message: error.message });
+    }
+
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get candidate by ID' })
   @ApiParam({ name: 'id', type: Number })
   async getById(@Param('id') id: number, @Res() res: Response) {
     try {
+       const numericId = Number(id);
+  if (Number.isNaN(numericId)) {
+    return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid candidate id' });
+  }
       const candidate = await this.candidateService.getCandidateId(+id);
       return res.status(HttpStatus.OK).json(candidate);
     } catch (error) {
@@ -185,7 +204,7 @@ export class CandidateController {
     try {
       const { job_id, candidateIds } = body;
       const allExtractedData: ExtractedDataItem[] = [];
-      const allResults:any[]=[]
+      const allResults: any[] = []
       for (const file of files) {
         const pdfPath = file.path;
         const extractedData = await this.candidateService.runPythonScriptWithSpawn(pdfPath);
@@ -515,7 +534,7 @@ export class CandidateController {
     }
   }
 
-    @Post('createStatus')
+  @Post('createStatus')
   @ApiOperation({ summary: 'add  status' })
   @ApiBody({ type: CreateStatusDto }) // <== Array of DTOs
   @ApiResponse({ status: 201, description: 'add  status' })
@@ -534,7 +553,7 @@ export class CandidateController {
     }
   }
 
-    @Get('calls/:id')
+  @Get('calls/:id')
   @ApiOperation({ summary: 'Get Candidate calls By Id' })
   @ApiParam({ name: 'id', type: Number })
   async getCandidatecalls(@Param('id') id: number, @Res() res: Response) {
@@ -543,63 +562,49 @@ export class CandidateController {
 
   }
 
-          @Get("getAllStatus")
-          @ApiOperation({ summary: 'Get all Status' })
-          async getAllStatus(@Res() res: Response) {
-            try {
-              const jobs = await this.candidateService.getAllStatus();
-              return res.status(HttpStatus.OK).json(jobs);
-            }
-            catch (error) {
-              return res
-                .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
-                .json(error.response || { message: error.message });
-            }
-           
-          }
-        
-          @Get('status/:id')
-          @ApiOperation({ summary: 'Get Templates by ID' })
-          @ApiParam({ name: 'id', type: Number })
-          @ApiResponse({ status: 200, description: 'Get Templates Deatils successfully' })
-          @ApiResponse({ status: 404, description: 'Templates not found' })
-          @ApiResponse({ status: 500, description: 'Internal server error' })
-          async getStatusById(@Param('id') id: number, @Res() res: Response) {
-            try {
-              const job = await this.candidateService.getStatusById(+id);
-              return res.status(HttpStatus.OK).json(job);
-            } catch (error) {
-              return res
-                .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
-                .json(error.response || { message: error.message });
-            }
-          }
-        
-          @Put('status/:id')
-          @ApiOperation({ summary: 'Update Templates by ID' })
-          @ApiParam({ name: 'id', type: Number })
-          @ApiBody({ type: UpdateStatusDto })
-          @ApiResponse({ status: 200, description: 'Status updated successfully' })
-          @ApiResponse({ status: 404, description: 'Status not found' })
-          @ApiResponse({ status: 500, description: 'Internal server error' })
-          @ApiOperation({ summary: 'Update Status by ID' })
-          @ApiParam({ name: 'id', type: Number })
-          @ApiBody({ type: UpdateStatusDto })
-          async updateStatus(@Param('id') id: number, @Body() body: UpdateStatusDto, @Res() res: Response) {
-            const job = await this.candidateService.updateStatus(id, body);
-            return res.status(HttpStatus.OK).json(job);
-          }
-        
-          @Delete('status/:id')
-          @ApiOperation({ summary: 'Delete Status by ID' })
-          @ApiParam({ name: 'id', type: Number })
-          @ApiResponse({ status: 200, description: 'Status Deleted successfully' })
-          @ApiResponse({ status: 404, description: 'Status not found' })
-          @ApiResponse({ status: 500, description: 'Internal server error' })
-          async deleteStatus(@Param('id') id: number, @Res() res: Response) {
-            const job = await this.candidateService.deleteStatus(id);
-            return res.status(HttpStatus.OK).json({ message: 'Job deleted', job });
-          }
-  
+
+  @Get('status/:id')
+  @ApiOperation({ summary: 'Get Templates by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Get Templates Deatils successfully' })
+  @ApiResponse({ status: 404, description: 'Templates not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async getStatusById(@Param('id') id: number, @Res() res: Response) {
+    try {
+      const job = await this.candidateService.getStatusById(+id);
+      return res.status(HttpStatus.OK).json(job);
+    } catch (error) {
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response || { message: error.message });
+    }
+  }
+
+  @Put('status/:id')
+  @ApiOperation({ summary: 'Update Templates by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateStatusDto })
+  @ApiResponse({ status: 200, description: 'Status updated successfully' })
+  @ApiResponse({ status: 404, description: 'Status not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiOperation({ summary: 'Update Status by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateStatusDto })
+  async updateStatus(@Param('id') id: number, @Body() body: UpdateStatusDto, @Res() res: Response) {
+    const job = await this.candidateService.updateStatus(id, body);
+    return res.status(HttpStatus.OK).json(job);
+  }
+
+  @Delete('status/:id')
+  @ApiOperation({ summary: 'Delete Status by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Status Deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Status not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async deleteStatus(@Param('id') id: number, @Res() res: Response) {
+    const job = await this.candidateService.deleteStatus(id);
+    return res.status(HttpStatus.OK).json({ message: 'Job deleted', job });
+  }
+
 
 }
