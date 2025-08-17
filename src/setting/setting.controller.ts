@@ -44,7 +44,7 @@ export class SettingsController {
          
         }
       
-        @Get(':id')
+        @Get('templates/:id')
         @ApiOperation({ summary: 'Get Templates by ID' })
         @ApiParam({ name: 'id', type: Number })
         @ApiResponse({ status: 200, description: 'Get Templates Deatils successfully' })
@@ -61,7 +61,7 @@ export class SettingsController {
           }
         }
       
-        @Put(':id')
+        @Put('templates/:id')
         @ApiOperation({ summary: 'Update Templates by ID' })
         @ApiParam({ name: 'id', type: Number })
         @ApiBody({ type: UpdateTemplateDto })
@@ -76,7 +76,7 @@ export class SettingsController {
           return res.status(HttpStatus.OK).json(job);
         }
       
-        @Delete(':id')
+        @Delete('templates/:id')
         @ApiOperation({ summary: 'Delete Templates by ID' })
         @ApiParam({ name: 'id', type: Number })
         @ApiResponse({ status: 200, description: 'Templates Deleted successfully' })
