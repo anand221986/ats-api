@@ -189,10 +189,11 @@ export class CandidateController {
       },
     }),
     fileFilter: (req, file, cb) => {
-      if (file.mimetype === 'application/pdf') {
+      if (file.mimetype === 'application/pdf' ||  file.mimetype === 'application/msword' ||               // .doc
+  file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         cb(null, true);
       } else {
-        cb(new Error('Only PDF files are allowed'), false);
+       cb(new Error('Only PDF or Word (.doc/.docx) files are allowed'), false);
       }
     },
   }))
