@@ -31,6 +31,7 @@ import {SettingsController} from './setting/setting.controller';
 import {MailService} from './candidate/mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { WhatsappService } from './whatsapp/whatsapp.service';
 
 
 
@@ -50,7 +51,7 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
       },
     }),WhatsappModule],
   controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService ],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService ],
 })
 //with middle ware 
 //without export class AppModule
