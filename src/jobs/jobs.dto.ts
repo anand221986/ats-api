@@ -126,6 +126,8 @@ id: number;
   @IsInt()
   @Min(0) // ensures no negative values
   notice_period?: number;
+  experienceFrom:number;
+  experienceTo:number;
 
 }
 

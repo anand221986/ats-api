@@ -19,6 +19,9 @@ export class JobsService {
 
   async createJob(dto: CreateJobDto) {
     try {
+      console.log(dto)
+
+
       // Step 1: Prepare the data (excluding job_code initially)
       const setData = [
         { set: 'job_title', value: String(dto.job_title) },
@@ -31,8 +34,9 @@ export class JobsService {
         { set: 'description_benefits', value: String(dto.description_benefits) },
         { set: 'company_industry', value: String(dto.company_industry) },
         { set: 'company_job_function', value: String(dto.company_job_function) },
-        { set: 'employment_type', value: String(dto.employment_type) },
-        { set: 'experience', value: String(dto.experience) },
+        { set: 'employment_type', value: String(dto.employment_type??null) },
+        { set: 'experience_from', value: String(dto.experienceFrom) },
+        { set: 'experience_to', value: String(dto.experienceTo) },
         { set: 'education', value: String(dto.education) },
         { set: 'company', value: String(dto.company) },
         { set: 'about_company', value: String(dto.about_company) },
