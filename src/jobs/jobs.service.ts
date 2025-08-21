@@ -20,8 +20,6 @@ export class JobsService {
   async createJob(dto: CreateJobDto) {
     try {
       console.log(dto)
-
-
       // Step 1: Prepare the data (excluding job_code initially)
       const setData = [
         { set: 'job_title', value: String(dto.job_title) },
@@ -138,13 +136,15 @@ export class JobsService {
 
   async updateJob(id: number, dto: UpdateJobDto) {
     try {
+
+      console.log(dto,'update DTO');
       // Convert DTO to key=value pairs for update
       // const set = Object.entries(dto).map(([key, value]) => `${key}='${value}'`);
 
       const set = Object.entries(dto).map(([key, value]) => {
-if (key === 'office_location_additional' || key === 'keywords') {
-  return `${key}=${(Array.isArray(value) && value.length === 0) ? "'{}'" : JSON.stringify(value)}`;
-}
+        if (key === 'office_location_additional' || key === 'keywords') {
+          return `${key}=${(Array.isArray(value) && value.length === 0) ? "'{}'" : JSON.stringify(value)}`;
+        }
         if (key === 'office_on_careers_page') {
           return `${key}=${value === 'true' || value === true}`;
         }
