@@ -34,6 +34,7 @@ async function bootstrap() {
       'http://192.168.137.1',
       'http://10.10.134.213',
       'http://13.51.235.31',
+      'http://16.171.117.2',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

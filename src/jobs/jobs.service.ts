@@ -10,6 +10,8 @@ import { spawn } from 'child_process';
 @Injectable()
 export class JobsService {
   private jobs: any[] = [];
+    private jobsCache: { data: any; timestamp: number } | null = null;
+      private CACHE_TTL = 60 * 1000; // 1 minute (you can adjust)
   constructor(
     public dbService: DbService,
     public utilService: UtilService,
@@ -19,7 +21,6 @@ export class JobsService {
 
   async createJob(dto: CreateJobDto) {
     try {
-      console.log(dto)
       // Step 1: Prepare the data (excluding job_code initially)
       const setData = [
         { set: 'job_title', value: String(dto.job_title) },
@@ -65,7 +66,7 @@ export class JobsService {
         [`job_code = '${jobCode}'`, `status = '${jobStatus}'`],
         [`id = ${jobId}`]
       );
-
+      this.invalidateJobsCache();
       // Step 4: Return response
       return this.utilService.successResponse(
         { ...insertedJob, job_code: jobCode },
@@ -84,12 +85,13 @@ export class JobsService {
 
 
   async getAllJobs() {
-//     const query = `SELECT DISTINCT jobs.*
-// FROM jobs
-// LEFT JOIN candidates ON candidates.job_id = jobs.id
-// ORDER BY jobs.id DESC;`;
-//     const jobs = await this.dbService.execute(query);
-
+    const now = Date.now();
+     if (this.jobsCache && now - this.jobsCache.timestamp < this.CACHE_TTL) {
+      return this.utilService.successResponse(
+        this.jobsCache.data,
+        "Jobs list retrieved successfully (from cache)."
+      );
+    }
   const query = `
     SELECT DISTINCT jobs.*
     FROM jobs
@@ -97,7 +99,6 @@ export class JobsService {
     ORDER BY jobs.id DESC;
   `;
   const jobs = await this.dbService.execute(query);
-      // 2. Get count of jobs grouped by status
   const countQuery = `
     SELECT status, COUNT(*) AS count
     FROM jobs
@@ -120,7 +121,10 @@ export class JobsService {
   index: statusCounts, // whole statusCounts object
 }));
 
- 
+  this.jobsCache = {
+      data: jobsWithIndex,
+      timestamp: now,
+    };
     return this.utilService.successResponse(jobsWithIndex, "Jobs list retrieved successfully.");
   }
 
@@ -322,6 +326,9 @@ async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
     }
   }
   
-
+ // When new job is added → invalidate cache
+  invalidateJobsCache() {
+    this.jobsCache = null;
+  }
 
 }
