@@ -998,7 +998,16 @@ ORDER BY
 
       const set = Object.entries(dto).map(([key, value]) => {
         // Default handling (wrap in quotes)
+        if (typeof value === 'object' && value !== null) {
+        // For JSON/JSONB types
+        return `${key}='${JSON.stringify(value)}'::jsonb`;
+      } else if (typeof value === 'boolean') {
+        // For booleans (no quotes in SQL)
+        return `${key}=${value}`;
+      } else {
+        // Default handling (string wrap)
         return `${key}='${value}'`;
+      }
       });
       const where = [`id=${id}`];
       const updateResult = await this.dbService.updateData('statuses', set, where);
