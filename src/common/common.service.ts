@@ -69,6 +69,7 @@ export class CommonService {
         { set: 'subject', value: String(leadData.subject) },
         { set: 'phone', value: String(leadData.phone ?? '') },
         { set: 'message', value: String(leadData.message) },
+        { set: 'company', value: String(leadData.company) },
         { set: 'created_at', value: new Date().toISOString() },
       ];
 
