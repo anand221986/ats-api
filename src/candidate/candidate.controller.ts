@@ -399,9 +399,9 @@ export class CandidateController {
       res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('Content-Disposition', `attachment; filename="${jobResult.result[0].resume_url}"`);
     }
-    const fileStream = fs.createReadStream(filePath);
-    return fileStream.pipe(res);
-    // return res.status(HttpStatus.OK).json(jobResult);
+    // const fileStream = fs.createReadStream(filePath);
+    // return fileStream.pipe(res);
+      return res.status(HttpStatus.OK).json(jobResult);
 
   }
 
