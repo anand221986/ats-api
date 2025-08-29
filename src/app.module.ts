@@ -32,6 +32,8 @@ import {MailService} from './candidate/mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { WhatsappService } from './whatsapp/whatsapp.service';
+import { AgencyController } from './agency/agency.controller';
+import { AgencyService } from './agency/agnecy.service';
 
 
 
@@ -50,8 +52,8 @@ import { WhatsappService } from './whatsapp/whatsapp.service';
         },
       },
     }),WhatsappModule],
-  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService ],
+  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController,AgencyController],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService,AgencyService],
 })
 //with middle ware 
 //without export class AppModule

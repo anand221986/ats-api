@@ -377,9 +377,9 @@ export class CandidateController {
     // path to your uploads folder
     const filePath = path.join(__dirname, '..', '..', 'uploads', jobResult.result[0].resume_url);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(HttpStatus.NOT_FOUND).json({ message: 'File not found' });
-    }
+    // if (!fs.existsSync(filePath)) {
+    //   return res.status(HttpStatus.NOT_FOUND).json({ message: 'File not found' });
+    // }
 
     const ext = path.extname(filePath).toLowerCase();
 
