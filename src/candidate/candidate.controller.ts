@@ -24,6 +24,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { isExplicitFalse } from 'src/util/boolean.utils';
 import { AuthGuard } from '../auth/auth.guard';
+import * as fs from 'fs';
+import * as path from 'path';
 
 
 interface ExtractedDataItem {
@@ -367,7 +369,39 @@ export class CandidateController {
   @ApiParam({ name: 'id', type: Number })
   async getcandidateResumes(@Param('id') id: number, @Res() res: Response) {
     const jobResult = await this.candidateService.getCandidateResumes(id);
-    return res.status(HttpStatus.OK).json(jobResult);
+
+      if (!jobResult || !jobResult.result[0].resume_url) {
+      return res.status(HttpStatus.NOT_FOUND).json({ message: 'Resume not found' });
+    }
+
+    // path to your uploads folder
+    const filePath = path.join(__dirname, '..', '..', 'uploads', jobResult.result[0].resume_url);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(HttpStatus.NOT_FOUND).json({ message: 'File not found' });
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+
+    if (ext === '.pdf') {
+      // ✅ Show PDF inline in browser
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${jobResult.result[0].resume_url}"`);
+    } else if (ext === '.docx' || ext === '.doc') {
+      // ✅ Let browser download Word docs (or you can embed via Office Viewer)
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      );
+      res.setHeader('Content-Disposition', `inline; filename="${jobResult.result[0].resume_url}"`);
+    } else {
+      // Fallback → download
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename="${jobResult.result[0].resume_url}"`);
+    }
+    const fileStream = fs.createReadStream(filePath);
+    return fileStream.pipe(res);
+    // return res.status(HttpStatus.OK).json(jobResult);
 
   }
 
