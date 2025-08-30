@@ -12,6 +12,7 @@ import {
 import { Response } from "express";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from "@nestjs/swagger";
 import { UserService } from "./user.service";
+import { UpdateUserDto } from './user.dto';
 import {
   CreateCustomerDto,
   UpdateCustomerDto,
@@ -110,18 +111,35 @@ async loginAdmin(@Body() body: LoginAdminDto, @Res() res: Response) {
     res.status(HttpStatus.OK).json(result);
   }
 
-  @Put(":id")
-  @ApiOperation({ summary: "Update a user" })
-  @ApiParam({ name: "id", type: Number })
-  @ApiBody({ type: UpdateCustomerDto })
-  async updateUser(
-    @Param("id") id: number,
-    @Body() body: UpdateCustomerDto,
-    @Res() res: Response,
-  ) {
-    // const updatedUser = await this.service.updateUser(id, body);
-    res.status(HttpStatus.OK).json({ message: `User with id ${id} updated` });
+ @Put(":id")
+@ApiOperation({ summary: "Update a user" })
+@ApiParam({ name: "id", type: Number })
+@ApiBody({ type: UpdateUserDto })
+async updateUser(
+  @Param("id") id: number,
+  @Body() body: UpdateUserDto,
+  @Res() res: Response,
+) {
+  // Build a clean update payload
+  const updatedPayload: Partial<UpdateUserDto> & { name?: string,first_name?:string,last_name?:string } = {};
+console.log(body)
+  // Construct name if either first_name or last_name is sent
+  if (body.name) {
+    const parts = body.name.trim().split(" ");
+    updatedPayload.first_name = parts[0] ?? "";
+    updatedPayload.last_name = parts.slice(1).join(" ") || "";
+    // updatedPayload.name = body.name.trim();
   }
+  if (body.email) updatedPayload.email = body.email;
+  if (body.phone) updatedPayload.phone = body.phone;
+  if (body.role) updatedPayload.role = body.role;
+  if (body.agency_id) updatedPayload.agency_id = body.agency_id;
+  // Pass only the filtered fields to service
+  await this.service.updateUser(id, updatedPayload);
+  return res
+    .status(HttpStatus.OK)
+    .json({ message: `User with id ${id} updated successfully` });
+}
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete a user" })

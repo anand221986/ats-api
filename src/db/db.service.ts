@@ -95,6 +95,8 @@ async insertData(tableName: string, data: { set: string; value: string | boolean
   const values = data.map((d) => d.value);
 
   const query = `INSERT INTO "${tableName}" (${columns.join(", ")}) VALUES (${placeholders.join(", ")}) RETURNING *`;
+
+  console.log(query,'query')
   try {
     const result = await this.pool.query(query, values);
     return result.rows[0];
@@ -181,5 +183,41 @@ async upsertData(
     const query = `UPDATE \`${tableName}\` SET ${setClause} WHERE ${whereClause}`;
 
     return this.updateData(tableName, [setClause], [whereClause]);
+  }
+
+   // 🔹 Find one row by condition (e.g., { id: 1 })
+  async findOne(table: string, conditions: Record<string, any>) {
+    const keys = Object.keys(conditions);
+    const values = Object.values(conditions);
+
+    const whereClause = keys.map((key, i) => `"${key}" = $${i + 1}`).join(' AND ');
+
+    const query = `SELECT * FROM "${table}" WHERE ${whereClause} LIMIT 1`;
+console.log(query)
+    const result = await this.pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  // 🔹 Update row by ID and return updated record
+  async update(table: string, id: number, data: Record<string, any>) {
+    const keys = Object.keys(data);
+    const values = Object.values(data);
+
+    if (keys.length === 0) {
+      throw new Error('No fields to update');
+    }
+
+    const setClause = keys.map((key, i) => `"${key}" = $${i + 1}`).join(', ');
+
+    const query = `
+      UPDATE "${table}"
+      SET ${setClause}
+      WHERE id = $${keys.length + 1}
+      RETURNING *;
+    `;
+    console.log(query)
+
+    const result = await this.pool.query(query, [...values, id]);
+    return result.rows[0];
   }
 }

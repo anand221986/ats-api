@@ -180,3 +180,13 @@ export class BulkUpdateCandidateDto {
   updates: UpdateActionDto[];
 }
 
+export class UpdateUserDto{
+  first_name:string;
+  last_name:string;
+  phone:string;
+  agency_id:number;
+  role:string;
+  email:string;
+  name:string;
+}
+

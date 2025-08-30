@@ -1,9 +1,10 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable,ServiceUnavailableException,InternalServerErrorException,NotFoundException } from "@nestjs/common";
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { AuthService } from "../auth/auth.service"
 const bcrypt = require("bcryptjs");
 import * as jwt from 'jsonwebtoken';
+import { UpdateUserDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -269,29 +270,33 @@ export class UserService {
       return this.utilService.failResponse('An error occurred during bulk update.');
     }
   }
+async updateUser(id: number, body: Partial<UpdateUserDto>) {
+    try {
+      const existingUser = await this.dbService.findOne('users', { id });
+
+      if (!existingUser) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      const updatedUser = await this.dbService.update('users', id, body);
+
+      return this.utilService.successResponse(
+        `User with ID ${id} updated successfully`,
+        updatedUser,
+      );
+    } catch (error) {
+      console.error(`Update issue for user ${id}:`, error.message);
+      // Handle DB timeout
+      if (error.code === 'ETIMEDOUT' || error.message.includes('ETIMEDOUT')) {
+        throw new ServiceUnavailableException(
+          'Database connection timed out. Please try again later.',
+        );
+      }
+
+      throw new InternalServerErrorException('Failed to update user');
+    }
+  }
 }
 
 
-
-interface Booking {
-  type: string;
-  itenary?: any;
-  flight?: any;
-  created_DT: string;
-}
-
-interface Itenary {
-  title: string;
-  travel_city_name: string;
-  days_count: number;
-  city_count: number;
-  hotel_count: number;
-  flight_count: number;
-  activity_count: number;
-  visa_count: number;
-  transfer_count: number;
-  insurance_count: number;
-  package_ib_id: number;
-  uuid: string;
-  start_date: string;
-}
+ 
