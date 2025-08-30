@@ -188,5 +188,6 @@ export class UpdateUserDto{
   role:string;
   email:string;
   name:string;
+  status:number;
 }
 
