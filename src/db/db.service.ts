@@ -89,7 +89,7 @@ private async runQuery(query: string, values: any[] = []): Promise<any> {
     return result?.[0] ?? null;
   }
 
-async insertData(tableName: string, data: { set: string; value: string | boolean | null }[]): Promise<InsertionDTO> {
+async insertData(tableName: string, data: { set: string; value: string | boolean |number| null }[]): Promise<InsertionDTO> {
   const columns = data.map((d) => `"${d.set}"`);
   const placeholders = data.map((_, i) => `$${i + 1}`);
   const values = data.map((d) => d.value);
