@@ -121,7 +121,7 @@ async updateUser(
   @Res() res: Response,
 ) {
   // Build a clean update payload
-  const updatedPayload: Partial<UpdateUserDto> & { name?: string,first_name?:string,last_name?:string } = {};
+  const updatedPayload: Partial<UpdateUserDto> & { name?: string,first_name?:string,last_name?:string,status?:number} = {};
 console.log(body)
   // Construct name if either first_name or last_name is sent
   if (body.name) {
