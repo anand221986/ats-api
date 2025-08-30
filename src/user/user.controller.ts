@@ -134,7 +134,10 @@ console.log(body)
   if (body.phone) updatedPayload.phone = body.phone;
   if (body.role) updatedPayload.role = body.role;
   if (body.agency_id) updatedPayload.agency_id = body.agency_id;
-  if (body.status) updatedPayload.status = body.status;
+   if ("status" in body && body.status !== undefined && body.status !== null) {
+    const s = typeof body.status === "string" ? Number(body.status) : body.status;
+    if (s === 0 || s === 1) updatedPayload.status = s;
+  }
   // Pass only the filtered fields to service
   await this.service.updateUser(id, updatedPayload);
   return res
