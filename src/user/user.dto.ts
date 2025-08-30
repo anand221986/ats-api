@@ -189,5 +189,7 @@ export class UpdateUserDto{
   email:string;
   name:string;
   status:number;
+  email_verified:boolean;
+  phone_verified:boolean;
 }
 

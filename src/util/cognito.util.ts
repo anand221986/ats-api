@@ -12,7 +12,7 @@ export class CognitoUtil {
   }
   async updateCognitoUser(
     email: string,
-    updates: { name?: string; phone_number?: string; status?: number }
+    updates: { name?: string; phone_number?: string; status?: number ;email_verified?:boolean;phone_verified:boolean}
   ) {
     const attributes: { Name: string; Value: string }[] = [];
 
@@ -28,6 +28,27 @@ export class CognitoUtil {
     if (updates.status !== undefined) {
       attributes.push({ Name: "custom:status", Value: String(updates.status) });
     }
+     // ✅ status sync (stored as custom attribute)
+    if (updates.status !== undefined) {
+      attributes.push({ Name: "custom:status", Value: String(updates.status) });
+    }
+    // Email verified (boolean → 'true'/'false')
+  if (updates.email_verified !== undefined) {
+    attributes.push({
+      Name: "email_verified",
+      Value: updates.email_verified ? "true" : "false",
+    });
+  }
+
+   if (updates.phone_verified !== undefined) {
+    attributes.push({
+      Name: "phone_verified",
+      Value: updates.phone_verified ? "true" : "false",
+    });
+  }
+
+  
+    
 
     const command = new AdminUpdateUserAttributesCommand({
       UserPoolId: this.userPoolId,
