@@ -74,6 +74,7 @@ export class AuthService {
           Name: 'phone_number',
           Value: "+917043097908", // Use E.164 format. Example: +11234567890 for US.
         },
+         { Name: 'email_verified', Value: 'true' },
       ],
       // MessageAction: 'SUPPRESS'
     });
