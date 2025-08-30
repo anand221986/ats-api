@@ -167,6 +167,8 @@ export class CreateStatusDto {
   @IsBoolean()
   @IsOptional()
   is_active?: boolean = true;
+  position:number;
+  recuiter_status:[]
 }
 
 export class UpdateStatusDto extends CreateStatusDto {}

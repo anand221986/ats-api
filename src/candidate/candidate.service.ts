@@ -12,18 +12,32 @@ import { safeNumeric } from '../util/number.util';
 import { ActivityService } from './activity.service';
 import { MailService } from './mail.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
+import * as nodemailer from 'nodemailer';
 
 
 @Injectable()
 export class CandidateService {
   private jobs: any[] = [];
+  private transporter;
   constructor(
     public dbService: DbService,
     public utilService: UtilService,
     public activityService: ActivityService,
     public mailService: MailService,
     public whatsappService:WhatsappService,
+    
+    
   ) {
+    // initialize transporter inside constructor
+    this.transporter = nodemailer.createTransport({
+      host: 'email-smtp.us-east-1.amazonaws.com', // or your SMTP provider
+      port: 587,
+      secure: false, // true for 465, false for 587
+      auth: {
+        user: process.env.SMTP_USER, // set in .env
+        pass: process.env.SMTP_PASS, // set in .env
+      },
+    });
   }
 
 
@@ -866,18 +880,34 @@ ORDER BY
   //CreateCndidateEmail
   async createCandidateEmail(dto: CreateCandidateEmailDto) {
     try {
+      const candidateQuery = `SELECT * FROM candidates WHERE id IN (${dto.candidate_id})`;
+      const candidateDetails = await this.dbService.execute(candidateQuery);
+      console.log(candidateDetails)
+     const candidate=candidateDetails[0];
+      console.log({
+      from: `"ATS System" <noreply@xbeehire.com>`,
+      to: candidate.email, // ✅ FIXED
+      subject: dto.emailSubject, // ✅ FIXED
+      text: dto.emailDescription, // ✅ plain text fallback
+      html: dto.emailDescription, // ✅ for HTML emails
+    })
+      
+       const info = await this.transporter.sendMail({
+      from: `"ATS System" <noreply@xbeehire.com>`,
+      to: candidate.email, // ✅ FIXED
+      subject: dto.emailSubject, // ✅ FIXED
+      text: dto.emailDescription, // ✅ plain text fallback
+      html: dto.emailDescription, // ✅ for HTML emails
+    });
+
+    
       const setData = [
         { set: 'candidate_id', value: String(dto.candidate_id) },
         { set: 'author_id', value: String(dto.author_id) },
         { set: 'email_subject', value: dto.emailSubject },
         { set: 'email_description', value: dto.emailDescription || '' },
+        {set:'message_id',value:info.messageId}
       ];
-      //email has been implemented
-      //     await this.mailService.sendDynamicEmail({
-      //   to: dto.email,   
-      //   subject: dto.emailSubject,       // ✅ dynamic subject
-      //   description: dto.emailDescription, // ✅ dynamic description/body
-      // });
       const insertion = await this.dbService.insertData('candidate_emails', setData);
       // Log activity
       await this.activityService.logActivity(
@@ -891,8 +921,10 @@ ORDER BY
       );
       return this.utilService.successResponse(insertion, 'Candidate email send successfully.');
     } catch (error) {
-      console.error('send  candidate  email Error:', error);
-      throw error;
+      console.error('Mail send error:', error);
+       return { success: false, error: error.message };
+      // console.error('send  candidate  email Error:', error);
+      // throw error;
     }
   }
 
@@ -963,6 +995,7 @@ ORDER BY
         { set: 'name', value: String(dto.name) },
         { set: 'color', value: String(dto.color) || null },
         { set: 'is_active', value: dto.is_active ?? true },
+        { set: 'position', value: dto.position ?? true },
       ];
       const insertion = await this.dbService.insertData('statuses', setData);
       return this.utilService.successResponse(
