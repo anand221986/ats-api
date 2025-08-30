@@ -1,18 +1,21 @@
-import { forwardRef, Inject, Injectable,ServiceUnavailableException,InternalServerErrorException,NotFoundException } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, ServiceUnavailableException, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 import { AuthService } from "../auth/auth.service"
 const bcrypt = require("bcryptjs");
 import * as jwt from 'jsonwebtoken';
 import { UpdateUserDto } from './user.dto';
+import { CognitoUtil } from '../util/cognito.util';
 
 @Injectable()
 export class UserService {
+  private cognitoUtil: CognitoUtil;
   constructor(
     public dbService: DbService,
     public utilService: UtilService,
     @Inject(forwardRef(() => AuthService)) public AuthService: AuthService
   ) {
+    this.cognitoUtil = new CognitoUtil(process.env.COGNITO_USER_POOL_ID!, process.env.AWS_REGION!);
   }
 
   async loginAdmin(req) {
@@ -26,7 +29,7 @@ export class UserService {
         user: adminUser,
         token
       };
-      console.log(token,'generated token')
+      console.log(token, 'generated token')
       let query = `UPDATE users SET token='${token}' WHERE id=${adminUser.id}`;
       const execution = await this.dbService.execute(query);
       return this.utilService.successResponse(result, "Admin found");
@@ -128,7 +131,7 @@ export class UserService {
       const users: any[] = await this.dbService.execute(
         `SELECT * FROM users WHERE email = '${email}'`,
       );
-      console.log(users,'users',`SELECT * FROM users WHERE email = '${email}'`)
+      console.log(users, 'users', `SELECT * FROM users WHERE email = '${email}'`)
       if (users.length === 0) {
         return null; // User not found
       }
@@ -224,7 +227,7 @@ export class UserService {
     }
   }
 
-   async bulkUpdateUser(
+  async bulkUpdateUser(
     ids: number[],
     updates: { field: string; action: string; value: any }[],
   ) {
@@ -270,12 +273,33 @@ export class UserService {
       return this.utilService.failResponse('An error occurred during bulk update.');
     }
   }
-async updateUser(id: number, body: Partial<UpdateUserDto>) {
+  async updateUser(id: number, body: Partial<UpdateUserDto>) {
     try {
       const existingUser = await this.dbService.findOne('users', { id });
 
       if (!existingUser) {
         throw new NotFoundException(`User with ID ${id} not found`);
+      }
+      try {
+        // 1. Update Cognito User Attributes
+        await this.cognitoUtil.updateCognitoUser(body.email!, {
+          name: `${body.first_name} ${body.last_name}`,
+          phone_number: body.phone,
+          status: body.status, // 1 or 0
+        });
+
+        // 2. Assign User to Cognito Group
+        
+        if (body.role) {
+          await this.cognitoUtil.assignUserToGroup(body.email!, body.role);
+        }
+
+        console.log(`Cognito user ${body.email} updated successfully`);
+      } catch (error) {
+        console.error(`Failed to update Cognito user ${body.email}:`, error);
+
+        // You can either throw an error for NestJS to catch
+        throw new Error(`Cognito update failed: ${error.message || error}`);
       }
 
       const updatedUser = await this.dbService.update('users', id, body);
@@ -299,4 +323,3 @@ async updateUser(id: number, body: Partial<UpdateUserDto>) {
 }
 
 
- 
