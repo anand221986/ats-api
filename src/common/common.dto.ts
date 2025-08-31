@@ -520,10 +520,10 @@ export class AddEmployerDto {
 }
 export class AddProspectDto {
   companyName: string;
-
+  fullName: string;
   email: string;
-
-  phone?: string;
-
+  phoneNumber?: string;
+  roleToFill?: string;
+  jobType?: string;
   message?: string;
 }

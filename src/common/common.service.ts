@@ -140,16 +140,20 @@ export class CommonService {
   }
 
 
-  async addProspect(dto: AddProspectDto) {
+async addProspect(dto: AddProspectDto) {
     // 1. Save to database
- const setData = [
+const setData = [
+  { set: 'full_name', value: dto.fullName },
   { set: 'company_name', value: dto.companyName },
   { set: 'email', value: dto.email },
-  { set: 'phone', value: dto.phone || null },
+  { set: 'phone_number', value: dto.phoneNumber || null },
+  { set: 'role_to_fill', value: dto.roleToFill || null },
+  { set: 'job_type', value: dto.jobType || null },
   { set: 'message', value: dto.message || null },
-  { set: 'created_at', value: new Date().toISOString() }, // convert Date to string
+  { set: 'client_type', value: 'prospect' },
+  { set: 'created_at', value: new Date().toISOString() },
 ];
-    const inserted = await this.dbService.insertData('prospects', setData);
+  const inserted = await this.dbService.insertData('client', setData);
 
     // // 2. Send email to A1 selectors
     // await this.mailService.sendMail({
