@@ -20,8 +20,8 @@ export class UserService {
   ) {
     const userPoolId = this.configService.get<string>("COGNITO_USER_POOL_ID");
     const region = this.configService.get<string>("AWS_REGION");
-    const clientId = this.configService.get<string>("COGNITO_CLIENT_ID");
-    const clientSecret = this.configService.get<string>("COGNITO_CLIENT_SECRET");
+    const clientId = this.configService.get<string>("COGNITO_CLIENT_ID")!;
+    const clientSecret = this.configService.get<string>("COGNITO_CLIENT_SECRET")!;
   // Throw exception if any required config is missing
     if (!userPoolId || !region || !clientId || !clientSecret) {
       throw new InternalServerErrorException(
