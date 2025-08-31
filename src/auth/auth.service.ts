@@ -52,8 +52,8 @@ export class AuthService {
   }
 
   //sign up code 
-  async signUp(request: { email: string; password: string; name: string, phone_number: string }): Promise<any> {
-    const { email, password, name, phone_number } = request;
+  async signUp(request: { email: string; password: string; name: string, phone_number: string,role:string,agency_id:number }): Promise<any> {
+    const { email, password, name, phone_number,role,agency_id } = request;
     const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
      const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
     const command = new SignUpCommand({
@@ -137,6 +137,8 @@ export class AuthService {
         { set: 'email', value: String(usercreatePayload.email) },
         { set: 'password', value: String(usercreatePayload.password?? '') },
         { set: 'phone', value: String(usercreatePayload.phone_number ?? '') },
+        { set: 'role', value: String(usercreatePayload.role ?? '') },
+        { set: 'agency_id', value: String(usercreatePayload.agency_id ?? '') },
       ]
       const insertion = await this.dbService.insertData('users', setData);
       return this.utilService.successResponse(insertion, 'User created successfully.');

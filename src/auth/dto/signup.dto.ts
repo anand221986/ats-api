@@ -4,6 +4,9 @@ export class SignUpDto {
   password: string;
   name: string;
   phone_number: string; // Must be string to handle + and international format
+  role:string;
+  agency_id:number;
+ 
 }
 
 export class SignInDto {
