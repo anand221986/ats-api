@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
 import * as path from 'path';
 import { spawn } from 'child_process';
+import {AddCandidateDto,AddEmployerDto,AddProspectDto}  from  "./common.dto"
 @Injectable()
 export class CommonService {
   private jobs: any[] = [];
@@ -104,6 +105,69 @@ export class CommonService {
     // }
     return this.utilService.successResponse(result, "Job Skills retrieved successfully.");
   }
+
+  
+
+   async addcandidate(UserSkill: any): Promise<any> {
+    try {
+      const setData = [
+        { set: 'skill', value: String(UserSkill.skill) },
+        { set: 'created_at', value: new Date().toISOString() },
+      ];
+      const insertion = await this.dbService.insertData('user_skills', setData);
+      return this.utilService.successResponse(insertion, 'Skill Add Successfully.'
+      );
+    } catch (error) {
+      throw new Error('Failed to submit your inquiry.');
+    }
+  }
+
+  
+
+
+   async addEmployer(UserSkill: any): Promise<any> {
+    try {
+      const setData = [
+        { set: 'skill', value: String(UserSkill.skill) },
+        { set: 'created_at', value: new Date().toISOString() },
+      ];
+      const insertion = await this.dbService.insertData('user_skills', setData);
+      return this.utilService.successResponse(insertion, 'Skill Add Successfully.'
+      );
+    } catch (error) {
+      throw new Error('Failed to submit your inquiry.');
+    }
+  }
+
+
+  async addProspect(dto: AddProspectDto) {
+    // 1. Save to database
+ const setData = [
+  { set: 'company_name', value: dto.companyName },
+  { set: 'email', value: dto.email },
+  { set: 'phone', value: dto.phone || null },
+  { set: 'message', value: dto.message || null },
+  { set: 'created_at', value: new Date().toISOString() }, // convert Date to string
+];
+    const inserted = await this.dbService.insertData('prospects', setData);
+
+    // // 2. Send email to A1 selectors
+    // await this.mailService.sendMail({
+    //   to: 'a1selectors@example.com',
+    //   subject: `New Prospect: ${dto.companyName}`,
+    //   text: `${dto.companyName} just filled the prospect form.\nEmail: ${dto.email}\nPhone: ${dto.phone || '-'}`,
+    // });
+
+    // // 3. Send confirmation email to company
+    // await this.mailService.sendMail({
+    //   to: dto.email,
+    //   subject: 'Thank you for reaching out',
+    //   text: `Hi ${dto.companyName},\n\nThank you for filling the form. We will reach out to you shortly.`,
+    // });
+
+    return { success: true, message: 'Prospect added and emails sent.' };
+  }
+
 
 
 

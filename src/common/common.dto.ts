@@ -498,3 +498,32 @@ export class UserSkill {
 skill: string;
 created_at: Date;
 }
+
+export class AddCandidateDto {
+  phoneNumber: string;
+  email: string;
+  linkedinUrl: string;
+  currentJobTitle: string;
+  jobType: string;
+  resume: any; // or `Express.Multer.File` if handling file uploads
+}
+
+
+
+export class AddEmployerDto {
+  phoneNumber: string;
+  email: string;
+  linkedinUrl: string;
+  currentJobTitle: string;
+  jobType: string;
+  resume: any; // or `Express.Multer.File` if handling file uploads
+}
+export class AddProspectDto {
+  companyName: string;
+
+  email: string;
+
+  phone?: string;
+
+  message?: string;
+}

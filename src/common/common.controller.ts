@@ -6,8 +6,9 @@ import {
   Res,
   Get,
 } from "@nestjs/common";
-import { Response } from "express"; // You forgot this import
+import { response, Response } from "express"; // You forgot this import
 import { CommonService } from "./common.service";
+import {AddCandidateDto,AddEmployerDto,AddProspectDto}  from  "./common.dto"
 import {
   AddFixedPackageLeadDto,
   AddNewsletterDto,
@@ -113,6 +114,71 @@ async getUserSkills(@Res() res: Response) {
       return res.status(500).json({
         status: false,
         message: error.message || 'Failed to submit contact form',
+        error: 'Internal Server Error',
+      });
+    }
+  }
+
+  @Post("addcandidate")
+  @ApiOperation({ summary: 'Add Candidate' })
+  @ApiBody({ type: AddCandidateDto })
+  async addcandidate(
+    @Body() userSkill: UserSkill,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.service.addcandidate(AddCandidateDto);
+      return res.status(200).json(result);
+    }
+    catch (error) {
+      console.error('Add Candidate  form submission error:', error);
+      return res.status(500).json({
+        status: false,
+        message: error.message || 'Failed to submit contact form',
+        error: 'Internal Server Error',
+      });
+    }
+  }
+
+
+    @Post("addemployer")
+  @ApiOperation({ summary: 'Add Employer' })
+  @ApiBody({ type: AddEmployerDto })
+  async addemployer(
+    @Body() userSkill: UserSkill,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.service.addEmployer(AddEmployerDto);
+      return res.status(200).json(result);
+    }
+    catch (error) {
+      console.error('Add Candidate  form submission error:', error);
+      return res.status(500).json({
+        status: false,
+        message: error.message || 'Failed to submit contact form',
+        error: 'Internal Server Error',
+      });
+    }
+  }
+
+ 
+   @Post('addprospect')
+     @ApiOperation({ summary: 'Add Prospects' })
+     @ApiBody({ type: AddProspectDto})
+  async addProspect(@Body() dto: AddProspectDto,@Res() res: Response,) {
+    try
+    {
+      const result = await this.service.addProspect(dto);
+      return res.status(200).json(result);
+    }
+    catch(error)
+    {
+
+       console.error('Add prospects submission error:', error);
+      return res.status(500).json({
+        status: false,
+        message: error.message || 'Failed to submit add prospects',
         error: 'Internal Server Error',
       });
     }
