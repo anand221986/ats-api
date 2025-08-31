@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   UseGuards,
+  Query
 
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
@@ -71,13 +72,19 @@ export class CandidateController {
   }
 
   // @UseGuards(AuthGuard)
-  @Get("getAllCandidates")
-  @ApiOperation({ summary: 'Get all Candidate' })
-  async getAll(@Res() res: Response) {
-    const jobs = await this.candidateService.getAllCandidates();
-    return res.status(HttpStatus.OK).json(jobs);
-  }
-  
+ @Get("getAllCandidates")
+@ApiOperation({ summary: 'Get all Candidate' })
+async getAll(
+  @Query('agency_id') agencyId?: string,
+  @Res() res?: Response
+) {
+  const candidates = await this.candidateService.getAllCandidates(agencyId);
+
+    if (res) {
+      return res.status(HttpStatus.OK).json(candidates);
+    }
+    return candidates;
+}
   @Get("getAllStatus")
   @ApiOperation({ summary: 'Get all Status' })
   async getAllStatus(@Res() res: Response) {

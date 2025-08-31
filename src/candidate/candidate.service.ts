@@ -107,39 +107,46 @@ export class CandidateService {
     }
   }
 
-  async getAllCandidates() {
-    const query = `
+  async getAllCandidates(agencyId?: string) {
+  let query = `
+    SELECT 
+      c.*, 
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'job_id', j.id,
+            'job_title', j.job_title,
+            'status', cj.status,
+            'recruiter_status', cj.recruiter_status,
+            'hmapproval', cj.hmapproval
+          )
+        ) FILTER (WHERE j.id IS NOT NULL),
+        '[]'
+      ) AS jobs_assigned
+    FROM 
+      candidates c
+    LEFT JOIN 
+      candidate_job_applications cj ON c.id = cj.candidate_id
+    LEFT JOIN 
+      jobs j ON cj.job_id = j.id
+  `;
 
-SELECT 
- c.*, 
-  COALESCE(
-    json_agg(
-      DISTINCT jsonb_build_object(
-        'job_id', j.id,
-        'job_title', j.job_title,
-        'status', cj.status,
-        'recruiter_status', cj.recruiter_status,
-        'hmapproval', cj.hmapproval
-      )
-    ) FILTER (WHERE j.id IS NOT NULL),
-    '[]'
-  ) AS jobs_assigned
-FROM 
-  candidates c
-LEFT JOIN 
-  candidate_job_applications cj ON c.id = cj.candidate_id
-LEFT JOIN 
-  jobs j ON cj.job_id = j.id
-GROUP BY 
-  c.id
-ORDER BY 
-  c.id DESC;
-
-`;
-
-    const result = await this.dbService.execute(query);
-    return this.utilService.successResponse(result, "Candidates list retrieved successfully.");
+  // ✅ Add dynamic WHERE if agencyId is provided
+  if (agencyId) {
+    query += ` WHERE c.agency_id = '${agencyId}' `;
   }
+
+  query += `
+    GROUP BY 
+      c.id
+    ORDER BY 
+      c.id DESC;
+  `;
+
+  const result = await this.dbService.execute(query);
+  return this.utilService.successResponse(result, "Candidates list retrieved successfully.");
+}
+
 
   async getCandidateId(id: number) {
     try {
