@@ -398,7 +398,7 @@ ORDER BY
 
 
 
-  async insertExtractedData(job_id, extractedData, resumefilename) {
+  async insertExtractedData(job_id,agency_id, extractedData, resumefilename) {
     try {
       let query = "SELECT  * FROM candidates WHERE email='" + extractedData.email + "'";
       const existingCandidate = await this.dbService.execute(query);
@@ -439,7 +439,8 @@ ORDER BY
         { set: 'address', value: JSON.stringify(extractedData.location ?? []) },
         { set: 'institutiontier', value: extractedData.institutionTier ?? [] },
         { set: 'companytier', value: extractedData.companyTier ?? [] },
-        { set: 'resume_url', value: resumefilename }
+        { set: 'resume_url', value: resumefilename },
+        { set: 'agency_id', value: agency_id }
       ];
       const candidateInsertion = await this.dbService.upsertData('candidates', setData, ['email']);
       console.log('Upserted candidate:', candidateInsertion);
