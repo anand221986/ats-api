@@ -45,6 +45,9 @@ private async runQuery(query: string, values: any[] = []): Promise<any> {
     console.error("DB Error:", error);
     throw error;
   }
+   finally {
+  this.pool.release(); // ensures the connection goes back to the pool
+}
 }
 
   private prepareQuery(query: string): { query: string; values: any[] } {
@@ -81,6 +84,10 @@ private async runQuery(query: string, values: any[] = []): Promise<any> {
     console.error("Error executing query:", error);
     throw error;
   }
+    finally {
+  this.pool.release(); // ensures the connection goes back to the pool
+    }
+
 }
 
 

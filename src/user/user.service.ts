@@ -15,7 +15,7 @@ export class UserService {
     public utilService: UtilService,
     @Inject(forwardRef(() => AuthService)) public AuthService: AuthService
   ) {
-    this.cognitoUtil = new CognitoUtil(process.env.COGNITO_USER_POOL_ID!, process.env.AWS_REGION!);
+    this.cognitoUtil = new CognitoUtil(process.env.COGNITO_USER_POOL_ID!, process.env.AWS_REGION!, process.env.COGNITO_CLIENT_ID!, process.env.COGNITO_CLIENT_SECRET!);
   }
 
   async loginAdmin(req) {
