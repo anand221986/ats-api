@@ -151,7 +151,7 @@ const setData = [
   { set: 'job_type', value: dto.jobType || null },
   { set: 'message', value: dto.message || null },
   { set: 'client_type', value: 'prospect' },
-  { set: 'created_at', value: new Date().toISOString() },
+  { set: 'created_dt', value: new Date().toISOString() },
 ];
   const inserted = await this.dbService.insertData('client', setData);
 
