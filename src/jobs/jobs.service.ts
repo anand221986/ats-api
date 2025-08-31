@@ -39,6 +39,7 @@ export class JobsService {
         { set: 'education', value: String(dto.education) },
         { set: 'company', value: String(dto.company) },
         { set: 'about_company', value: String(dto.about_company) },
+        { set: 'agency_id', value: Number(dto.agency_id) },
         {
           set: 'keywords',
           value: dto.keywords?.length ? `{${dto.keywords.join(',')}}` : '{}',
@@ -84,7 +85,7 @@ export class JobsService {
 
 
 
-  async getAllJobs() {
+  async getAllJobs(agencyId) {
     const now = Date.now();
      if (this.jobsCache && now - this.jobsCache.timestamp < this.CACHE_TTL) {
       return this.utilService.successResponse(
@@ -92,18 +93,27 @@ export class JobsService {
         "Jobs list retrieved successfully (from cache)."
       );
     }
-  const query = `
+  let  query = `
     SELECT DISTINCT jobs.*
     FROM jobs
     LEFT JOIN candidate_job_applications ON candidate_job_applications.job_id = jobs.id
-    ORDER BY jobs.id DESC;
   `;
+    if (agencyId) {
+    query += ` WHERE jobs.agency_id = ${agencyId} `;
+  }
+
+  query += ` ORDER BY jobs.id DESC;`;
+  console.log(query)
   const jobs = await this.dbService.execute(query);
-  const countQuery = `
+  let countQuery = `
     SELECT status, COUNT(*) AS count
     FROM jobs
-    GROUP BY status;
   `;
+   if (agencyId) {
+    countQuery += ` WHERE agency_id = ${agencyId} `;
+  }
+
+  countQuery += ` GROUP BY status;`;
   const countResult = await this.dbService.execute(countQuery);
   // 3. Map result into a key-value object (e.g. { Draft: 4, Open: 10, ... })
   const statusCounts: Record<string, number> = {

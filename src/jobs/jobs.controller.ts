@@ -11,6 +11,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  Query,
   InternalServerErrorException
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -36,20 +37,31 @@ export class JobsController {
     const job = await this.jobsService.createJob(body);
     return res.status(HttpStatus.CREATED).json(job);
   }
-  @Get("getAllJobs")
-  @ApiOperation({ summary: 'Get all jobs' })
-  async getAll(@Res() res: Response) {
-    try {
-      const jobs = await this.jobsService.getAllJobs();
+@Get("getAllJobs")
+@ApiOperation({ summary: 'Get all jobs' })
+async getAll(
+  @Query('agency_id') agencyId?: string,
+  @Res() res?: Response
+) {
+  try {
+    console.log(agencyId)
+    const jobs = await this.jobsService.getAllJobs(agencyId);
+
+    if (res) {
       return res.status(HttpStatus.OK).json(jobs);
     }
-    catch (error) {
+
+    return jobs; // Nest will handle the response automatically if @Res() is not used
+  } catch (error) {
+    if (res) {
       return res
         .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         .json(error.response || { message: error.message });
     }
-   
+    throw error; // Let Nest handle the error
   }
+}
+
 
   @Get(':id')
   @ApiOperation({ summary: 'Get job by ID' })

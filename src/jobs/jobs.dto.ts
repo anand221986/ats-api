@@ -121,6 +121,7 @@ export class CreateJobDto {
  job_code:string;
 insertId: number;
 id: number;
+agency_id:number;
  affectedRows?: number;
  @IsOptional() // if it's not a required field
   @IsInt()
