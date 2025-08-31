@@ -6,21 +6,36 @@ const bcrypt = require("bcryptjs");
 import * as jwt from 'jsonwebtoken';
 import { UpdateUserDto } from './user.dto';
 import { CognitoUtil } from '../util/cognito.util';
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class UserService {
   private cognitoUtil: CognitoUtil;
+  private readonly configService: ConfigService;
   constructor(
     public dbService: DbService,
     public utilService: UtilService,
     @Inject(forwardRef(() => AuthService)) public AuthService: AuthService
+    
   ) {
-    console.log(process.env.COGNITO_USER_POOL_ID!, process.env.AWS_REGION!, process.env.COGNITO_CLIENT_ID!, process.env.COGNITO_CLIENT_SECRET!)
-    this.cognitoUtil = new CognitoUtil(process.env.COGNITO_USER_POOL_ID!, process.env.AWS_REGION!, process.env.COGNITO_CLIENT_ID!, process.env.COGNITO_CLIENT_SECRET!);
+    const userPoolId = this.configService.get<string>("COGNITO_USER_POOL_ID");
+    const region = this.configService.get<string>("AWS_REGION");
+    const clientId = this.configService.get<string>("COGNITO_CLIENT_ID");
+    const clientSecret = this.configService.get<string>("COGNITO_CLIENT_SECRET");
+  // Throw exception if any required config is missing
+    if (!userPoolId || !region || !clientId || !clientSecret) {
+      throw new InternalServerErrorException(
+        "Missing Cognito configuration in environment variables"
+      );
+    }
+
+    this.cognitoUtil = new CognitoUtil(userPoolId, region, clientId, clientSecret);
+
+
   }
 
   async loginAdmin(req) {
-    
+
     let email = req.email;
     let password = req.password;
     let adminUser = await this.checkAdminUser(email, password);
