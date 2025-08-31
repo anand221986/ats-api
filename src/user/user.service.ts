@@ -11,8 +11,7 @@ import { ConfigService } from "@nestjs/config";
 @Injectable()
 export class UserService {
   private cognitoUtil: CognitoUtil;
-  private readonly configService: ConfigService;
-  constructor(
+  constructor(private readonly configService: ConfigService,
     public dbService: DbService,
     public utilService: UtilService,
     @Inject(forwardRef(() => AuthService)) public AuthService: AuthService
