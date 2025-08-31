@@ -98,7 +98,9 @@ export class AuthService {
         email_verified: 0,
         phone_verified: 0,
         password: password,
-        cognitoId: response.UserSub // Add this
+        cognitoId: response.UserSub ,// Add this
+        role:role,
+        agency_id:agency_id
       };
       // Optional DB sync
      return  await this.createUser(usercreatePayload);
