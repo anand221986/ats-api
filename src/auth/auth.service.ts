@@ -148,8 +148,16 @@ export class AuthService {
 
  async signIn(request: { email: string; password: string }): Promise<any> {
   const { email, password } = request;
+ const user = await this.dbService.execute(`select first_name,last_name,agency_id,status from users where email='${email}'`); // implement this method
+  if (!user) {
+    throw new UnauthorizedException('Invalid email or password');
+  }
+  console.log(user[0].status,'status')
+  // 2. Check if user is active
+  if (user[0].status !== 1) {
+    throw new UnauthorizedException('User is not active');
+  }
   const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
-
   const command = new InitiateAuthCommand({
     AuthFlow: 'USER_PASSWORD_AUTH',
     ClientId: this.clientId,
@@ -159,20 +167,18 @@ export class AuthService {
       SECRET_HASH: secretHash,
     },
   });
-
   try {
     const response = await this.cognitoClient.send(command);
-
     const authResult = response.AuthenticationResult;
     if (!authResult) {
       throw new UnauthorizedException('Authentication failed');
     }
-
     const { IdToken, AccessToken, RefreshToken } = authResult;
     return {
       accessToken: AccessToken,
       idToken: IdToken,
       refreshToken: RefreshToken,
+      agency_id:Number(user[0].agency_id)
     };
 
   } catch (err) {
