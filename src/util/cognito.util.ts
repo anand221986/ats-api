@@ -10,6 +10,8 @@ export class CognitoUtil {
     private cognitoClient: CognitoIdentityProviderClient;
     private userPoolId: string;
     constructor(userPoolId: string, region: string, clientId: string, clientSecret: string) {
+
+        console.log(clientId,clientSecret,userPoolId,clientSecret)
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.userPoolId = userPoolId;
