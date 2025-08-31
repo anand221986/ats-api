@@ -1,5 +1,7 @@
 // import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { IsArray, IsInt, IsString, IsNotEmpty } from 'class-validator';
+
 export class CreateClientDto {
   name: string;
   website: string;
@@ -18,16 +20,19 @@ export class CreateClientDto {
   currency: string;
   revenue: string;
   email: string;
-  contactPerson:string;
+  contactPerson: string;
+  agency_id:number;
 }
 
-export class UpdateClientDto extends CreateClientDto {}
+export class UpdateClientDto extends CreateClientDto { }
+export class CreateClientCandidatePitchDto {
+  @IsInt()
+  client_id: number;
 
-// export class CreateClientFormDto {
-//     @ApiProperty({ description: 'Admin email', example: 'admin@example.com' })
-//     email: string;
+  @IsArray()
+  candidate_ids: number[];
 
-//     @ApiProperty({ description: 'Admin password', example: 'adminpassword123' })
-//     password: string;
-// }
-
+  @IsString()
+  @IsNotEmpty()
+  message: string;
+}

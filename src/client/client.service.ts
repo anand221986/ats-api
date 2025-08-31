@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateClientDto, UpdateClientDto } from './client.service.dto';
+import { CreateClientDto, UpdateClientDto, CreateClientCandidatePitchDto } from './client.service.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 
@@ -29,9 +29,10 @@ export class ClientService {
                 { set: 'phone', value: String(dto.phone ?? '') },
                 { set: 'tags', value: toPgArray(dto.tags ?? []) },
                 { set: 'industry', value: String(dto.industry ?? '') },
-                { set: 'email', value: String(dto.email?? '') },
+                { set: 'email', value: String(dto.email ?? '') },
                 { set: 'contact_person', value: String(dto.contactPerson ?? '') },
-                
+                { set: 'agency_id', value:Number(dto.agency_id) },
+
             ];
             const insertion = await this.dbService.insertData('client', setData);
             return this.utilService.successResponse(insertion, 'Client created successfully.');
@@ -41,11 +42,47 @@ export class ClientService {
         }
     }
 
-    async getAllClient() {
-        const query = `SELECT * FROM "client" ORDER BY id desc;`;
-        const result = await this.dbService.execute(query);
-        return this.utilService.successResponse(result, "Client list retrieved successfully.");
+ async getAllClient(agencyId?: string) {
+  try {
+        let query = `
+      SELECT 
+        id, 
+        name, 
+        website, 
+        careers_page, 
+        street1, 
+        street2, 
+        city, 
+        state, 
+        country, 
+        zipcode, 
+        linkedin, 
+        phone, 
+        tags, 
+        industry, 
+        size, 
+        currency, 
+        revenue, 
+        created_dt, 
+        updated_dt, 
+        email, 
+        contact_person
+      FROM "client"
+    `;
+
+    // ✅ Add filter only if agencyId is provided
+    if (agencyId) {
+      query += ` WHERE agency_id = '${agencyId}' `;
     }
+    query += ` ORDER BY id DESC;`;
+    const result = await this.dbService.execute(query);
+    return this.utilService.successResponse(result, "Client list retrieved successfully.");
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+    return this.utilService.failResponse("Failed to fetch client list.", error.message);
+  }
+}
+
 
     async getClientId(id: number) {
         const query = `SELECT * FROM client WHERE id = ${id}`;
@@ -88,4 +125,35 @@ export class ClientService {
             throw new Error(error);
         }
     }
+
+
+    async createPitch(dto: CreateClientCandidatePitchDto) {
+        try {
+            const setData = [
+                { set: 'client_id', value: String(dto.client_id ?? '') },
+                { set: 'candidate_ids', value: `{${(dto.candidate_ids ?? []).join(',')}}` }, // "{101,102,105}"
+                { set: 'message', value: dto.message ?? '' },
+            ];
+            const insertion = await this.dbService.insertData('client_candidate_pitch', setData);
+            return this.utilService.successResponse(insertion, 'Pitch the candidate to client successfully.');
+        }
+        catch (error) {
+            console.error('pitch to the client Error:', error);
+            throw new Error(error);
+        }
+    }
+
+    async getPitchesByClient(clientId: number) {
+        try {
+            const query = `SELECT * FROM client_candidate_pitch WHERE client_id =${clientId} ORDER BY created_at DESC`;
+            console.log(query)
+            const result = await this.dbService.execute(query);
+            return result.rows;
+        }
+        catch (error) {
+            console.error('get pitched candidate Error:', error);
+            throw new Error(error)
+        }
+    }
+
 }

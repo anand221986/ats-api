@@ -9,21 +9,22 @@ import {
   Post,
   Put,
   Res,
+  Query
 } from '@nestjs/common';
-import { ClientService} from './client.service';
+import { ClientService } from './client.service';
 import { Response } from 'express';
-import { CreateClientDto ,UpdateClientDto} from './client.service.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiParam ,ApiResponse} from '@nestjs/swagger';
+import { CreateClientDto, UpdateClientDto, CreateClientCandidatePitchDto } from './client.service.dto';
+import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 @Controller('client')
 @ApiTags('client')
 export class ClientController {
-  constructor(private readonly candidateService:ClientService) {}
+  constructor(private readonly candidateService: ClientService) { }
 
-@Post("createClient")
-@ApiOperation({ summary: 'Create a new client' })
-@ApiBody({ type: CreateClientDto })
- async create(@Body() body: CreateClientDto, @Res() res: Response) {
+  @Post("createClient")
+  @ApiOperation({ summary: 'Create a new client' })
+  @ApiBody({ type: CreateClientDto })
+  async create(@Body() body: CreateClientDto, @Res() res: Response) {
     try {
       const result = await this.candidateService.createClient(body);
       return res.status(HttpStatus.CREATED).json(result);
@@ -49,64 +50,81 @@ export class ClientController {
 
   @Get("getAllClient")
   @ApiOperation({ summary: 'Get all Client' })
-  async getAll(@Res() res: Response) {
-    const jobs = await  this.candidateService.getAllClient();
-    console.log(jobs,'test')
-    return res.status(HttpStatus.OK).json(jobs);
+  async getAll(@Query('agency_id') agencyId?: string,@Res() res?: Response) {
+    const clientList = await this.candidateService.getAllClient(agencyId);
+    if (res){
+    return res.status(HttpStatus.OK).json(clientList);
+    }
+    return clientList;
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get client by ID' })
   @ApiParam({ name: 'id', type: Number })
   async getById(@Param('id') id: number, @Res() res: Response) {
-     try {
-    const candidate = await this.candidateService.getClientId(+id);
-    return res.status(HttpStatus.OK).json(candidate);
-  } catch (error) {
-    return res
-      .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
-      .json(error.response || { message: error.message });
+    try {
+      const candidate = await this.candidateService.getClientId(+id);
+      return res.status(HttpStatus.OK).json(candidate);
+    } catch (error) {
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response || { message: error.message });
+    }
   }
+
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update client by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateClientDto })
+  @ApiResponse({ status: 200, description: 'Client updated successfully' })
+  @ApiResponse({ status: 404, description: 'Client not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async update(
+    @Param('id') id: number,
+    @Body() body: UpdateClientDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.candidateService.updateClient(id, body);
+      return res.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Client updated successfully.',
+        data: result,
+      });
+    } catch {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        status: false,
+        message: 'Failed to update client.',
+      });
+    }
   }
 
 
-@Put(':id')
-@ApiOperation({ summary: 'Update client by ID' })
-@ApiParam({ name: 'id', type: Number })
-@ApiBody({ type: UpdateClientDto })
-@ApiResponse({ status: 200, description: 'Client updated successfully' })
-@ApiResponse({ status: 404, description: 'Client not found' })
-@ApiResponse({ status: 500, description: 'Internal server error' })
-async update(
-  @Param('id') id: number,
-  @Body() body: UpdateClientDto,
-  @Res() res: Response,
-) {
-  try {
-    const result = await this.candidateService.updateClient(id, body);
-    return res.status(HttpStatus.OK).json({
-      status: true,
-      message: 'Client updated successfully.',
-      data: result,
-    });
-  } catch {
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      status: false,
-      message: 'Failed to update client.',
-    });
-  }
-}
-
-
-@Delete(':id')
-@ApiOperation({ summary: 'Delete client by ID' })
-@ApiParam({ name: 'id', type: Number })
-@ApiBody({ type: UpdateClientDto })
-@ApiResponse({ status: 200, description: 'Client Deleted successfully' })
-@ApiResponse({ status: 404, description: 'Client not found' })
-@ApiResponse({ status: 500, description: 'Internal server error' })
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete client by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateClientDto })
+  @ApiResponse({ status: 200, description: 'Client Deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Client not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async delete(@Param('id') id: number, @Res() res: Response) {
     const job = await this.candidateService.deleteClientById(id);
-   return res.status(HttpStatus.OK).json({ message: ' Client deleted', job });
+    return res.status(HttpStatus.OK).json({ message: ' Client deleted', job });
   }
+
+
+  @Post('createPitch')
+  @ApiOperation({ summary: 'candidate pitch to the client' })
+  @ApiBody({ type: CreateClientCandidatePitchDto })
+  async createPitch(@Body() dto: CreateClientCandidatePitchDto) {
+    return this.candidateService.createPitch(dto);
+  }
+@Get(':id/pitch')
+@ApiOperation({ summary: 'Get pitched candidates by Client ID' })
+@ApiParam({ name: 'id', type: Number })
+async getByClient(@Param('id') clientId: number, @Res() res: Response) {
+ const pitchedCandidate= this.candidateService.getPitchesByClient(clientId);
+   return res.status(HttpStatus.OK).json(pitchedCandidate);
+}
 }

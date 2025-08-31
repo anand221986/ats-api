@@ -1,85 +1,89 @@
-import {
-    CognitoIdentityProviderClient,
-    AdminUpdateUserAttributesCommand,
-    AdminAddUserToGroupCommand,
-} from "@aws-sdk/client-cognito-identity-provider";
-import { ConfigService } from '@nestjs/config';
-export class CognitoUtil {
-    private readonly clientId: string;
-    private readonly clientSecret: string;
-    private cognitoClient: CognitoIdentityProviderClient;
-    private userPoolId: string;
-    constructor(userPoolId: string, region: string, clientId: string, clientSecret: string) {
+    import {
+        CognitoIdentityProviderClient,
+        AdminUpdateUserAttributesCommand,
+        AdminAddUserToGroupCommand,
+    } from "@aws-sdk/client-cognito-identity-provider";
+    import { ConfigService } from '@nestjs/config';
+    export class CognitoUtil {
+        private readonly clientId: string;
+        private readonly clientSecret: string;
+        private cognitoClient: CognitoIdentityProviderClient;
+        private userPoolId: string;
 
-        console.log(clientId,clientSecret,userPoolId,clientSecret)
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.userPoolId = userPoolId;
-        this.cognitoClient = new CognitoIdentityProviderClient({ region });
-         if (!userPoolId || !this.clientId || !this.clientSecret) {
-      throw new Error('Missing Cognito config values');
-    }
-    }
-    async updateCognitoUser(
-        email: string,
-        updates: { name?: string; phone_number?: string; status?: number; email_verified?: boolean; phone_verified: boolean }
-    ) {
-        const attributes: { Name: string; Value: string }[] = [];
 
-        if (updates.name) {
-            attributes.push({ Name: "name", Value: updates.name });
-        }
 
-        if (updates.phone_number) {
-            attributes.push({ Name: "phone_number", Value: updates.phone_number });
-        }
+        
+        constructor(userPoolId: string, region: string, clientId: string, clientSecret: string) {
 
-        // ✅ status sync (stored as custom attribute)
-        if (updates.status !== undefined) {
-            attributes.push({ Name: "custom:status", Value: String(updates.status) });
+            console.log(clientId,clientSecret,userPoolId,clientSecret)
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
+            this.userPoolId = userPoolId;
+            this.cognitoClient = new CognitoIdentityProviderClient({ region });
+            if (!userPoolId || !this.clientId || !this.clientSecret) {
+        throw new Error('Missing Cognito config values');
         }
-        // ✅ status sync (stored as custom attribute)
-        if (updates.status !== undefined) {
-            attributes.push({ Name: "custom:status", Value: String(updates.status) });
         }
-        // Email verified (boolean → 'true'/'false')
-        if (updates.email_verified !== undefined) {
-            attributes.push({
-                Name: "email_verified",
-                Value: updates.email_verified ? "true" : "false",
+        async updateCognitoUser(
+            email: string,
+            updates: { name?: string; phone_number?: string; status?: number; email_verified?: boolean; phone_verified: boolean }
+        ) {
+            const attributes: { Name: string; Value: string }[] = [];
+
+            if (updates.name) {
+                attributes.push({ Name: "name", Value: updates.name });
+            }
+
+            if (updates.phone_number) {
+                attributes.push({ Name: "phone_number", Value: updates.phone_number });
+            }
+
+            // ✅ status sync (stored as custom attribute)
+            if (updates.status !== undefined) {
+                attributes.push({ Name: "custom:status", Value: String(updates.status) });
+            }
+            // ✅ status sync (stored as custom attribute)
+            if (updates.status !== undefined) {
+                attributes.push({ Name: "custom:status", Value: String(updates.status) });
+            }
+            // Email verified (boolean → 'true'/'false')
+            if (updates.email_verified !== undefined) {
+                attributes.push({
+                    Name: "email_verified",
+                    Value: updates.email_verified ? "true" : "false",
+                });
+            }
+
+            if (updates.phone_verified !== undefined) {
+                attributes.push({
+                    Name: "phone_verified",
+                    Value: updates.phone_verified ? "true" : "false",
+                });
+            }
+
+
+
+
+            const command = new AdminUpdateUserAttributesCommand({
+                UserPoolId: this.userPoolId,
+                Username: email,
+                UserAttributes: attributes,
             });
+
+            return await this.cognitoClient.send(command);
         }
 
-        if (updates.phone_verified !== undefined) {
-            attributes.push({
-                Name: "phone_verified",
-                Value: updates.phone_verified ? "true" : "false",
+        // 🔹 Assign Cognito user to a group
+        async assignUserToGroup(email: string, groupName: string) {
+            const command = new AdminAddUserToGroupCommand({
+                UserPoolId: this.userPoolId,
+                Username: email,
+                GroupName: groupName,
             });
+
+            return await this.cognitoClient.send(command);
         }
 
 
 
-
-        const command = new AdminUpdateUserAttributesCommand({
-            UserPoolId: this.userPoolId,
-            Username: email,
-            UserAttributes: attributes,
-        });
-
-        return await this.cognitoClient.send(command);
     }
-
-    // 🔹 Assign Cognito user to a group
-    async assignUserToGroup(email: string, groupName: string) {
-        const command = new AdminAddUserToGroupCommand({
-            UserPoolId: this.userPoolId,
-            Username: email,
-            GroupName: groupName,
-        });
-
-        return await this.cognitoClient.send(command);
-    }
-
-
-
-}
