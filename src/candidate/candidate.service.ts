@@ -892,23 +892,13 @@ export class CandidateService {
       const candidateDetails = await this.dbService.execute(candidateQuery);
       console.log(candidateDetails)
      const candidate=candidateDetails[0];
-      console.log({
-      from: `"ATS System" <noreply@xbeehire.com>`,
-      to: candidate.email, // ✅ FIXED
-      subject: dto.emailSubject, // ✅ FIXED
-      text: dto.emailDescription, // ✅ plain text fallback
-      html: dto.emailDescription, // ✅ for HTML emails
-    })
-      
        const info = await this.transporter.sendMail({
-      from: `"ATS System" <noreply@xbeehire.com>`,
+      from: `"ATS System" <rahulknit007@gmail.com>`,
       to: candidate.email, // ✅ FIXED
       subject: dto.emailSubject, // ✅ FIXED
       text: dto.emailDescription, // ✅ plain text fallback
       html: dto.emailDescription, // ✅ for HTML emails
     });
-
-    
       const setData = [
         { set: 'candidate_id', value: String(dto.candidate_id) },
         { set: 'author_id', value: String(dto.author_id) },
