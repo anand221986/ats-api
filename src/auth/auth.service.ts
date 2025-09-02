@@ -15,11 +15,12 @@ import * as bcrypt from 'bcrypt';
 
 
 
-import { 
-  CognitoIdentityProviderClient, 
-  SignUpCommand,InitiateAuthCommand,
+import {
+  CognitoIdentityProviderClient,
+  SignUpCommand, InitiateAuthCommand,
   ForgotPasswordCommand,
-  ConfirmForgotPasswordCommand
+  ConfirmForgotPasswordCommand,
+  AdminConfirmSignUpCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 
 @Injectable()
@@ -43,19 +44,24 @@ export class AuthService {
     this.secretKey = this.config.get<string>('JWT_SECRET') || '';
     this.apiKey = this.config.get<string>('API_KEY') || '';
     console.log(this.config.get<string>('COGNITO_USER_POOL_ID'))
-    this.cognitoClient = new CognitoIdentityProviderClient({
-      region: this.config.get<string>('AWS_REGION') || 'eu-north-1',
-    });
+
     if (!userPoolId || !this.clientId || !this.clientSecret) {
       throw new Error('Missing Cognito config values');
     }
+    this.cognitoClient = new CognitoIdentityProviderClient({
+      region: this.config.get<string>('AWS_REGION') || 'ap-south-1',
+      credentials: {
+        accessKeyId: this.config.get<string>('AWS_ACCESS_KEY_ID')!,
+        secretAccessKey: this.config.get<string>('AWS_SECRET_ACCESS_KEY')!,
+      },
+    });
   }
 
   //sign up code 
-  async signUp(request: { email: string; password: string; name: string, phone_number: string,role:string,agency_id:number }): Promise<any> {
-    const { email, password, name, phone_number,role,agency_id } = request;
+  async signUp(request: { email: string; password: string; name: string, phone_number: string, role: string, agency_id: number }): Promise<any> {
+    const { email, password, name, phone_number, role, agency_id } = request;
     const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
-     const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
     const command = new SignUpCommand({
       ClientId: this.clientId,
       Username: email,
@@ -80,7 +86,14 @@ export class AuthService {
     });
     try {
       const response = await this.cognitoClient.send(command);
-      
+
+      //confirm the user instant 
+      const confirmCommand = new AdminConfirmSignUpCommand({
+        UserPoolId: this.config.get<string>('COGNITO_USER_POOL_ID')!,
+        Username: email,
+      });
+      let confirmResult = await this.cognitoClient.send(confirmCommand);
+      console.log('✅ Cognito user confirmed successfully:', confirmResult);
       const newUser = {
         email,
         name,
@@ -97,13 +110,13 @@ export class AuthService {
         created_dt: new Date(),
         email_verified: 0,
         phone_verified: 0,
-        password: password,
-        cognitoId: response.UserSub ,// Add this
-        role:role,
-        agency_id:agency_id
+        password: hashedPassword,
+        cognitoId: response.UserSub,// Add this
+        role: role,
+        agency_id: agency_id
       };
       // Optional DB sync
-     return  await this.createUser(usercreatePayload);
+      return await this.createUser(usercreatePayload);
     } catch (error) {
       if (error.name === 'UsernameExistsException') {
         throw new BadRequestException('User already exists');
@@ -137,7 +150,7 @@ export class AuthService {
         { set: 'first_name', value: String(usercreatePayload.first_name) },
         { set: 'last_name', value: String(usercreatePayload.last_name) },
         { set: 'email', value: String(usercreatePayload.email) },
-        { set: 'password', value: String(usercreatePayload.password?? '') },
+        { set: 'password', value: String(usercreatePayload.password ?? '') },
         { set: 'phone', value: String(usercreatePayload.phone_number ?? '') },
         { set: 'role', value: String(usercreatePayload.role ?? '') },
         { set: 'agency_id', value: String(usercreatePayload.agency_id ?? '') },
@@ -150,50 +163,49 @@ export class AuthService {
     }
   }
 
- async signIn(request: { email: string; password: string }): Promise<any> {
-  const { email, password } = request;
- const user = await this.dbService.execute(`select first_name,last_name,agency_id,status from users where email='${email}'`); // implement this method
-  if (!user) {
-    throw new UnauthorizedException('Invalid email or password');
-  }
-  console.log(user[0].status,'status')
-  // 2. Check if user is active
-  if (user[0].status !== 1) {
-    throw new UnauthorizedException('User is not active');
-  }
-  const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
-  const command = new InitiateAuthCommand({
-    AuthFlow: 'USER_PASSWORD_AUTH',
-    ClientId: this.clientId,
-    AuthParameters: {
-      USERNAME: email,
-      PASSWORD: password,
-      SECRET_HASH: secretHash,
-    },
-  });
-  try {
-    const response = await this.cognitoClient.send(command);
-    const authResult = response.AuthenticationResult;
-    if (!authResult) {
-      throw new UnauthorizedException('Authentication failed');
+  async signIn(request: { email: string; password: string }): Promise<any> {
+    const { email, password } = request;
+    const user = await this.dbService.execute(`select first_name,last_name,agency_id,status from users where email='${email}'`); // implement this method
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
     }
-    const { IdToken, AccessToken, RefreshToken } = authResult;
-    return {
-      accessToken: AccessToken,
-      idToken: IdToken,
-      refreshToken: RefreshToken,
-      agency_id:Number(user[0].agency_id)
-    };
+    // 2. Check if user is active
+    if (user[0]?.status !== 1) {
+      throw new UnauthorizedException('User is not active');
+    }
+    const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
+    const command = new InitiateAuthCommand({
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      ClientId: this.clientId,
+      AuthParameters: {
+        USERNAME: email,
+        PASSWORD: password,
+        SECRET_HASH: secretHash,
+      },
+    });
+    try {
+      const response = await this.cognitoClient.send(command);
+      const authResult = response.AuthenticationResult;
+      if (!authResult) {
+        throw new UnauthorizedException('Authentication failed');
+      }
+      const { IdToken, AccessToken, RefreshToken } = authResult;
+      return {
+        accessToken: AccessToken,
+        idToken: IdToken,
+        refreshToken: RefreshToken,
+        agency_id: Number(user[0].agency_id)
+      };
 
-  } catch (err) {
-    console.error('Cognito sign-in error:', err);
-    throw new UnauthorizedException('Invalid email or password');
+    } catch (err) {
+      console.error('Cognito sign-in error:', err);
+      throw new UnauthorizedException('Invalid email or password', err);
+    }
   }
-}
 
   async forgotPassword(email: string): Promise<any> {
     const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
-    
+
     const command = new ForgotPasswordCommand({
       ClientId: this.clientId,
       Username: email,
@@ -215,7 +227,7 @@ export class AuthService {
 
   async resetPassword(email: string, verificationCode: string, newPassword: string): Promise<any> {
     const secretHash = this.utilService.generateSecretHash(email, this.clientId, this.clientSecret);
-    
+
     const command = new ConfirmForgotPasswordCommand({
       ClientId: this.clientId,
       Username: email,

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body,BadRequestException, Param, } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Post, Req, Res, UseGuards, Body,BadRequestException, Param,Query } from "@nestjs/common";
 import { CognitoService } from './cognito.service';
 import { UserService } from '../user/user.service';
 import { Response } from "express";
@@ -10,14 +10,22 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SignUpDto,SignInDto } from './dto/signup.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+
+
 @ApiTags('Auth')
 @Controller("auth")
 export class AuthController {
     private googleClient: OAuth2Client;
+    private oAuth2Client: OAuth2Client;
     constructor(
         public authService: AuthService, private utilService: UtilService
     ) {
         this.googleClient = new OAuth2Client();
+        this.oAuth2Client = new OAuth2Client(
+      '1042994757383-ra2u6memdacvegf51krbg95fn5ret1ef.apps.googleusercontent.com',
+      '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',
+      'http://localhost:3000/auth/google/redirect' // must match Google Cloud redirect URI
+    );
     }
 
   @Post('signup')
@@ -160,4 +168,46 @@ export class AuthController {
     //             });
     //         }
     //     }
+
+
+    @Get('google')
+  async googleAuth(@Res() res: Response) {
+    const authUrl = this.oAuth2Client.generateAuthUrl({
+      access_type: 'offline', // ensures we get refresh_token
+      scope: ['https://mail.google.com/'],
+      prompt: 'consent', // always show consent to get refresh_token
+    });
+
+    // Redirect user to Google's consent screen
+    return res.redirect(authUrl);
+  }
+
+  @Get('google/redirect')
+  async googleAuthRedirect(@Query('code') code: string, @Res() res: Response) {
+    if (!code) {
+      return res.status(400).json({ error: 'Missing code parameter' });
+    }
+
+    try {
+      const { tokens } = await this.oAuth2Client.getToken(code);
+      this.oAuth2Client.setCredentials(tokens);
+
+      console.log('Access Token:', tokens.access_token);
+      console.log('Refresh Token:', tokens.refresh_token);
+
+      // Normally, you'd store these tokens securely in DB
+      return res.json({
+        message: 'Google OAuth successful',
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        expiry_date: tokens.expiry_date,
+      });
+    } catch (error) {
+      console.error('Error during Google OAuth:', error);
+      return res.status(500).json({ error: 'OAuth2 token exchange failed' });
+    }
+  }
+
+
+
 }

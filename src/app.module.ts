@@ -34,12 +34,16 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { WhatsappService } from './whatsapp/whatsapp.service';
 import { AgencyController } from './agency/agency.controller';
 import { AgencyService } from './agency/agnecy.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { IMailService } from './util/mail.service';
+import { GmailImapService } from './util/gmail-imap.service';
+
 
 
 
  
 @Module({
-  imports: [ ConfigModule.forRoot({
+  imports: [ScheduleModule.forRoot(), ConfigModule.forRoot({
       isGlobal: true, // So you can use ConfigService anywhere without importing again
     }),MailerModule.forRoot({
       transport: {
@@ -53,7 +57,7 @@ import { AgencyService } from './agency/agnecy.service';
       },
     }),WhatsappModule],
   controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController,AgencyController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService,AgencyService],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService,AgencyService,IMailService,GmailImapService],
 })
 //with middle ware 
 //without export class AppModule
