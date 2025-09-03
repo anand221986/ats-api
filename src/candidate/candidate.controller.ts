@@ -11,14 +11,13 @@ import {
   Res,
   UseInterceptors,
   UploadedFiles,
-  UseGuards,
-  Query
+  Query,HttpException
 
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { ActivityService } from './activity.service';
 import { Response, Express } from 'express';
-import { CreateCandidateDto, UpdateCandidateDto, CreateCandidateSmsDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CandidateSchedulesDto, CreateCandidateEmailDto, CreateCallLogDto, CreateStatusDto, UpdateStatusDto } from './create-candidate.dto';
+import { CreateCandidateDto, UpdateCandidateDto, CreateCandidateSmsDto, BulkUpdateCandidateDto, BulkDeleteCandidateDto, CandidateNotesDto, updateCandidateNotesDto, CandidateTaskDto, updateCandidateTaskDto, RateCandidateDto, UpdateCandidateJobAssignmentDto, CandidateSchedulesDto, CreateCandidateEmailDto, CreateCallLogDto, CreateStatusDto, UpdateStatusDto,ConversationDto } from './create-candidate.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -27,6 +26,7 @@ import { isExplicitFalse } from 'src/util/boolean.utils';
 import { AuthGuard } from '../auth/auth.guard';
 import * as fs from 'fs';
 import * as path from 'path';
+import { GmailImapService} from '../util/gmail-imap.service';
 
 
 interface ExtractedDataItem {
@@ -42,7 +42,9 @@ const allResults: {
 @Controller('candidate')
 @ApiTags('candidate')
 export class CandidateController {
-  constructor(private readonly candidateService: CandidateService, private readonly activityService: ActivityService) { }
+  constructor(private readonly candidateService: CandidateService, private readonly activityService: ActivityService,
+   private readonly gmailService:  GmailImapService
+  ) { }
   // @UseGuards(AuthGuard)
   @Post("createCandidate")
   @ApiOperation({ summary: 'Create a new candidate' })
@@ -646,6 +648,48 @@ async getAll(
   async deleteStatus(@Param('id') id: number, @Res() res: Response) {
     const job = await this.candidateService.deleteStatus(id);
     return res.status(HttpStatus.OK).json({ message: 'Job deleted', job });
+  }
+
+  @Get('conversation/:id')
+  @ApiOperation({ summary: 'Get conversations by recruiter and candidate Id' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Get conversations Deatils successfully' })
+  @ApiResponse({ status: 404, description: 'conversations not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async getconversationById(@Param('id') id: number, @Res() res: Response) {
+    try {
+      const job = await this.candidateService.getconversationById(+id);
+      return res.status(HttpStatus.OK).json(job);
+    } catch (error) {
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(error.response || { message: error.message });
+    }
+  }
+
+    // @UseGuards(AuthGuard)
+  @Get("syncCall/:id")
+  @ApiOperation({ summary: 'Get conversations by candidate Id' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Get conversations Deatils successfully' })
+  @ApiResponse({ status: 404, description: 'conversations not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async syncCall(
+    @Param('id') id: number,
+    @Res() res?: Response
+  ) {  try {
+      const accessToken = await this.gmailService.getAccessToken();
+      const conversations = await this.gmailService.connectToGmail(
+        accessToken,
+        process.env.GMAIL_EMAIL!
+      );
+      return conversations
+    } catch (error) {
+      throw new HttpException(
+        error?.response || { message: error?.message || 'Internal server error' },
+        error?.status || HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
 

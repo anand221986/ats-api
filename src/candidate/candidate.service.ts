@@ -1071,5 +1071,26 @@ export class CandidateService {
     }
   }
 
+  async getconversationById(id: number) {
+   const query = `
+  SELECT 
+    c.sender,
+    c.subject,
+    c.received_at,
+    c.recruiter_id,
+CONCAT(u.first_name, ' ', u.last_name) AS recruiter_name
+  FROM 
+    conversations c
+  JOIN 
+    users u ON c.recruiter_id = u.id
+  WHERE 
+    c.candidate_id = ${id}
+`;
+    const result = await this.dbService.execute(query);
+    if (!result.length) {
+      throw new NotFoundException(`conversations with ID ${id} not found`);
+    }
+    return this.utilService.successResponse(result, "conversations  retrieved successfully.");
+  }
 
 }

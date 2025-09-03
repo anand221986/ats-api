@@ -172,3 +172,11 @@ export class CreateStatusDto {
 }
 
 export class UpdateStatusDto extends CreateStatusDto {}
+
+export class ConversationDto {
+  message_id: string;
+  sender: string;
+  subject: string;
+  body: string;
+  received_at: Date;
+}
