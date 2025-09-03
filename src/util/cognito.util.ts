@@ -54,12 +54,12 @@
                 });
             }
 
-            if (updates.phone_verified !== undefined) {
-                attributes.push({
-                    Name: "phone_verified",
-                    Value: updates.phone_verified ? "true" : "false",
-                });
-            }
+            // if (updates.phone_verified !== undefined) {
+            //     attributes.push({
+            //         Name: "phone_verified",
+            //         Value: updates.phone_verified ? "true" : "false",
+            //     });
+            // }
 
 
 
