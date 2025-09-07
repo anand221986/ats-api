@@ -12,7 +12,8 @@ import {
   UseInterceptors,
   UploadedFiles,
   Query,HttpException,
-  Req
+  Req,
+  Next
 
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
@@ -719,18 +720,40 @@ async getAll(
   }
 
 @Get('gmail/callback')
-async googleCallback(@Query('code') code: string, @Query('state') state: string, @Res() res) {
+async googleCallback(
+  @Query('code') code: string,
+  @Query('state') state: string,
+  @Res() res,
+  @Next() next
+) {
   try {
-    // Decode userId from state (we set it earlier in getGoogleAuthUrl)
-    const { userId } = JSON.parse(state);
-    // Exchange code for tokens
-    const tokens = await this.gmailService.handleOAuthCallback(code, userId);
-    // Redirect user to frontend success page
-    return res.redirect(`${process.env.FRONTEND_URL}/candidates`);
+    if (state) {
+      let userId: string;
+
+      try {
+        ({ userId } = JSON.parse(state));
+      } catch (e) {
+        return res.status(400).json({
+          status: false,
+          message: 'Invalid state parameter',
+        });
+      }
+
+      await this.gmailService.handleOAuthCallback(code, userId);
+
+      return res.redirect(`${process.env.FRONTEND_URL}/candidates`);
+    } else {
+      return res.json({
+        status: true,
+        message: 'No state passed',
+      });
+    }
   } catch (err) {
-    return res.redirect(`${process.env.FRONTEND_URL}/gmail/error`);
+    console.error('OAuth callback error:', err);
+    return next(err); // or `throw err;` if you want Nest to handle it
   }
 }
+
   @Get('gmail/error')
   gmailError(@Res() res: Response) {
     // Simple HTML response for error
