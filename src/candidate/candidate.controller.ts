@@ -11,7 +11,8 @@ import {
   Res,
   UseInterceptors,
   UploadedFiles,
-  Query,HttpException
+  Query,HttpException,
+  Req
 
 } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
@@ -22,7 +23,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/s
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { isExplicitFalse } from 'src/util/boolean.utils';
+import { isExplicitFalse,validEmail } from 'src/util/boolean.utils';
 import { AuthGuard } from '../auth/auth.guard';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -668,28 +669,89 @@ async getAll(
   }
 
     // @UseGuards(AuthGuard)
-  @Get("syncCall/:id")
-  @ApiOperation({ summary: 'Get conversations by candidate Id' })
-  @ApiParam({ name: 'id', type: Number })
-  @ApiResponse({ status: 200, description: 'Get conversations Deatils successfully' })
-  @ApiResponse({ status: 404, description: 'conversations not found' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  async syncCall(
-    @Param('id') id: number,
-    @Res() res?: Response
-  ) {  try {
-      const accessToken = await this.gmailService.getAccessToken();
-      const conversations = await this.gmailService.connectToGmail(
-        accessToken,
-        process.env.GMAIL_EMAIL!
-      );
-      return conversations
-    } catch (error) {
-      throw new HttpException(
-        error?.response || { message: error?.message || 'Internal server error' },
-        error?.status || HttpStatus.INTERNAL_SERVER_ERROR
-      );
+  // @Get("syncCall/:id")
+  // @ApiOperation({ summary: 'Get conversations by candidate Id' })
+  // @ApiParam({ name: 'id', type: Number })
+  // @ApiResponse({ status: 200, description: 'Get conversations Deatils successfully' })
+  // @ApiResponse({ status: 404, description: 'conversations not found' })
+  // @ApiResponse({ status: 500, description: 'Internal server error' })
+  // async syncCall(
+  //   @Param('id') id: number,
+  //   @Res() res?: Response
+  // ) {  try {
+  //   await this.gmailService.startSyncJob(id);
+  //    return {
+  //   status: true,
+  //   message: 'Email sync started, will run for 5 minutes in background',
+  // };
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       error?.response || { message: error?.message || 'Internal server error' },
+  //       error?.status || HttpStatus.INTERNAL_SERVER_ERROR
+  //     );
+  //   }
+  // }
+
+
+  @Get('sync/:id')
+  async syncEmail(@Param('id') id: number, @Res() res) {
+    const userId = id;
+    const existing = await this.gmailService.getUserToken(userId);
+    if (!existing?.email || !validEmail(existing.email)) {
+      return res.status(400).json({
+        status: false,
+        message: 'Invalid or non-Gmail address of the recruiter',
+      });
     }
+
+    if (!existing?.google_access_token || !existing?.google_refresh_token) {
+      const authUrl = this.gmailService.getGoogleAuthUrl(existing.id);
+      return res.redirect(authUrl);
+    }
+    await this.gmailService.ensureValidToken(existing.id, existing);
+    const inbox = await this.gmailService.syncEmail(existing.id);
+    this.gmailService. startSyncJobAlter(Number(existing.id));
+    return res.json({
+      status: true,
+      message: 'Email sync started, will run for 5 minutes in background',
+      inbox,
+    });
+  }
+
+@Get('gmail/callback')
+async googleCallback(@Query('code') code: string, @Query('state') state: string, @Res() res) {
+  try {
+    // Decode userId from state (we set it earlier in getGoogleAuthUrl)
+    const { userId } = JSON.parse(state);
+    // Exchange code for tokens
+    const tokens = await this.gmailService.handleOAuthCallback(code, userId);
+    // Redirect user to frontend success page
+    return res.redirect(`${process.env.FRONTEND_URL}/candidates`);
+  } catch (err) {
+    return res.redirect(`${process.env.FRONTEND_URL}/gmail/error`);
+  }
+}
+  @Get('gmail/error')
+  gmailError(@Res() res: Response) {
+    // Simple HTML response for error
+    return res.status(400).send(`
+      <html>
+        <head>
+          <title>Gmail OAuth Error</title>
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+            h1 { color: #d9534f; }
+            p { font-size: 16px; }
+            a { text-decoration: none; color: #0275d8; }
+          </style>
+        </head>
+        <body>
+          <h1>Gmail OAuth Error</h1>
+          <p>Something went wrong while connecting your Gmail account.</p>
+          <p>Please <a href="/">try again</a>.</p>
+        </body>
+      </html>
+    `);
   }
 
 

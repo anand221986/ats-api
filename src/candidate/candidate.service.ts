@@ -30,7 +30,7 @@ export class CandidateService {
   ) {
     // initialize transporter inside constructor
     this.transporter = nodemailer.createTransport({
-      host: 'email-smtp.us-east-1.amazonaws.com', // or your SMTP provider
+      host: 'email-smtp.eu-north-1.amazonaws.com', // or your SMTP provider
       port: 587,
       secure: false, // true for 465, false for 587
       auth: {
