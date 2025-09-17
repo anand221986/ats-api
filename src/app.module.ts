@@ -37,6 +37,9 @@ import { AgencyService } from './agency/agnecy.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { IMailService } from './util/mail.service';
 import { GmailImapService } from './util/gmail-imap.service';
+import { PagesController } from './pages/pages.controller';
+import { PageService} from './pages/pages.service';
+
 
 
 
@@ -56,8 +59,8 @@ import { GmailImapService } from './util/gmail-imap.service';
         },
       },
     }),WhatsappModule],
-  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController,AgencyController],
-  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService,AgencyService,IMailService,GmailImapService],
+  controllers: [AppController,CommonController,UserController,JobsController,CandidateController,AuthController,ClientController,LinkedinController,ResumesController,SettingsController,AgencyController,PagesController],
+  providers: [AppService,CommonService,UtilService,DbService,ErrorLoggerService,AesService,AuthService,JwtService,UserService,JobsService,CandidateService,AuthService,ClientService,LinkedinService,EmailService,ResumesService,ActivityService,SettingService,MailService,WhatsappService,AgencyService,IMailService,GmailImapService,PageService],
 })
 //with middle ware 
 //without export class AppModule
