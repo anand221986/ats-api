@@ -39,18 +39,17 @@ export class TestimonialService {
     try {
       const query = `
         INSERT INTO testimonials 
-        (title, slug, content, meta_title, meta_description, meta_keywords, og_title, og_description, og_image, status, created_at, updated_at)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),NOW())
+        (message,author_name,author_designation,company,star_rating)
+        VALUES ($1,$2,$3,$4,$5)
         RETURNING *;
       `;
-      const values = [
-        dto.message,
-        dto.authorName,
-        dto.authorDesignation || null,
-        dto.company || null,
-        dto.starRating || null,
-
-      ];
+   const values = [
+  dto.message, // message
+  dto.author_name || 'Admin', // Default author_name to 'Admin' if not provided
+  dto.author_designation || '', // Default to empty string if not provided
+  dto.company || null, // Use null if company is not provided
+  dto.star_rating || null, // Use null if star_rating is not provided
+];
 
       const result = await this.dbService.executeQuery(query, values);
       return this.utilService.successResponse(result[0], 'testimonials Add Successfully.');
@@ -61,39 +60,47 @@ export class TestimonialService {
   }
 
   // 📌 Update Page
-  async updateTestimonial(id: number, dto: UpdateTestimonialDto) {
-    try {
-      const query = `
-        UPDATE testimonials 
-        SET title = $1,
-            slug = $2,
-            content = $3,
-            meta_title = $4,
-            meta_description = $5,
-            meta_keywords = $6,
-            og_title = $7,
-            og_description = $8,
-            og_image = $9,
-            status = $10,
-            updated_at = NOW()
-        WHERE id = $11
-        RETURNING *;
-      `;
-      const values = [
-        dto.message,
-        dto.authorName,
-        dto.authorDesignation || null,
-        dto.company || null,
-        dto.starRating || null,
-      ];
+ async updateTestimonial(id: number, dto: UpdateTestimonialDto) {
+  try {
+    const query = `
+      UPDATE testimonials 
+      SET message = $1,
+          author_name = $2,
+          author_designation = $3,
+          company = $4,
+          star_rating = $5,
+          updated_at = NOW()
+      WHERE id = $6
+      RETURNING *;
+    `;
+
+    const values = [
+      dto.message,                       // message
+      dto.author_name || 'Admin',        // default to 'Admin'
+      dto.author_designation || '',      // default empty string
+      dto.company || null,               // null if not provided
+      dto.star_rating || null,           // null if not provided
+      id,                                // where id = $6
+    ];
+
     const result = await this.dbService.executeQuery(query, values);
-      return this.utilService.successResponse(result[0], 'testimonials updated Successfully.');
-      return result[0];
-    } catch (error) {
-      console.error(`Error updating page with ID ${id}:`, error);
-      throw error instanceof NotFoundException ? error : new InternalServerErrorException('Failed to update testimonials');
+
+    if (!result.length) {
+      throw new NotFoundException(`Testimonial with ID ${id} not found`);
     }
+
+    return this.utilService.successResponse(
+      result[0],
+      'Testimonial updated successfully.'
+    );
+  } catch (error) {
+    console.error(`Error updating testimonial with ID ${id}:`, error);
+    throw error instanceof NotFoundException
+      ? error
+      : new InternalServerErrorException('Failed to update testimonial');
   }
+}
+
 
   // 📌 Delete Page
   async deleteTestimonial(id: number) {
