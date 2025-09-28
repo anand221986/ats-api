@@ -1,6 +1,6 @@
 // import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { IsArray, IsInt, IsString, IsNotEmpty } from 'class-validator';
+import { IsArray, IsInt, IsString, IsNotEmpty,IsEmail } from 'class-validator';
 
 export class CreateClientDto {
   name: string;
@@ -34,5 +34,31 @@ export class CreateClientCandidatePitchDto {
 
   @IsString()
   @IsNotEmpty()
+  message: string;
+}
+
+export class HireTalentDto {
+  @IsString()
+  @IsNotEmpty({ message: 'First name is required' })
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Last name is required' })
+  lastName: string;
+  company:string;
+
+  @IsEmail({}, { message: 'Invalid email address' })
+  email: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Phone number is required' })
+  phone: string;
+ 
+  @IsString()
+  @IsNotEmpty({ message: 'Role to hire is required' })
+  role: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Message is required' })
   message: string;
 }

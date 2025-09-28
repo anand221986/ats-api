@@ -1,6 +1,6 @@
 // jobs.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateClientDto, UpdateClientDto, CreateClientCandidatePitchDto } from './client.service.dto';
+import { CreateClientDto, UpdateClientDto, CreateClientCandidatePitchDto,HireTalentDto } from './client.service.dto';
 import { DbService } from "../db/db.service";
 import { UtilService } from "../util/util.service";
 
@@ -153,6 +153,26 @@ export class ClientService {
         catch (error) {
             console.error('get pitched candidate Error:', error);
             throw new Error(error)
+        }
+    }
+
+    //prime client 
+    async createPClient(dto:HireTalentDto) {
+        try {
+            const setData = [
+                { set: 'name', value: String(dto.firstName + ' ' + (dto.lastName ?? '')) },
+                { set: 'email', value: String(dto.email ?? '') },
+                { set: 'phone', value: String(dto.phone ?? '') },
+                { set: 'company_name', value: String(dto.company ?? '') },
+                { set: 'role_to_hire', value: String(dto.role ?? '') },
+                { set: 'message', value: String(dto.message ?? '') },
+                { set: 'client_type', value: String('Prime') },
+            ];
+            const insertion = await this.dbService.insertData('client', setData);
+            return this.utilService.successResponse(insertion, 'Client created successfully.');
+        } catch (error) {
+            console.error('Create client Error:', error);
+            throw new Error('Failed to create client. Please ensure all fields are valid and meet constraints.');
         }
     }
 

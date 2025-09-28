@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { Response } from 'express';
-import { CreateClientDto, UpdateClientDto, CreateClientCandidatePitchDto } from './client.service.dto';
+import { CreateClientDto, UpdateClientDto, CreateClientCandidatePitchDto,HireTalentDto } from './client.service.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 @Controller('client')
@@ -127,4 +127,31 @@ async getByClient(@Param('id') clientId: number, @Res() res: Response) {
  const pitchedCandidate= this.candidateService.getPitchesByClient(clientId);
    return res.status(HttpStatus.OK).json(pitchedCandidate);
 }
+
+
+@Post("hire-talent")
+  @ApiOperation({ summary: 'Hire New Talent' })
+  @ApiBody({ type: HireTalentDto })
+  async hireTalent(@Body() body: HireTalentDto, @Res() res: Response) {
+    try {
+      const result = await this.candidateService.createPClient(body);
+      return res.status(HttpStatus.CREATED).json(result);
+    } catch (error) {
+      console.error('Create Talent error:', error);
+      // Check for duplicate email
+      if (error.message.includes('already exists')) {
+        return res.status(HttpStatus.CONFLICT).json({
+          statusCode: HttpStatus.CONFLICT,
+          message: error.message,
+        });
+      }
+
+      // Default to bad request
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Failed to create Talent.',
+        error: error.message,
+      });
+    }
+  }
 }
