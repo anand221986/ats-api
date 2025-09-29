@@ -341,4 +341,32 @@ async runPythonScriptWithSpawn(pdfPath: string): Promise<any> {
     this.jobsCache = null;
   }
 
+  //getAllFeaturedJobs
+
+   // getAllFeaturedJobs
+async getAllFeaturedJobs() {
+  const now = Date.now();
+
+  if (this.jobsCache && now - this.jobsCache.timestamp < this.CACHE_TTL) {
+    return this.utilService.successResponse(
+      this.jobsCache.data,
+      "Jobs list retrieved successfully (from cache)."
+    );
+  }
+
+  const query = `SELECT job_title,employment_type,salary_from,salary_to,salary_currency,company FROM jobs ORDER BY id DESC LIMIT 6;`;
+  const jobs = await this.dbService.execute(query);
+
+  this.jobsCache = {
+    data: jobs,
+    timestamp: now,
+  };
+
+  return this.utilService.successResponse(
+    jobs,
+    "Jobs list retrieved successfully."
+  );
+}
+
+
 }

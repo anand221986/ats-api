@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import helmet from 'helmet';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
@@ -35,6 +36,8 @@ async function bootstrap() {
       'http://10.10.134.213',
       'http://13.51.235.31',
       'http://16.171.117.2',
+      'http://13.48.241.99',
+      'http://www.xbeeshire.com'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

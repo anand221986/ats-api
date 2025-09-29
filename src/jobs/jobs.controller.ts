@@ -37,31 +37,51 @@ export class JobsController {
     const job = await this.jobsService.createJob(body);
     return res.status(HttpStatus.CREATED).json(job);
   }
-@Get("getAllJobs")
-@ApiOperation({ summary: 'Get all jobs' })
-async getAll(
-  @Query('agency_id') agencyId?: string,
-  @Res() res?: Response
-) {
-  try {
-    console.log(agencyId)
-    const jobs = await this.jobsService.getAllJobs(agencyId);
+  @Get("getAllJobs")
+  @ApiOperation({ summary: 'Get all jobs' })
+  async getAll(
+    @Query('agency_id') agencyId?: string,
+    @Res() res?: Response
+  ) {
+    try {
+      console.log(agencyId)
+      const jobs = await this.jobsService.getAllJobs(agencyId);
 
-    if (res) {
-      return res.status(HttpStatus.OK).json(jobs);
-    }
+      if (res) {
+        return res.status(HttpStatus.OK).json(jobs);
+      }
 
-    return jobs; // Nest will handle the response automatically if @Res() is not used
-  } catch (error) {
-    if (res) {
-      return res
-        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(error.response || { message: error.message });
+      return jobs; // Nest will handle the response automatically if @Res() is not used
+    } catch (error) {
+      if (res) {
+        return res
+          .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+          .json(error.response || { message: error.message });
+      }
+      throw error; // Let Nest handle the error
     }
-    throw error; // Let Nest handle the error
   }
-}
 
+  @Get("featured-job")
+  @ApiOperation({ summary: 'Get featured jobs' })
+  async getFeatured(
+    @Res() res?: Response
+  ) {
+    try {
+      const jobs = await this.jobsService.getAllFeaturedJobs();
+      if (res) {
+        return res.status(HttpStatus.OK).json(jobs);
+      }
+      return jobs; // Nest will handle the response automatically if @Res() is not used
+    } catch (error) {
+      if (res) {
+        return res
+          .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+          .json(error.response || { message: error.message });
+      }
+      throw error; // Let Nest handle the error
+    }
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get job by ID' })
@@ -189,4 +209,8 @@ async getAll(
       });
     }
   }
+
+  //featured-job
+
+
 }
